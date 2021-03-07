@@ -17,4 +17,4 @@ class ModConfig(AppConfig):
         from stats import stats_whore as old_stats_whore
 
         old_stats_whore.main = stats_whore.main
-        old_stats_whore.update_sortie = stats_whore.update_sortie
+        old_stats_whore.stats_whore = stats_whore.stats_whore

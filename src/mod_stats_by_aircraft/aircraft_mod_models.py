@@ -26,7 +26,7 @@ class AircraftBucket(models.Model):
     pilot_survivability = models.FloatField(default=0, db_index=True)
     plane_lethality = models.FloatField(default=0, db_index=True)
     pilot_lethality = models.FloatField(default=0, db_index=True)
-    elo = models.IntegerField(default=1000, db_index=True)
+    elo = models.IntegerField(default=1500, db_index=True)
     rating = models.IntegerField(default=0, db_index=True)
     # ========================= SORTABLE FIELDS END
 
@@ -121,8 +121,10 @@ class AircraftKillboard(models.Model):
     # ========================= NATURAL KEY END
 
     aircraft_1_kills = models.BigIntegerField(default=0)
+    aircraft_1_shotdown = models.BigIntegerField(default=0) # Nr times aircraft 1 shot down aircraft 2
     aircraft_1_assists = models.BigIntegerField(default=0)
     aircraft_2_kills = models.BigIntegerField(default=0)
+    aircraft_2_shotdown = models.BigIntegerField(default=0) # Nr times aircraft 2 shot down aircraft 1
     aircraft_2_assists = models.BigIntegerField(default=0)
 
     # These two count how many times aircraft_x hit aircraft_y at least once in a sortie.

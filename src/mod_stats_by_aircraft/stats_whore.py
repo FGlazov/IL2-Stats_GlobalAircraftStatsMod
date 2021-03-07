@@ -1,17 +1,38 @@
 import time
 from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, update_status, update_general,
-                               update_ammo, update_killboard)
+                               update_ammo, update_killboard, update_killboard_pvp, create_new_sortie, backup_log,
+                               get_tour, update_fairplay, update_bonus_score, update_sortie, create_profiles)
+from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
 from stats.online import update_online
+from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score
 from users.utils import cleanup_registration
 from django.conf import settings
+from django.db.models import Q
 from core import __version__
 from . import aircraft_mod_models
 import sys
 import django
+import pytz
+from datetime import datetime, timedelta
+from types import MappingProxyType
+from mission_report.report import MissionReport
+from mission_report.statuses import LifeStatus
+from collections import defaultdict
+from django.db import transaction
+import operator
 
-
+MISSION_REPORT_BACKUP_PATH = settings.MISSION_REPORT_BACKUP_PATH
+MISSION_REPORT_BACKUP_DAYS = settings.MISSION_REPORT_BACKUP_DAYS
+MISSION_REPORT_DELETE = settings.MISSION_REPORT_DELETE
 MISSION_REPORT_PATH = settings.MISSION_REPORT_PATH
+NEW_TOUR_BY_MONTH = settings.NEW_TOUR_BY_MONTH
+TIME_ZONE = pytz.timezone(settings.MISSION_REPORT_TZ)
+
+WIN_BY_SCORE = settings.WIN_BY_SCORE
+WIN_SCORE_MIN = settings.WIN_SCORE_MIN
+WIN_SCORE_RATIO = settings.WIN_SCORE_RATIO
+SORTIE_MIN_TIME = settings.SORTIE_MIN_TIME
 
 
 def main():
@@ -79,131 +100,254 @@ def main():
         time.sleep(30)
 
 
-def update_sortie(new_sortie, player_mission, player_aircraft, vlife):
-    player = new_sortie.player
+@transaction.atomic
+def stats_whore(m_report_file):
+    """
+    :type m_report_file: Path
+    """
+    mission_timestamp = int(time.mktime(time.strptime(m_report_file.name[14:-8], '%Y-%m-%d_%H-%M-%S')))
 
-    if not player.date_first_sortie:
-        player.date_first_sortie = new_sortie.date_start
-        player.date_last_combat = new_sortie.date_start
-    player.date_last_sortie = new_sortie.date_start
-
-    if not vlife.date_first_sortie:
-        vlife.date_first_sortie = new_sortie.date_start
-        vlife.date_last_combat = new_sortie.date_start
-    vlife.date_last_sortie = new_sortie.date_start
-
-    # если вылет был окончен диско - результаты вылета не добавляться к общему профилю
-    if new_sortie.is_disco:
-        player.disco += 1
-        player_mission.disco += 1
-        player_aircraft.disco += 1
-        vlife.disco += 1
+    if Mission.objects.filter(timestamp=mission_timestamp).exists():
+        logger.info('{mission} - exists in the DB'.format(mission=m_report_file.stem))
         return
-    # если вылет игнорируется по каким либо причинам
-    elif new_sortie.is_ignored:
-        return
+    logger.info('{mission} - processing new report'.format(mission=m_report_file.stem))
 
-    # если в вылете было что-то уничтожено - считаем его боевым
-    if new_sortie.score:
-        player.date_last_combat = new_sortie.date_start
-        vlife.date_last_combat = new_sortie.date_start
+    m_report_files = collect_mission_reports(m_report_file=m_report_file)
 
-    vlife.status = new_sortie.status
-    vlife.aircraft_status = new_sortie.aircraft_status
-    vlife.bot_status = new_sortie.bot_status
+    real_date = TIME_ZONE.localize(datetime.fromtimestamp(mission_timestamp))
+    real_date = real_date.astimezone(pytz.UTC)
 
-    # TODO проверить как это отработает для вылетов стрелков
-    if not new_sortie.is_not_takeoff:
-        player.sorties_coal[new_sortie.coalition] += 1
-        player_mission.sorties_coal[new_sortie.coalition] += 1
-        vlife.sorties_coal[new_sortie.coalition] += 1
+    objects = MappingProxyType({obj['log_name']: obj for obj in Object.objects.values()})
+    # classes = MappingProxyType({obj['cls']: obj['cls_base'] for obj in objects.values()})
+    score_dict = MappingProxyType({s.key: s.get_value() for s in Score.objects.all()})
 
-        if player.squad:
-            player.squad.sorties_coal[new_sortie.coalition] += 1
+    m_report = MissionReport(objects=objects)
+    m_report.processing(files=m_report_files)
 
-        if new_sortie.aircraft.cls_base == 'aircraft':
-            if new_sortie.aircraft.cls in player.sorties_cls:
-                player.sorties_cls[new_sortie.aircraft.cls] += 1
+    backup_log(name=m_report_file.name, lines=m_report.lines, date=real_date)
+
+    if not m_report.is_correctly_completed:
+        logger.info('{mission} - mission has not been completed correctly'.format(mission=m_report_file.stem))
+
+    tour = get_tour(date=real_date)
+
+    mission = Mission.objects.create(
+        tour_id=tour.id,
+        name=m_report.file_path.replace('\\', '/').split('/')[-1].rsplit('.', 1)[0],
+        path=m_report.file_path,
+        date_start=real_date,
+        date_end=real_date + timedelta(seconds=m_report.tik_last // 50),
+        duration=m_report.tik_last // 50,
+        timestamp=mission_timestamp,
+        preset=m_report.preset_id,
+        settings=m_report.settings,
+        is_correctly_completed=m_report.is_correctly_completed,
+        score_dict=dict(score_dict),
+    )
+    if m_report.winning_coal_id:
+        mission.winning_coalition = m_report.winning_coal_id
+        mission.win_reason = 'task'
+        mission.save()
+
+    # собираем/создаем профили игроков и сквадов
+    profiles, players_pilots, players_gunners, players_tankmans, squads = create_profiles(tour=tour,
+                                                                                          sorties=m_report.sorties)
+
+    players_aircraft = defaultdict(dict)
+    players_mission = {}
+    players_killboard = {}
+
+    coalition_score = {1: 0, 2: 0}
+    new_sorties = []
+    for sortie in m_report.sorties:
+        sortie_aircraft_id = objects[sortie.aircraft_name]['id']
+        profile = profiles[sortie.account_id]
+        if sortie.cls_base == 'aircraft':
+            player = players_pilots[sortie.account_id]
+        elif sortie.cls == 'aircraft_turret':
+            player = players_gunners[sortie.account_id]
+        elif sortie.cls in ('tank_light', 'tank_heavy', 'tank_medium', 'tank_turret'):
+            player = players_tankmans[sortie.account_id]
+        else:
+            continue
+
+        squad = squads[profile.squad_id] if profile.squad else None
+        player.squad = squad
+
+        new_sortie = create_new_sortie(mission=mission, sortie=sortie, profile=profile, player=player,
+                                       sortie_aircraft_id=sortie_aircraft_id)
+        update_fairplay(new_sortie=new_sortie)
+        update_bonus_score(new_sortie=new_sortie)
+
+        # не добавляем очки в сумму если было диско
+        if not new_sortie.is_disco:
+            coalition_score[new_sortie.coalition] += new_sortie.score
+
+        new_sorties.append(new_sortie)
+        # добавляем ссылку на запись в базе к объекту вылета, чтобы использовать в добавлении событий вылета
+        sortie.sortie_db = new_sortie
+
+    if not mission.winning_coalition and WIN_BY_SCORE:
+        _coalition = sorted(coalition_score.items(), key=operator.itemgetter(1), reverse=True)
+        max_coal, max_score = _coalition[0]
+        min_coal, min_score = _coalition[1]
+        # минимальное кол-во очков = 1
+        min_score = min_score or 1
+        if max_score >= WIN_SCORE_MIN and max_score / min_score >= WIN_SCORE_RATIO:
+            mission.winning_coalition = max_coal
+            mission.win_reason = 'score'
+            mission.save()
+
+    for new_sortie in new_sorties:
+        _player_id = new_sortie.player.id
+        _profile_id = new_sortie.profile.id
+
+        player_mission = players_mission.setdefault(
+            _player_id,
+            PlayerMission.objects.get_or_create(profile_id=_profile_id, player_id=_player_id, mission_id=mission.id)[0]
+        )
+
+        player_aircraft = players_aircraft[_player_id].setdefault(
+            new_sortie.aircraft.id,
+            PlayerAircraft.objects.get_or_create(profile_id=_profile_id, player_id=_player_id,
+                                                 aircraft_id=new_sortie.aircraft.id)[0]
+        )
+
+        vlife = VLife.objects.get_or_create(profile_id=_profile_id, player_id=_player_id, tour_id=tour.id, relive=0)[0]
+
+        # если случилась победа по очкам - требуется обновить бонусы
+        if mission.win_reason == 'score':
+            update_bonus_score(new_sortie=new_sortie)
+
+        update_sortie(new_sortie=new_sortie, player_mission=player_mission, player_aircraft=player_aircraft,
+                      vlife=vlife)
+        reward_sortie(sortie=new_sortie)
+
+        vlife.save()
+        reward_vlife(vlife)
+
+        new_sortie.vlife_id = vlife.id
+        new_sortie.save()
+
+    # ===============================================================================
+    mission.players_total = len(profiles)
+    mission.pilots_total = len(players_pilots)
+    mission.gunners_total = len(players_gunners)
+    mission.save()
+
+    for p in profiles.values():
+        p.save()
+
+    for p in players_pilots.values():
+        p.save()
+        reward_tour(player=p)
+
+    for p in players_gunners.values():
+        p.save()
+
+    for p in players_tankmans.values():
+        p.save()
+
+    for aircrafts in players_aircraft.values():
+        for a in aircrafts.values():
+            a.save()
+
+    for p in players_mission.values():
+        p.save()
+        reward_mission(player_mission=p)
+
+    for s in squads.values():
+        s.save()
+
+    tour.save()
+
+    for event in m_report.log_entries:
+        params = {
+            'mission_id': mission.id,
+            'date': real_date + timedelta(seconds=event['tik'] // 50),
+            'tik': event['tik'],
+            'extra_data': {
+                'pos': event.get('pos'),
+            },
+        }
+        if event['type'] == 'respawn':
+            params['type'] = 'respawn'
+            params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
+            params['act_sortie_id'] = event['sortie'].sortie_db.id
+        elif event['type'] == 'end':
+            params['type'] = 'end'
+            params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
+            params['act_sortie_id'] = event['sortie'].sortie_db.id
+        elif event['type'] == 'takeoff':
+            params['type'] = 'takeoff'
+            params['act_object_id'] = event['aircraft'].sortie.sortie_db.aircraft.id
+            params['act_sortie_id'] = event['aircraft'].sortie.sortie_db.id
+        elif event['type'] == 'landed':
+            params['act_object_id'] = event['aircraft'].sortie.sortie_db.aircraft.id
+            params['act_sortie_id'] = event['aircraft'].sortie.sortie_db.id
+            if event['is_rtb'] and not event['is_killed']:
+                params['type'] = 'landed'
             else:
-                player.sorties_cls[new_sortie.aircraft.cls] = 1
-
-            if new_sortie.aircraft.cls in vlife.sorties_cls:
-                vlife.sorties_cls[new_sortie.aircraft.cls] += 1
-            else:
-                vlife.sorties_cls[new_sortie.aircraft.cls] = 1
-
-            if player.squad:
-                if new_sortie.aircraft.cls in player.squad.sorties_cls:
-                    player.squad.sorties_cls[new_sortie.aircraft.cls] += 1
+                if event['status'] == LifeStatus.destroyed:
+                    params['type'] = 'crashed'
                 else:
-                    player.squad.sorties_cls[new_sortie.aircraft.cls] = 1
+                    params['type'] = 'ditched'
+        elif event['type'] == 'bailout':
+            params['type'] = 'bailout'
+            params['act_object_id'] = event['bot'].sortie.sortie_db.aircraft.id
+            params['act_sortie_id'] = event['bot'].sortie.sortie_db.id
+        elif event['type'] == 'damage':
+            params['extra_data']['damage'] = event['damage']
+            params['extra_data']['is_friendly_fire'] = event['is_friendly_fire']
+            if event['target'].cls_base == 'crew':
+                params['type'] = 'wounded'
+            else:
+                params['type'] = 'damaged'
+            if event['attacker']:
+                if event['attacker'].sortie:
+                    params['act_object_id'] = event['attacker'].sortie.sortie_db.aircraft.id
+                    params['act_sortie_id'] = event['attacker'].sortie.sortie_db.id
+                else:
+                    params['act_object_id'] = objects[event['attacker'].log_name]['id']
+            if event['target'].sortie:
+                params['cact_object_id'] = event['target'].sortie.sortie_db.aircraft.id
+                params['cact_sortie_id'] = event['target'].sortie.sortie_db.id
+            else:
+                params['cact_object_id'] = objects[event['target'].log_name]['id']
+        elif event['type'] == 'kill':
+            params['extra_data']['is_friendly_fire'] = event['is_friendly_fire']
+            if event['target'].cls_base == 'crew':
+                params['type'] = 'killed'
+            elif event['target'].cls_base == 'aircraft':
+                params['type'] = 'shotdown'
+            else:
+                params['type'] = 'destroyed'
+            if event['attacker']:
+                if event['attacker'].sortie:
+                    params['act_object_id'] = event['attacker'].sortie.sortie_db.aircraft.id
+                    params['act_sortie_id'] = event['attacker'].sortie.sortie_db.id
+                else:
+                    params['act_object_id'] = objects[event['attacker'].log_name]['id']
+            if event['target'].sortie:
+                params['cact_object_id'] = event['target'].sortie.sortie_db.aircraft.id
+                params['cact_sortie_id'] = event['target'].sortie.sortie_db.id
+            else:
+                params['cact_object_id'] = objects[event['target'].log_name]['id']
 
-    update_general(player=player, new_sortie=new_sortie)
-    update_general(player=player_mission, new_sortie=new_sortie)
-    update_general(player=player_aircraft, new_sortie=new_sortie)
-    update_general(player=vlife, new_sortie=new_sortie)
-    if player.squad:
-        update_general(player=player.squad, new_sortie=new_sortie)
+        l = LogEntry.objects.create(**params)
+        if l.type == 'shotdown' and l.act_sortie and l.cact_sortie and not l.act_sortie.is_disco and not l.extra_data.get(
+                'is_friendly_fire'):
+            update_killboard_pvp(player=l.act_sortie.player, opponent=l.cact_sortie.player,
+                                 players_killboard=players_killboard)
 
-    update_ammo(sortie=new_sortie, player=player)
-    update_ammo(sortie=new_sortie, player=player_mission)
-    update_ammo(sortie=new_sortie, player=player_aircraft)
-    update_ammo(sortie=new_sortie, player=vlife)
-
-    update_killboard(player=player, killboard_pvp=new_sortie.killboard_pvp,
-                     killboard_pve=new_sortie.killboard_pve)
-    update_killboard(player=player_mission, killboard_pvp=new_sortie.killboard_pvp,
-                     killboard_pve=new_sortie.killboard_pve)
-    update_killboard(player=player_aircraft, killboard_pvp=new_sortie.killboard_pvp,
-                     killboard_pve=new_sortie.killboard_pve)
-    update_killboard(player=vlife, killboard_pvp=new_sortie.killboard_pvp,
-                     killboard_pve=new_sortie.killboard_pve)
-
-    player.streak_current = vlife.ak_total
-    player.streak_max = max(player.streak_max, player.streak_current)
-    player.streak_ground_current = vlife.gk_total
-    player.streak_ground_max = max(player.streak_ground_max, player.streak_ground_current)
-    player.score_streak_current = vlife.score
-    player.score_streak_current_heavy = vlife.score_heavy
-    player.score_streak_current_medium = vlife.score_medium
-    player.score_streak_current_light = vlife.score_light
-    player.score_streak_max = max(player.score_streak_max, player.score_streak_current)
-    player.score_streak_max_heavy = max(player.score_streak_max_heavy, player.score_streak_current_heavy)
-    player.score_streak_max_medium = max(player.score_streak_max_medium, player.score_streak_current_medium)
-    player.score_streak_max_light = max(player.score_streak_max_light, player.score_streak_current_light)
-
-    player.sorties_streak_current = vlife.sorties_total
-    player.sorties_streak_max = max(player.sorties_streak_max, player.sorties_streak_current)
-    player.ft_streak_current = vlife.flight_time
-    player.ft_streak_max = max(player.ft_streak_max, player.ft_streak_current)
-
-    if new_sortie.is_relive:
-        player.streak_current = 0
-        player.streak_ground_current = 0
-        player.score_streak_current = 0
-        player.score_streak_current_heavy = 0
-        player.score_streak_current_medium = 0
-        player.score_streak_current_light = 0
-        player.sorties_streak_current = 0
-        player.ft_streak_current = 0
-        player.lost_aircraft_current = 0
-    else:
-        if new_sortie.is_lost_aircraft:
-            player.lost_aircraft_current += 1
-
-    player.sortie_max_ak = max(player.sortie_max_ak, new_sortie.ak_total)
-    player.sortie_max_gk = max(player.sortie_max_gk, new_sortie.gk_total)
-
-    update_status(new_sortie=new_sortie, player=player)
-    update_status(new_sortie=new_sortie, player=player_mission)
-    update_status(new_sortie=new_sortie, player=player_aircraft)
-    update_status(new_sortie=new_sortie, player=vlife)
-    if player.squad:
-        update_status(new_sortie=new_sortie, player=player.squad)
+    for p in players_killboard.values():
+        p.save()
 
     # ======================== MODDED PART BEGIN
-    process_aircraft_stats(new_sortie)
+    for sortie in new_sorties:
+        process_aircraft_stats(sortie)
     # ======================== MODDED PART END
+    logger.info('{mission} - processing finished'.format(mission=m_report_file.stem))
 
 
 # ======================== MODDED PART BEGIN
@@ -216,9 +360,11 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
     return True
 
 
+# This should be run after the other objects have been saved, otherwise it will not work.
 def process_aircraft_stats(sortie):
     if not sortie.aircraft.cls_base == "aircraft":
         return
+    print("Begin process")
 
     bucket = (aircraft_mod_models.AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
     if not sortie.is_not_takeoff:
@@ -271,13 +417,97 @@ def process_aircraft_stats(sortie):
         else:
             bucket.killboard_ground[key] = value
 
-    # TODO: Update bucket.times_hit_shotdown (if possible)
+    events = (LogEntry.objects
+              .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
+              .filter(Q(act_sortie_id=sortie.id) | Q(cact_sortie_id=sortie.id),
+                      Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
+                      act_object__cls_base='aircraft', cact_object__cls_base='aircraft'))
+
+    enemies_damaged = set()
+    enemies_shotdown = set()
+    enemies_killed = set()
+
+    # TODO: See if this is actually needed. Seems to me only half of this is required, since other half will be implicitily filed in by sortie from the other side.
+    damaged_by = set()
+    # Technically these following two need not be sets, but for code consistency we keep them like this.
+    # (Can only be shotdown/killed by one enemy per sortie)
+    shotdown_by = set()
+    killed_by = set()
+
+    for event in events:
+        if event.act_sortie_id == sortie.id:  # We did the damaging/shooting down/killing
+            enemy_plane_sortie_pair = (event.cact_object, event.cact_sortie_id)
+            if event.type == 'damaged':
+                enemies_damaged.add(enemy_plane_sortie_pair)
+            elif event.type == 'shotdown':
+                enemies_shotdown.add(enemy_plane_sortie_pair)
+            elif event.type == 'killed':
+                enemies_killed.add(enemy_plane_sortie_pair)
+        else:  # The enemy plane damaged us/shot us down/killed us
+            enemy_plane_sortie_pair = (event.act_object, event.act_sortie_id)
+            if event.type == 'damaged':
+                damaged_by.add(enemy_plane_sortie_pair)
+            elif event.type == 'shotdown':
+                shotdown_by.add(enemy_plane_sortie_pair)
+            elif event.type == 'killed':
+                killed_by.add(enemy_plane_sortie_pair)
+
+    updated_killboards = set()
+    for damaged_enemy in enemies_damaged:
+        enemy_sortie = damaged_enemy[1]
+        kb = get_killboard(damaged_enemy, sortie)
+        updated_killboards.add(kb)
+        if kb.aircraft_1 == sortie.aircraft:
+            kb.aircraft_1_distinct_hits += 1
+            if enemy_sortie.is_shotdown and damaged_enemy not in shotdown_by:
+                kb.aircraft_1_assists += 1
+        else:
+            kb.aircraft_2_distinct_hits += 1
+            if enemy_sortie.is_shotdown and damaged_enemy not in shotdown_by:
+                kb.aircraft_2_assists += 1
+
+    for shotdown_enemy in enemies_shotdown:
+        kb = get_killboard(shotdown_enemy, sortie)
+        updated_killboards.add(kb)
+        if kb.aircraft_1 == sortie.aircraft:
+            kb.aircraft_1_shotdown += 1
+        else:
+            kb.aircraft_2_shotdown += 1
+
+    for killed_enemy in enemies_killed:
+        kb = get_killboard(killed_enemy, sortie)
+        updated_killboards.add(kb)
+        if kb.aircraft_1 == sortie.aircraft:
+            kb.aircraft_1_kills += 1
+        else:
+            kb.aircraft_2_kills += 1
+
+    for updated_killboard in updated_killboards:
+        updated_killboard.save()
+
+    # TODO: Update bucket.times_hit_shotdown (if possible, otherwise remove)
     # TODO: Update bucket.plane_lethality_counter and bucket.pilot_lethality_counter
     # TODO: Update bucket.distinct_enemies hit and bucket.pilot_kills.
     # TODO: Update bucket.elo
     bucket.update_derived_fields()
     bucket.save()
 
+    # TODO: Save SortieAugmentation.
+
     # TODO: Remove this print (used for debugging)
     print("Bucket saved!")
+
+
+def get_killboard(enemy, sortie):
+    (enemy_aircraft, _) = enemy
+    kb_key = tuple(sorted([sortie.aircraft.id, enemy_aircraft.id]))
+    kb = aircraft_mod_models.AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1])
+    return kb
+
+
+def dict_increment(key, dicto):
+    if key in dicto:
+        dicto[key] += 1
+    else:
+        dicto[key] = 1
 # ======================== MODDED PART END
