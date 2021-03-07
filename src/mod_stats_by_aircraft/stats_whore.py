@@ -6,6 +6,7 @@ from stats.online import update_online
 from users.utils import cleanup_registration
 from django.conf import settings
 from core import __version__
+from . import aircraft_mod_models
 import sys
 import django
 
@@ -208,12 +209,11 @@ def update_sortie(new_sortie, player_mission, player_aircraft, vlife):
 def process_old_sorties_batch_aircraft_stats(backfill_log):
     if backfill_log:
         print("Placeholder, processing batch!")
+        print(aircraft_mod_models.AircraftBucket.objects.count())
 
     return True
 
 def process_aircraft_stats(sortie):
     # TODO: Implement this, it will fill in aircraft stats.
     print("Placeholder, processing!")
-    time.sleep(5)
-
 # ======================== MODDED PART END
