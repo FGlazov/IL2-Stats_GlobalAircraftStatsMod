@@ -5,12 +5,12 @@ from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, up
 from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
 from stats.online import update_online
-from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score
+from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie
 from users.utils import cleanup_registration
 from django.conf import settings
 from django.db.models import Q
 from core import __version__
-from . import aircraft_mod_models
+from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 import sys
 import django
 import pytz
@@ -355,7 +355,7 @@ def stats_whore(m_report_file):
 def process_old_sorties_batch_aircraft_stats(backfill_log):
     if backfill_log:
         print("Placeholder, processing batch!")
-        print(aircraft_mod_models.AircraftBucket.objects.count())
+        print(AircraftBucket.objects.count())
 
     return True
 
@@ -364,9 +364,8 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
 def process_aircraft_stats(sortie):
     if not sortie.aircraft.cls_base == "aircraft":
         return
-    print("Begin process")
 
-    bucket = (aircraft_mod_models.AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
+    bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
         bucket.total_flight_time += 1
@@ -421,13 +420,13 @@ def process_aircraft_stats(sortie):
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
               .filter(Q(act_sortie_id=sortie.id) | Q(cact_sortie_id=sortie.id),
                       Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
-                      act_object__cls_base='aircraft', cact_object__cls_base='aircraft'))
+                      act_object__cls_base='aircraft', cact_object__cls_base='aircraft',
+                      act_sortie_id__isnull=False, cact_sortie_id__isnull=False))
 
     enemies_damaged = set()
     enemies_shotdown = set()
     enemies_killed = set()
 
-    # TODO: See if this is actually needed. Seems to me only half of this is required, since other half will be implicitily filed in by sortie from the other side.
     damaged_by = set()
     # Technically these following two need not be sets, but for code consistency we keep them like this.
     # (Can only be shotdown/killed by one enemy per sortie)
@@ -457,16 +456,29 @@ def process_aircraft_stats(sortie):
         enemy_sortie = damaged_enemy[1]
         kb = get_killboard(damaged_enemy, sortie)
         updated_killboards.add(kb)
+
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_distinct_hits += 1
-            if enemy_sortie.is_shotdown and damaged_enemy not in shotdown_by:
-                kb.aircraft_1_assists += 1
+            bucket.distinct_enemies_hit += 1
+            enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
+            if enemy_sortie_db.is_shotdown:
+                bucket.plane_lethality_counter += 1
+                if damaged_enemy not in shotdown_by:
+                    kb.aircraft_1_assists += 1
+            if enemy_sortie_db.is_dead:
+                bucket.pilot_lethality_counter += 1
         else:
             kb.aircraft_2_distinct_hits += 1
-            if enemy_sortie.is_shotdown and damaged_enemy not in shotdown_by:
+            enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
+            if enemy_sortie_db.is_shotdown and damaged_enemy not in shotdown_by:
                 kb.aircraft_2_assists += 1
 
+    enemy_buckets_updated = set()
     for shotdown_enemy in enemies_shotdown:
+        enemy_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
+        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+        enemy_buckets_updated.add(enemy_bucket)
+
         kb = get_killboard(shotdown_enemy, sortie)
         updated_killboards.add(kb)
         if kb.aircraft_1 == sortie.aircraft:
@@ -475,6 +487,7 @@ def process_aircraft_stats(sortie):
             kb.aircraft_2_shotdown += 1
 
     for killed_enemy in enemies_killed:
+        bucket.pilot_kills += 1
         kb = get_killboard(killed_enemy, sortie)
         updated_killboards.add(kb)
         if kb.aircraft_1 == sortie.aircraft:
@@ -482,32 +495,41 @@ def process_aircraft_stats(sortie):
         else:
             kb.aircraft_2_kills += 1
 
+    sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
+    sortie_augmentation.sortie_stats_processed = True
+
     for updated_killboard in updated_killboards:
         updated_killboard.save()
 
-    # TODO: Update bucket.times_hit_shotdown (if possible, otherwise remove)
-    # TODO: Update bucket.plane_lethality_counter and bucket.pilot_lethality_counter
-    # TODO: Update bucket.distinct_enemies hit and bucket.pilot_kills.
-    # TODO: Update bucket.elo
+    for updated_enemy_bucket in enemy_buckets_updated:
+        updated_enemy_bucket.save()
+
     bucket.update_derived_fields()
     bucket.save()
 
-    # TODO: Save SortieAugmentation.
-
-    # TODO: Remove this print (used for debugging)
-    print("Bucket saved!")
+    sortie_augmentation.save()
 
 
 def get_killboard(enemy, sortie):
     (enemy_aircraft, _) = enemy
-    kb_key = tuple(sorted([sortie.aircraft.id, enemy_aircraft.id]))
-    kb = aircraft_mod_models.AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1])
-    return kb
-
-
-def dict_increment(key, dicto):
-    if key in dicto:
-        dicto[key] += 1
+    if sortie.aircraft.id < enemy_aircraft.id:
+        kb_key = (sortie.aircraft, enemy_aircraft)
     else:
-        dicto[key] = 1
+        kb_key = (enemy_aircraft, sortie.aircraft)
+
+    return (AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1],
+                                                                        tour=sortie.tour))[0]
+
+
+def calc_elo(winner_rating, loser_rating):
+    k = 15 # Low k factor (in chess ~30 is common), because there will be a lot of engagements.
+    result = expected_result(winner_rating, loser_rating)
+    new_winner_rating = winner_rating + k * (1 - result)
+    new_loser_rating = loser_rating + k * (0 - (1 - result))
+    return new_winner_rating, new_loser_rating
+
+def expected_result(p1, p2):
+    exp = (p2 - p1) / 400.0
+    return 1 / ((10.0 ** (exp)) + 1)
+
 # ======================== MODDED PART END

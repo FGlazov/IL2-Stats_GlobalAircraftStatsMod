@@ -59,7 +59,6 @@ class AircraftBucket(models.Model):
 
     ammo_shot = models.BigIntegerField(default=0)
     ammo_hit = models.BigIntegerField(default=0)
-    times_hit_shotdown = models.BigIntegerField(default=0)
 
     bomb_rocket_shot = models.BigIntegerField(default=0)
     bomb_rocket_hit = models.BigIntegerField(default=0)
@@ -117,9 +116,10 @@ class AircraftKillboard(models.Model):
     # ========================= NATURAL KEY
     aircraft_1 = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
     aircraft_2 = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
-    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.CASCADE)
+    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
     # ========================= NATURAL KEY END
 
+    # TODO: Make DB indices
     aircraft_1_kills = models.BigIntegerField(default=0)
     aircraft_1_shotdown = models.BigIntegerField(default=0) # Nr times aircraft 1 shot down aircraft 2
     aircraft_1_assists = models.BigIntegerField(default=0)
