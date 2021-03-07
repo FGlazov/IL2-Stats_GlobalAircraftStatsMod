@@ -368,7 +368,7 @@ def process_aircraft_stats(sortie):
     bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
-        bucket.total_flight_time += 1
+        bucket.total_flight_time += sortie.flight_time
 
     bucket.kills += sortie.ak_total
     bucket.ground_kills += sortie.gk_total

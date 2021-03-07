@@ -1,5 +1,5 @@
 from django.db import models
-from stats.models import Tour, Object, Sortie
+from stats.models import Tour, Object, Sortie, rating_format_helper
 from django.contrib.postgres.fields import JSONField
 
 
@@ -72,6 +72,8 @@ class AircraftBucket(models.Model):
     pilot_kills = models.BigIntegerField(default=0)  # Assisting in a pilot kill count.
 
     # ========================== NON-VISIBLE HELPER FIELDS  END
+
+
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
         db_table = "AircraftBucket_MOD_STATS_BY_AIRCRAFT"
@@ -110,6 +112,15 @@ class AircraftBucket(models.Model):
     def relive(self):
         return self.deaths + self.captures
 
+    @property
+    def rating_format(self):
+        return rating_format_helper(self.rating)
+
+    def get_profile_url(self):
+        url = '{url}?tour={tour_id}'.format(url=reverse('stats:pilot', args=[self.aircraft]),
+                                            tour_id=self.tour)
+        return url
+
 
 # All pairs of aircraft. Here, aircraft_1.name < aircraft_2.name (Lex order)
 class AircraftKillboard(models.Model):
@@ -147,3 +158,5 @@ class SortieAugmentation(models.Model):
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
         db_table = "Sortie_MOD_STATS_BY_AIRCRAFT"
+
+
