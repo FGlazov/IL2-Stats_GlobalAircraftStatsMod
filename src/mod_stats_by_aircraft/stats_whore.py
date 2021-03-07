@@ -205,13 +205,16 @@ def update_sortie(new_sortie, player_mission, player_aircraft, vlife):
     process_aircraft_stats(new_sortie)
     # ======================== MODDED PART END
 
+
 # ======================== MODDED PART BEGIN
+# TODO: Make stats_reset also work with new tables.
 def process_old_sorties_batch_aircraft_stats(backfill_log):
     if backfill_log:
         print("Placeholder, processing batch!")
         print(aircraft_mod_models.AircraftBucket.objects.count())
 
     return True
+
 
 def process_aircraft_stats(sortie):
     if not sortie.aircraft.cls_base == "aircraft":
@@ -254,14 +257,27 @@ def process_aircraft_stats(sortie):
         bucket.plane_survivability_counter += 1 if not sortie.is_lost_aircraft else 0
         bucket.pilot_survivability_counter += 1 if not sortie.is_relive else 0
 
+    for key in sortie.killboard_pvp:
+        value = sortie.killboard_pvp[key]
+        if key in bucket.killboard_planes:
+            bucket.killboard_planes[key] += value
+        else:
+            bucket.killboard_planes[key] = value
 
-    #TODO: Update bucket.killboard_plane and bucket.killboard_ground.
-    #TODO: Update bucket.times_hit_shotdown (if possible)
-    #TODO: Update bucket.plane_lethality_counter and bucket.pilot_lethality_counter
-    #TODO: Update bucket.distinct_enemies hit and bucket.pilot_kills.
-    #TODO: Update bucket.elo
+    for key in sortie.killboard_pve:
+        value = sortie.killboard_pve[key]
+        if key in bucket.killboard_ground:
+            bucket.killboard_ground[key] += value
+        else:
+            bucket.killboard_ground[key] = value
+
+    # TODO: Update bucket.times_hit_shotdown (if possible)
+    # TODO: Update bucket.plane_lethality_counter and bucket.pilot_lethality_counter
+    # TODO: Update bucket.distinct_enemies hit and bucket.pilot_kills.
+    # TODO: Update bucket.elo
     bucket.update_derived_fields()
     bucket.save()
 
+    # TODO: Remove this print (used for debugging)
     print("Bucket saved!")
 # ======================== MODDED PART END
