@@ -214,6 +214,54 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
     return True
 
 def process_aircraft_stats(sortie):
-    # TODO: Implement this, it will fill in aircraft stats.
-    print("Placeholder, processing!")
+    if not sortie.aircraft.cls_base == "aircraft":
+        return
+
+    bucket = (aircraft_mod_models.AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
+    if not sortie.is_not_takeoff:
+        bucket.total_sorties += 1
+        bucket.total_flight_time += 1
+
+    bucket.kills += sortie.ak_total
+    bucket.ground_kills += sortie.gk_total
+    bucket.assists += sortie.ak_assist
+    bucket.aircraft_lost += 1 if sortie.is_lost_aircraft else 0
+    bucket.score += sortie.score
+    bucket.deaths += 1 if sortie.is_dead else 0
+    bucket.captures += 1 if sortie.is_captured else 0
+    bucket.bailouts += 1 if sortie.is_bailout else 0
+    bucket.ditches += 1 if sortie.is_ditched else 0
+    bucket.landings += 1 if sortie.is_landed else 0
+    bucket.in_flight += 1 if sortie.is_in_flight else 0
+    bucket.crashes += 1 if sortie.is_crashed else 0
+    bucket.shotdown += 1 if sortie.is_shotdown else 0
+
+    if sortie.ammo['used_cartridges']:
+        bucket.ammo_shot += sortie.ammo['used_cartridges']
+    if sortie.ammo['hit_bullets']:
+        bucket.ammo_hit += sortie.ammo['hit_bullets']
+    if sortie.ammo['used_bombs']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
+    if sortie.ammo['hit_bombs']:
+        bucket.bomb_rocket_shot += sortie.ammo['hit_bombs']
+    if sortie.ammo['used_rockets']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
+    if sortie.ammo['hit_rockets']:
+        bucket.bomb_rocket_shot += sortie.ammo['hit_rockets']
+
+    if sortie.damage:
+        bucket.sorties_plane_was_hit += 1
+        bucket.plane_survivability_counter += 1 if not sortie.is_lost_aircraft else 0
+        bucket.pilot_survivability_counter += 1 if not sortie.is_relive else 0
+
+
+    #TODO: Update bucket.killboard_plane and bucket.killboard_ground.
+    #TODO: Update bucket.times_hit_shotdown (if possible)
+    #TODO: Update bucket.plane_lethality_counter and bucket.pilot_lethality_counter
+    #TODO: Update bucket.distinct_enemies hit and bucket.pilot_kills.
+    #TODO: Update bucket.elo
+    bucket.update_derived_fields()
+    bucket.save()
+
+    print("Bucket saved!")
 # ======================== MODDED PART END
