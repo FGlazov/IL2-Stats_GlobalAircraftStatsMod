@@ -13,7 +13,10 @@ from stats.models import (Player, Mission, PlayerMission, PlayerAircraft, Sortie
                           Tour, LogEntry, Profile, Squad, Reward, PlayerOnline, VLife)
 from stats import sortie_log
 from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vlifes, online, mission, missions_list,
-                         pilot_sortie_log, pilot_sortie, pilot_sorties, pilot_killboard, pilot_awards)
+                         pilot_sortie_log, pilot_sortie, pilot_sorties, pilot_killboard, pilot_awards, pilot_rankings,
+                         squad_rankings, squad, squad_pilots, pilot, main)
 
 # TODO Write actual new stats functions.
-print("Placeholder!")
+
+def all_aircraft(request):
+    return render(request, 'all_aircraft.html')

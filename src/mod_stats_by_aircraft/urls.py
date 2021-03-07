@@ -24,6 +24,7 @@ app_name = 'stats'
 urlpatterns = [
     url(r'^pilots/$', views.pilot_rankings, name='pilots'),
     url(r'^squads/$', views.squad_rankings, name='squads'),
+    url(r'^all_aircraft/$', views.all_aircraft, name='all_aircraft'),
     url(r'^sorties/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_sorties, name='pilot_sorties'),
     url(r'^vlifes/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_vlifes, name='pilot_vlifes'),
     url(r'^awards/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_awards, name='pilot_awards'),

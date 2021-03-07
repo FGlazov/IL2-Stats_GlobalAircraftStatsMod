@@ -528,8 +528,8 @@ def calc_elo(winner_rating, loser_rating):
     new_loser_rating = loser_rating + k * (0 - (1 - result))
     return new_winner_rating, new_loser_rating
 
+
 def expected_result(p1, p2):
     exp = (p2 - p1) / 400.0
     return 1 / ((10.0 ** (exp)) + 1)
-
 # ======================== MODDED PART END
