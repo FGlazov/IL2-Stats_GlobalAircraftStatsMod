@@ -20,7 +20,6 @@ class AircraftBucket(models.Model):
     # ========================= NATURAL KEY END
 
     # ========================= SORTABLE FIELDS
-    total_sorties = models.BigIntegerField(default=0, db_index=True)
     total_flight_time = models.BigIntegerField(default=0, db_index=True)
     khr = models.FloatField(default=0, db_index=True)
     gkhr = models.FloatField(default=0, db_index=True)
@@ -37,6 +36,8 @@ class AircraftBucket(models.Model):
     # ========================= SORTABLE FIELDS END
 
     # ========================= NON-SORTABLE VISIBLE FIELDS
+    # TODO : Remove db_index here.
+    total_sorties = models.BigIntegerField(default=0, db_index=True)
     # Assists per hour
     ahr = models.FloatField(default=0)
     # Assists per death
@@ -112,10 +113,11 @@ class AircraftBucket(models.Model):
         sd = self.score / max(self.relive, 1)
         # score per hour
         shr = self.score / max(self.flight_time_hours, 1)
-        self.rating = int(sd * shr / 1000)
+        self.rating = int(sd * shr)
         # Note this rating is NOT multiplied by score
         # In the original formula, you got higher rating the longer you played with the same performance.
         # This was due to the multiplication by score. This is not wanted for aircraft stats.
+        # Also no need to divide by 1000, since the nr tends to be small enouh to display as is.
 
     @property
     def flight_time_hours(self):

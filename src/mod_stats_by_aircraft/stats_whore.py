@@ -392,11 +392,11 @@ def process_aircraft_stats(sortie):
     if sortie.ammo['used_bombs']:
         bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
     if sortie.ammo['hit_bombs']:
-        bucket.bomb_rocket_shot += sortie.ammo['hit_bombs']
+        bucket.bomb_rocket_hit += sortie.ammo['hit_bombs']
     if sortie.ammo['used_rockets']:
         bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
     if sortie.ammo['hit_rockets']:
-        bucket.bomb_rocket_shot += sortie.ammo['hit_rockets']
+        bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
 
     if sortie.damage:
         bucket.sorties_plane_was_hit += 1

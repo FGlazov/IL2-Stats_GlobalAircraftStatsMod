@@ -17,7 +17,7 @@ from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vl
                          squad_rankings, squad, squad_pilots, pilot, main)
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 
-aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr' 'accuracy',
+aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
                         'bomb_rocket_accuracy', 'plane_survivability','pilot_survivability', 'plane_lethality',
                         'pilot_lethality', 'elo', 'rating']
 ITEMS_PER_PAGE = 20
@@ -29,13 +29,15 @@ def all_aircraft(request):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
-    all_aircraft = AircraftBucket.objects.filter(tour_id=request.tour.id).order_by(sort_by, 'id')
+    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id).order_by(sort_by, 'id')
+    if search:
+        buckets.filter(aircraft__name__contains=search)
 
     # TODO: Implement search
-    all_aircraft = Paginator(all_aircraft, ITEMS_PER_PAGE).page(page)
+    buckets = Paginator(buckets, ITEMS_PER_PAGE).page(page)
 
     return render(request, 'all_aircraft.html', {
-        'all_aircraft': all_aircraft,
+        'all_aircraft': buckets,
     })
 
 
