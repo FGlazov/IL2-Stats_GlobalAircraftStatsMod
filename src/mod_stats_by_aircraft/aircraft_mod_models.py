@@ -1,6 +1,12 @@
 from django.db import models
 from stats.models import Tour, Object, Sortie, rating_format_helper
+from mission_report.constants import Coalition
 from django.contrib.postgres.fields import JSONField
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
+from django.conf import settings
+from django.urls import reverse
+
+
 
 
 def compute_float(numerator, denominator, round_to=2):
@@ -44,6 +50,13 @@ class AircraftBucket(models.Model):
 
     killboard_planes = JSONField(default=dict)
     killboard_ground = JSONField(default=dict)
+    COALITIONS = (
+        (Coalition.neutral, pgettext_lazy('coalition', _('neutral'))),
+        (Coalition.coal_1, settings.COAL_1_NAME),
+        (Coalition.coal_2, settings.COAL_2_NAME),
+    )
+
+    coalition = models.IntegerField(default=Coalition.neutral, choices=COALITIONS)
     # ========================== NON-SORTABLE VISIBLE FIELDS END
 
     # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
@@ -82,7 +95,7 @@ class AircraftBucket(models.Model):
     def update_derived_fields(self):
         self.khr = compute_float(self.kills, self.flight_time_hours)
         self.gkhr = compute_float(self.ground_kills, self.flight_time_hours)
-        self.kd = compute_float(self.kd, self.relive)
+        self.kd = compute_float(self.kills, self.relive)
         self.gkd = compute_float(self.ground_kills, self.relive)
         self.accuracy = compute_float(self.ammo_hit * 100, self.ammo_shot, 1)
         self.bomb_rocket_accuracy = compute_float(self.bomb_rocket_hit * 100, self.bomb_rocket_shot, 1)
@@ -116,9 +129,8 @@ class AircraftBucket(models.Model):
     def rating_format(self):
         return rating_format_helper(self.rating)
 
-    def get_profile_url(self):
-        url = '{url}?tour={tour_id}'.format(url=reverse('stats:pilot', args=[self.aircraft]),
-                                            tour_id=self.tour)
+    def get_aircraft_url(self):
+        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[self.aircraft.id]), tour_id=self.tour.id)
         return url
 
 

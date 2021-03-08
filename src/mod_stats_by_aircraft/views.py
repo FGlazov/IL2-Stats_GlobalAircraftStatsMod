@@ -17,9 +17,9 @@ from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vl
                          squad_rankings, squad, squad_pilots, pilot, main)
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 
-aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'accuracy', 'bomb_rocket_accuracy',
-                        'plane_survivability','pilot_survivability', 'plane_lethality', 'pilot_lethality',
-                        'elo', 'rating']
+aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr' 'accuracy',
+                        'bomb_rocket_accuracy', 'plane_survivability','pilot_survivability', 'plane_lethality',
+                        'pilot_lethality', 'elo', 'rating']
 ITEMS_PER_PAGE = 20
 
 
@@ -40,8 +40,8 @@ def all_aircraft(request):
 
 
 def aircraft(request, aircraft_id):
-    render(request, 'aircraft.html')
+    return render(request, 'aircraft.html')
 
 
 def aircraft_killboard(request, aircraft_id):
-    render(request, 'aircraft_killboard.html')
+    return render(request, 'aircraft_killboard.html')

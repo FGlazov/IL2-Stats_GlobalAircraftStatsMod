@@ -383,6 +383,7 @@ def process_aircraft_stats(sortie):
     bucket.in_flight += 1 if sortie.is_in_flight else 0
     bucket.crashes += 1 if sortie.is_crashed else 0
     bucket.shotdown += 1 if sortie.is_shotdown else 0
+    bucket.coalition = sortie.coalition
 
     if sortie.ammo['used_cartridges']:
         bucket.ammo_shot += sortie.ammo['used_cartridges']
@@ -457,6 +458,7 @@ def process_aircraft_stats(sortie):
         kb = get_killboard(damaged_enemy, sortie)
         updated_killboards.add(kb)
 
+        # TODO: Refactor the common parts here into a function, two copies of the same long code.
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_distinct_hits += 1
             bucket.distinct_enemies_hit += 1
@@ -469,9 +471,14 @@ def process_aircraft_stats(sortie):
                 bucket.pilot_lethality_counter += 1
         else:
             kb.aircraft_2_distinct_hits += 1
+            bucket.distinct_enemies_hit += 1
             enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
-            if enemy_sortie_db.is_shotdown and damaged_enemy not in shotdown_by:
-                kb.aircraft_2_assists += 1
+            if enemy_sortie_db.is_shotdown:
+                bucket.plane_lethality_counter += 1
+                if damaged_enemy not in shotdown_by:
+                    kb.aircraft_2_assists += 1
+            if enemy_sortie_db.is_dead:
+                bucket.pilot_lethality_counter += 1
 
     enemy_buckets_updated = set()
     for shotdown_enemy in enemies_shotdown:
