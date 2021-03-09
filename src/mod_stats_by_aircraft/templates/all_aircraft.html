@@ -73,7 +73,7 @@
                 <div class="cell" style="width: 90px;">
                     <a class="sort_by" href="?sort_by=-plane_survivability">
                         <img src="{% static 'img/icons/small/acc.png' %}" width="18" height="18"
-                             alt="{% trans 'Plane Survivability' %}" title="{% trans 'Plane Survivability' %}">
+                             alt="{% trans 'Plane Durability' %}" title="{% trans 'Plane Durability' %}">
                     </a>
                 </div>
                 <div class="cell" style="width: 90px;">
@@ -122,6 +122,12 @@
         {% endif %}
 
         <div class="info" style="padding-top: 20px;">
+            <div>
+                {% blocktrans trimmed %}
+                * Plane Durability is percent of sorties the plane survived after taking damage. </br>
+                * Plane Lethality is the percent of enemy aircraft which went down after taking damage from this plane. Assists count. </br>
+                {% endblocktrans %}
+            </div>
             <div>
                 {% blocktrans trimmed %}
                 <strong>Attention!</strong> Algorithms collection statistics IL2 stats differs from statistics in-game.

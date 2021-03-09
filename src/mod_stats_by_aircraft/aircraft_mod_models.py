@@ -36,16 +36,18 @@ class AircraftBucket(models.Model):
     # ========================= NON-SORTABLE VISIBLE FIELDS
     # TODO : Remove db_index here.
     total_sorties = models.BigIntegerField(default=0, db_index=True)
+    score = models.BigIntegerField(default=0)
     # Assists per hour
     ahr = models.FloatField(default=0)
     # Assists per death
     ahd = models.FloatField(default=0)
+
+    # TODO: Remove this, can't be populated (easily).
     hits_to_death = models.FloatField(default=0)
 
     kills = models.BigIntegerField(default=0)
     ground_kills = models.BigIntegerField(default=0)
     assists = models.BigIntegerField(default=0)
-    aircraft_lost = models.BigIntegerField(default=0)
 
     killboard_planes = JSONField(default=dict)
     killboard_ground = JSONField(default=dict)
@@ -57,6 +59,7 @@ class AircraftBucket(models.Model):
 
     coalition = models.IntegerField(default=Coalition.neutral, choices=COALITIONS)
 
+    aircraft_lost = models.BigIntegerField(default=0)
     deaths = models.BigIntegerField(default=0)
     captures = models.BigIntegerField(default=0)
     bailouts = models.BigIntegerField(default=0)
@@ -68,8 +71,6 @@ class AircraftBucket(models.Model):
     # ========================== NON-SORTABLE VISIBLE FIELDS END
 
     # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
-    score = models.BigIntegerField(default=0)
-
     ammo_shot = models.BigIntegerField(default=0)
     ammo_hit = models.BigIntegerField(default=0)
 
@@ -98,10 +99,10 @@ class AircraftBucket(models.Model):
         self.gkd = compute_float(self.ground_kills, self.relive)
         self.accuracy = compute_float(self.ammo_hit * 100, self.ammo_shot, 1)
         self.bomb_rocket_accuracy = compute_float(self.bomb_rocket_hit * 100, self.bomb_rocket_shot, 1)
-        self.plane_survivability = compute_float(self.plane_survivability_counter, self.sorties_plane_was_hit)
-        self.pilot_survivability = compute_float(self.pilot_survivability_counter, self.sorties_plane_was_hit)
-        self.plane_lethality = compute_float(self.plane_lethality_counter, self.distinct_enemies_hit)
-        self.pilot_lethality = compute_float(self.pilot_lethality_counter, self.distinct_enemies_hit)
+        self.plane_survivability = compute_float(100 * self.plane_survivability_counter, self.sorties_plane_was_hit)
+        self.pilot_survivability = compute_float(100 * self.pilot_survivability_counter, self.sorties_plane_was_hit)
+        self.plane_lethality = compute_float(100 * self.plane_lethality_counter, self.distinct_enemies_hit)
+        self.pilot_lethality = compute_float(100 * self.pilot_lethality_counter, self.distinct_enemies_hit)
         self.update_rating()
         self.ahr = compute_float(self.assists, self.flight_time_hours)
         self.ahd = compute_float(self.assists, self.relive)
@@ -294,6 +295,61 @@ class AircraftBucket(models.Model):
     @property
     def percent_building_small(self):
         return self.percent_ground_helper('building_small')
+
+    def percent_of_sorties_helper(self, occurrences):
+        return str(compute_float(occurrences * 100, self.total_sorties)) + "%"
+
+    @property
+    def percent_deaths(self):
+        return self.percent_of_sorties_helper(self.deaths)
+
+    @property
+    def percent_bailouts(self):
+        return self.percent_of_sorties_helper(self.bailouts)
+
+    @property
+    def percent_captures(self):
+        return self.percent_of_sorties_helper(self.captures)
+
+    @property
+    def percent_ditches(self):
+        return self.percent_of_sorties_helper(self.ditches)
+
+    @property
+    def percent_landings(self):
+        return self.percent_of_sorties_helper(self.landings)
+
+    @property
+    def percent_in_flight(self):
+        return self.percent_of_sorties_helper(self.in_flight)
+
+    @property
+    def percent_crashes(self):
+        return self.percent_of_sorties_helper(self.crashes)
+
+    @property
+    def percent_shotdown(self):
+        return self.percent_of_sorties_helper(self.shotdown)
+
+    @property
+    def percent_aircraft_lost(self):
+        return self.percent_of_sorties_helper(self.aircraft_lost)
+
+    @property
+    def kills_per_loss(self):
+        return compute_float(self.kills, self.aircraft_lost)
+
+    @property
+    def kills_per_sortie(self):
+        return compute_float(self.kills, self.total_sorties)
+
+    @property
+    def ground_kills_per_loss(self):
+        return compute_float(self.ground_kills, self.aircraft_lost)
+
+    @property
+    def ground_kills_per_sortie(self):
+        return compute_float(self.ground_kills, self.total_sorties)
 
     def get_aircraft_url(self):
         url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[self.aircraft.id]),

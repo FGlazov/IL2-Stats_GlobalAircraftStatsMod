@@ -3,7 +3,7 @@
 {% block title %}{{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
 
 {% block nav_tabs %}
-{% include 'inline/pilot_tabs.html' %}
+{% include 'inline/aircraft_tabs.html' %}
 {% endblock nav_tabs %}
 
 {% block content %}
@@ -71,6 +71,10 @@
                 {% trans 'Detailed combat results' %}
             </div>
             <div class="item">
+                <div class="name">{% trans 'Gunnery Accuracy' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.accuracy }}%</div>
+            </div>
+            <div class="item">
                 <div class="name">{% trans 'Total Aircraft' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.kills }}</div>
             </div>
@@ -125,6 +129,11 @@
             <div class="item">
                 <div class="name">{% trans 'Assisted' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.assists }}</div>
+            </div>
+
+            <div class="item">
+                <div class="name">{% trans 'Bomb/Rocket Accuracy' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.bomb_rocket_accuracy }}%</div>
             </div>
 
             <div class="item">
@@ -336,26 +345,188 @@
             {% endif %}
 
         </div>
+        <div class="player_detailed" style="float: right;">
+            <div class="title">
+                {% trans 'Detailed sorties results' %}
+            </div>
+            <div class="item">
+                <div class="name">{% trans 'Score' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.score }}</div>
+            </div>
+            <div class="item">
+                <div class="name">{% trans 'Sorties' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.total_sorties }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'Landings' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_landings }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'In flight' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_in_flight }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'Lost aircraft' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_aircraft_lost }}</div>
+            </div>
+            <!--- TODO: sub_sub_item divs? -->
+            <div class="sub_item">
+                <div class="name">{% trans 'Bailout' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_bailouts }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'Dead' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_deaths }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'Captured' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_captures }}</div>
+            </div>
+            <div class="sub_item">
+                <div class="name">{% trans 'Ditched' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_ditches }}</div>
+            </div>
+            <!--- TODO: Maybe also shotdown? -->
 
-        <!--- TODO: Add this info back in
-        <div class="info">
-                <div>
-                    {% blocktrans trimmed %}
-                        <strong>Attention!</strong> Algorithms collection statistics IL2 stats differs from statistics
-                        in-game. As a consequence of these statistics will not coincide with the game.
-                    {% endblocktrans %}
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="player_analytics">
+
+            <div class="left_block">
+                <div class="item">
+                    <div class="text">
+                        {% trans 'Plane Durability' %}*
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.plane_survivability }}%
+                    </div>
                 </div>
-                <div>
-                    {% if INACTIVE_PLAYER_DAYS %}
-                        {% blocktrans trimmed count days=INACTIVE_PLAYER_DAYS.days %}
-                            Players inactive for more than {{ days }} day - do not participate in the rating.
-                            {% plural %}
-                            Players inactive for more than {{ days }} days - do not participate in the rating.
-                        {% endblocktrans %}
-                    {% endif %}
+                <div class="item"
+                     title="{% trans 'if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in the majority' %}">
+                    <div class="text">
+                        {% trans 'Pilot Survivability' %}*
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.pilot_survivability }}%
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'Plane Lethality' %}*
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.plane_lethality }}%
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'Pilot Lethality' %}*
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.pilot_lethality }}%
+                    </div>
                 </div>
             </div>
-            -->
+            <div class="center_block">
+                <div class="item">
+                    <div class="text">
+                        {% trans 'K/D - Kills per Death' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.kd }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'K/L - Kills per Aircraft Lost' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.kills_per_loss }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'K/S - Kills per Sortie' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.kills_per_sortie }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'K/H - Kills per Hour of Flight' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.khr }}
+                    </div>
+                </div>
+            </div>
+            <div class="right_block">
+                <div class="item">
+                    <div class="text">
+                        {% trans 'GK/D - G.Kills per Death' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.gkd }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'GK/L - G.Kills per Aircraft Lost' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.ground_kills_per_sortie }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'GK/S - G.Kills per Sortie' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.ground_kills_per_sortie }}
+                    </div>
+                </div>
+                <div class="item">
+                    <div class="text">
+                        {% trans 'GK/H - G.Kills per Hour of Flight' %}
+                    </div>
+                    <div class="num">
+                        {{ aircraft_bucket.gkhr }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="clearfix"></div>
+
+        <div class="info">
+            <div>
+                {% blocktrans trimmed %}
+                * Plane Durability is percent of sorties the plane survived after taking damage. </br>
+                * Pilot Survivability is the percent of sorties the pilot survived after the plane took damage. </br>
+                * Plane Lethality is the percent of enemy aircraft which went down after taking damage from this plane. Assists count. </br>
+                * Pilot Lethality is the percent of enemy pilots which died after taking damage from this plane. Assists count.
+                {% endblocktrans %}
+            </div>
+            <div>
+                {% blocktrans trimmed %}
+                <strong>Attention!</strong> Algorithms collection statistics IL2 stats differs from statistics
+                in-game. As a consequence of these statistics will not coincide with the game.
+                {% endblocktrans %}
+            </div>
+            <div>
+                {% if INACTIVE_PLAYER_DAYS %}
+                {% blocktrans trimmed count days=INACTIVE_PLAYER_DAYS.days %}
+                Players inactive for more than {{ days }} day - do not participate in the rating.
+                {% plural %}
+                Players inactive for more than {{ days }} days - do not participate in the rating.
+                {% endblocktrans %}
+                {% endif %}
+            </div>
+        </div>
     </div>
 </section>
 {% endblock content %}
