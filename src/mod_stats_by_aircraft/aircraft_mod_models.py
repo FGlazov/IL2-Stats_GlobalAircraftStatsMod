@@ -34,16 +34,12 @@ class AircraftBucket(models.Model):
     # ========================= SORTABLE FIELDS END
 
     # ========================= NON-SORTABLE VISIBLE FIELDS
-    # TODO : Remove db_index here.
-    total_sorties = models.BigIntegerField(default=0, db_index=True)
+    total_sorties = models.BigIntegerField(default=0)
     score = models.BigIntegerField(default=0)
     # Assists per hour
     ahr = models.FloatField(default=0)
     # Assists per death
     ahd = models.FloatField(default=0)
-
-    # TODO: Remove this, can't be populated (easily).
-    hits_to_death = models.FloatField(default=0)
 
     kills = models.BigIntegerField(default=0)
     ground_kills = models.BigIntegerField(default=0)

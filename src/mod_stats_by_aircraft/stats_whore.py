@@ -351,11 +351,24 @@ def stats_whore(m_report_file):
 
 
 # ======================== MODDED PART BEGIN
-# TODO: Make stats_reset also work with new tables.
+@transaction.atomic
 def process_old_sorties_batch_aircraft_stats(backfill_log):
+    backfill_sorties = (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__isnull=True,
+                                              aircraft__cls_base='aircraft')
+                        .order_by('-tour__id'))
+    nr_left = backfill_sorties.count()
+    if nr_left == 0:
+        return False
+
     if backfill_log:
-        print("Placeholder, processing batch!")
-        print(AircraftBucket.objects.count())
+        logger.info('[mod_stats_by_aircraft]: Retroactively computing aircraft stats. {} sorties left to process.'
+                    .format(nr_left))
+
+    for sortie in backfill_sorties[0:1000]:
+        process_aircraft_stats(sortie)
+
+    if nr_left <= 1000:
+        logger.info('[mod_stats_by_aircraft]: Completed retroactively computing aircraft stats.')
 
     return True
 
@@ -423,7 +436,7 @@ def process_aircraft_stats(sortie):
                       Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
                       act_object__cls_base='aircraft', cact_object__cls_base='aircraft',
                       # Disregard AI sorties
-                      act_sortie_id__isnull=False, cact_sortie_id__isnull=False,)
+                      act_sortie_id__isnull=False, cact_sortie_id__isnull=False, )
               # Disregard friendly fire incidents.
               .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
               )
@@ -499,7 +512,6 @@ def process_aircraft_stats(sortie):
             kb.aircraft_1_shotdown += 1
         else:
             kb.aircraft_2_shotdown += 1
-
 
     for killed_enemy in enemies_killed:
         bucket.pilot_kills += 1
