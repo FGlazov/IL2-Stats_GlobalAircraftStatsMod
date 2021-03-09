@@ -352,14 +352,18 @@ class AircraftBucket(models.Model):
         return compute_float(self.ground_kills, self.total_sorties)
 
     def get_aircraft_url(self):
-        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[self.aircraft.id]),
-                                            tour_id=self.tour.id)
-        return url
+        return get_aircraft_url(self.aircraft.id, self.tour.id)
 
     def get_killboard_url(self):
         url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[self.aircraft.id]),
                                             tour_id=self.tour.id)
         return url
+
+
+def get_aircraft_url(aircraft_id, tour_id):
+    url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id]),
+                                        tour_id=tour_id)
+    return url
 
 
 # All pairs of aircraft. Here, aircraft_1.name < aircraft_2.name (Lex order)
@@ -370,11 +374,10 @@ class AircraftKillboard(models.Model):
     tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
     # ========================= NATURAL KEY END
 
-    # TODO: Make DB indices
-    aircraft_1_kills = models.BigIntegerField(default=0)
+    aircraft_1_kills = models.BigIntegerField(default=0)  # Nr times aircraft 1 hit aircraft 2 which lead to pilot death
     aircraft_1_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 1 shot down aircraft 2
     aircraft_1_assists = models.BigIntegerField(default=0)
-    aircraft_2_kills = models.BigIntegerField(default=0)
+    aircraft_2_kills = models.BigIntegerField(default=0)  # Nr times aircraft 2 hit aircraft 1 which lead to pilot death
     aircraft_2_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 2 shot down aircraft 1
     aircraft_2_assists = models.BigIntegerField(default=0)
 
@@ -387,6 +390,12 @@ class AircraftKillboard(models.Model):
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
         db_table = "AircraftKillboard_MOD_STATS_BY_AIRCRAFT"
         ordering = ['-id']
+
+    def get_aircraft_url(self, one_or_two):
+        if one_or_two == 1:
+            return get_aircraft_url(self.aircraft_1.id, self.tour.id)
+        else:
+            return get_aircraft_url(self.aircraft_2.id, self.tour.id)
 
 
 # Additional fields to Sortie objects used by this mod.

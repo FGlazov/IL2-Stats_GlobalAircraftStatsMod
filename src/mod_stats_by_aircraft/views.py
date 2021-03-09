@@ -15,13 +15,14 @@ from stats import sortie_log
 from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vlifes, online, mission, missions_list,
                          pilot_sortie_log, pilot_sortie, pilot_sorties, pilot_killboard, pilot_awards, pilot_rankings,
                          squad_rankings, squad, squad_pilots, pilot, main)
-from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
+from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
                         'bomb_rocket_accuracy', 'plane_survivability', 'pilot_survivability', 'plane_lethality',
                         'pilot_lethality', 'elo', 'rating']
+aircraft_killboard_sort_fields = ['kills', 'assists', 'deaths', 'kdr', 'plane_survivability', 'pilot_survivability',
+                                  'plane_lethality', 'pilot_lethality']
 ITEMS_PER_PAGE = 20
-
 
 
 def all_aircraft(request):
@@ -40,21 +41,10 @@ def all_aircraft(request):
 
 
 def aircraft(request, aircraft_id):
-    tour_id = request.GET.get('tour')
-    if tour_id:
-        try:
-            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .get(aircraft=aircraft_id, tour_id=tour_id))
-        except AircraftBucket.DoesNotExist:
-            # TODO: Create this html.
-            return render(request, 'aircraft_does_not_exist.html')
-    else:
-        try:
-            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .filter(aircraft=aircraft_id)
-                      .order_by('-id'))[0]
-        except IndexError:
-            raise Http404
+    bucket = find_aircraft_bucket(aircraft_id, request.GET.get('tour'))
+    if bucket is None:
+        # TODO: Create this html.
+        return render(request, 'aircraft_does_not_exist.html')
 
     return render(request, 'aircraft.html', {
         'aircraft_bucket': bucket,
@@ -62,4 +52,75 @@ def aircraft(request, aircraft_id):
 
 
 def aircraft_killboard(request, aircraft_id):
-    return render(request, 'aircraft_killboard.html')
+    tour_id = request.GET.get('tour')
+    bucket = find_aircraft_bucket(aircraft_id, tour_id)
+    if bucket is None:
+        return render(request, 'aircraft_does_not_exist.html')
+    aircraft_id = int(aircraft_id)
+
+    unsorted_killboard = (AircraftKillboard.objects
+                          .select_related('aircraft_1', 'aircraft_2')
+                          .filter(Q(aircraft_1_id=aircraft_id) | Q(aircraft_2_id=aircraft_id),
+                                  # Edge case: Killboards with only assists/distinct hits. Look strange.
+                                  Q(aircraft_1_shotdown__gt=0) | Q(aircraft_2_shotdown__gt=0),
+                                  tour__id=tour_id,
+                                  ))
+
+    killboard = []
+    for k in unsorted_killboard:
+        if k.aircraft_1.id == aircraft_id:
+
+            killboard.append(
+                {'aircraft': k.aircraft_2,
+                 'kills': k.aircraft_1_shotdown,
+                 'assists': k.aircraft_1_assists,
+                 'deaths': k.aircraft_2_shotdown,
+                 'kdr': compute_float(k.aircraft_1_shotdown, k.aircraft_2_shotdown),
+                 'plane_survivability': compute_float(k.aircraft_2_shotdown * 100, k.aircraft_2_distinct_hits),
+                 'pilot_survivability': compute_float(k.aircraft_2_kills * 100, k.aircraft_2_distinct_hits),
+                 'plane_lethality': compute_float(k.aircraft_1_shotdown * 100, k.aircraft_1_distinct_hits),
+                 'pilot_lethality': compute_float(k.aircraft_1_kills * 100, k.aircraft_1_distinct_hits),
+                 'url': k.get_aircraft_url(2),
+                 }
+            )
+        else:
+            killboard.append(
+                {'aircraft': k.aircraft_1,
+                 'kills': k.aircraft_2_shotdown,
+                 'assists': k.aircraft_2_assists,
+                 'deaths': k.aircraft_1_shotdown,
+                 'kdr': compute_float(k.aircraft_2_shotdown, k.aircraft_1_shotdown),
+                 'plane_survivability': compute_float(k.aircraft_1_shotdown * 100, k.aircraft_1_distinct_hits),
+                 'pilot_survivability': compute_float(k.aircraft_1_kills * 100, k.aircraft_1_distinct_hits),
+                 'plane_lethality': compute_float(k.aircraft_2_shotdown * 100, k.aircraft_2_distinct_hits),
+                 'pilot_lethality': compute_float(k.aircraft_2_kills * 100, k.aircraft_2_distinct_hits),
+                 'url': k.get_aircraft_url(1),
+                 }
+            )
+
+    _sort_by = get_sort_by(request=request, sort_fields=aircraft_killboard_sort_fields, default='-kdr')
+    sort_reverse = True if _sort_by.startswith('-') else False
+    sort_by = _sort_by.replace('-', '')
+    killboard = sorted(killboard, key=lambda x: x[sort_by], reverse=sort_reverse)
+
+    return render(request, 'aircraft_killboard.html', {
+        'aircraft_bucket': bucket,
+        'killboard': killboard,
+    })
+
+
+def find_aircraft_bucket(aircraft_id, tour_id):
+    if tour_id:
+        try:
+            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .get(aircraft=aircraft_id, tour_id=tour_id))
+        except AircraftBucket.DoesNotExist:
+            bucket = None
+    else:
+        try:
+            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .filter(aircraft=aircraft_id)
+                      .order_by('-id'))[0]
+        except IndexError:
+            raise Http404
+    return bucket

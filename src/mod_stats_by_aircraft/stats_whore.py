@@ -8,7 +8,7 @@ from stats.online import update_online
 from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie
 from users.utils import cleanup_registration
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F
 from core import __version__
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 import sys
@@ -422,7 +422,11 @@ def process_aircraft_stats(sortie):
               .filter(Q(act_sortie_id=sortie.id) | Q(cact_sortie_id=sortie.id),
                       Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
                       act_object__cls_base='aircraft', cact_object__cls_base='aircraft',
-                      act_sortie_id__isnull=False, cact_sortie_id__isnull=False))
+                      # Disregard AI sorties
+                      act_sortie_id__isnull=False, cact_sortie_id__isnull=False,)
+              # Disregard friendly fire incidents.
+              .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
+              )
 
     enemies_damaged = set()
     enemies_shotdown = set()
@@ -452,11 +456,11 @@ def process_aircraft_stats(sortie):
             elif event.type == 'killed':
                 killed_by.add(enemy_plane_sortie_pair)
 
-    updated_killboards = set()
+    cache_kb = dict()
+
     for damaged_enemy in enemies_damaged:
         enemy_sortie = damaged_enemy[1]
-        kb = get_killboard(damaged_enemy, sortie)
-        updated_killboards.add(kb)
+        kb = get_killboard(damaged_enemy, sortie, cache_kb)
 
         # TODO: Refactor the common parts here into a function, two copies of the same long code.
         if kb.aircraft_1 == sortie.aircraft:
@@ -480,23 +484,26 @@ def process_aircraft_stats(sortie):
             if enemy_sortie_db.is_dead:
                 bucket.pilot_lethality_counter += 1
 
-    enemy_buckets_updated = set()
+    cache_enemy_buckets = dict()
     for shotdown_enemy in enemies_shotdown:
-        enemy_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
-        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-        enemy_buckets_updated.add(enemy_bucket)
+        enemy_bucket_key = (sortie.tour, shotdown_enemy[0])
 
-        kb = get_killboard(shotdown_enemy, sortie)
-        updated_killboards.add(kb)
+        if enemy_bucket_key in cache_enemy_buckets:
+            enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
+        else:
+            enemy_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
+        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+        kb = get_killboard(shotdown_enemy, sortie, cache_kb)
+
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_shotdown += 1
         else:
             kb.aircraft_2_shotdown += 1
 
+
     for killed_enemy in enemies_killed:
         bucket.pilot_kills += 1
-        kb = get_killboard(killed_enemy, sortie)
-        updated_killboards.add(kb)
+        kb = get_killboard(killed_enemy, sortie, cache_kb)
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_kills += 1
         else:
@@ -505,11 +512,11 @@ def process_aircraft_stats(sortie):
     sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
     sortie_augmentation.sortie_stats_processed = True
 
-    for updated_killboard in updated_killboards:
-        updated_killboard.save()
+    for killboard in cache_kb.values():
+        killboard.save()
 
-    for updated_enemy_bucket in enemy_buckets_updated:
-        updated_enemy_bucket.save()
+    for enemy_bucket in cache_enemy_buckets.values():
+        enemy_bucket.save()
 
     bucket.update_derived_fields()
     bucket.save()
@@ -517,19 +524,24 @@ def process_aircraft_stats(sortie):
     sortie_augmentation.save()
 
 
-def get_killboard(enemy, sortie):
+def get_killboard(enemy, sortie, cache_kb):
     (enemy_aircraft, _) = enemy
     if sortie.aircraft.id < enemy_aircraft.id:
         kb_key = (sortie.aircraft, enemy_aircraft)
     else:
         kb_key = (enemy_aircraft, sortie.aircraft)
 
-    return (AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1],
-                                                                        tour=sortie.tour))[0]
+    if kb_key in cache_kb:
+        return cache_kb[kb_key]
+
+    kb = (AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1],
+                                                  tour=sortie.tour))[0]
+    cache_kb[kb_key] = kb
+    return kb
 
 
 def calc_elo(winner_rating, loser_rating):
-    k = 15 # Low k factor (in chess ~30 is common), because there will be a lot of engagements.
+    k = 15  # Low k factor (in chess ~30 is common), because there will be a lot of engagements.
     result = expected_result(winner_rating, loser_rating)
     new_winner_rating = winner_rating + k * (1 - result)
     new_loser_rating = loser_rating + k * (0 - (1 - result))
