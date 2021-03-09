@@ -18,12 +18,11 @@ from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vl
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
-                        'bomb_rocket_accuracy', 'plane_survivability','pilot_survivability', 'plane_lethality',
+                        'bomb_rocket_accuracy', 'plane_survivability', 'pilot_survivability', 'plane_lethality',
                         'pilot_lethality', 'elo', 'rating']
 ITEMS_PER_PAGE = 20
 
 
-# TODO Write actual new stats functions.
 
 def all_aircraft(request):
     page = request.GET.get('page', 1)
@@ -31,9 +30,8 @@ def all_aircraft(request):
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
     buckets = AircraftBucket.objects.filter(tour_id=request.tour.id).order_by(sort_by, 'id')
     if search:
-        buckets.filter(aircraft__name__contains=search)
+        buckets = buckets.filter(aircraft__name__icontains=search)
 
-    # TODO: Implement search
     buckets = Paginator(buckets, ITEMS_PER_PAGE).page(page)
 
     return render(request, 'all_aircraft.html', {
@@ -42,7 +40,25 @@ def all_aircraft(request):
 
 
 def aircraft(request, aircraft_id):
-    return render(request, 'aircraft.html')
+    tour_id = request.GET.get('tour')
+    if tour_id:
+        try:
+            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .get(aircraft=aircraft_id, tour_id=tour_id))
+        except AircraftBucket.DoesNotExist:
+            # TODO: Create this html.
+            return render(request, 'aircraft_does_not_exist.html')
+    else:
+        try:
+            bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .filter(aircraft=aircraft_id)
+                      .order_by('-id'))[0]
+        except IndexError:
+            raise Http404
+
+    return render(request, 'aircraft.html', {
+        'aircraft_bucket': bucket,
+    })
 
 
 def aircraft_killboard(request, aircraft_id):

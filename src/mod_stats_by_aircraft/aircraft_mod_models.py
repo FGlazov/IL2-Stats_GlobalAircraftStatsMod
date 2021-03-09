@@ -7,8 +7,6 @@ from django.conf import settings
 from django.urls import reverse
 
 
-
-
 def compute_float(numerator, denominator, round_to=2):
     return round(numerator / max(denominator, 1), round_to)
 
@@ -58,10 +56,7 @@ class AircraftBucket(models.Model):
     )
 
     coalition = models.IntegerField(default=Coalition.neutral, choices=COALITIONS)
-    # ========================== NON-SORTABLE VISIBLE FIELDS END
 
-    # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
-    score = models.BigIntegerField(default=0)
     deaths = models.BigIntegerField(default=0)
     captures = models.BigIntegerField(default=0)
     bailouts = models.BigIntegerField(default=0)
@@ -70,6 +65,10 @@ class AircraftBucket(models.Model):
     in_flight = models.BigIntegerField(default=0)
     crashes = models.BigIntegerField(default=0)
     shotdown = models.BigIntegerField(default=0)
+    # ========================== NON-SORTABLE VISIBLE FIELDS END
+
+    # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
+    score = models.BigIntegerField(default=0)
 
     ammo_shot = models.BigIntegerField(default=0)
     ammo_hit = models.BigIntegerField(default=0)
@@ -80,13 +79,12 @@ class AircraftBucket(models.Model):
     sorties_plane_was_hit = models.BigIntegerField(default=0)
     plane_survivability_counter = models.BigIntegerField(default=0)
     pilot_survivability_counter = models.BigIntegerField(default=0)
-    plane_lethality_counter = models.BigIntegerField(default=0)
-    pilot_lethality_counter = models.BigIntegerField(default=0)
+    plane_lethality_counter = models.BigIntegerField(default=0)  # = Air kills + Assists.
+    pilot_lethality_counter = models.BigIntegerField(default=0)  # = Pilot kills + Asissts on a pilot kill.
     distinct_enemies_hit = models.BigIntegerField(default=0)
-    pilot_kills = models.BigIntegerField(default=0)  # Assisting in a pilot kill count.
+    pilot_kills = models.BigIntegerField(default=0)
 
     # ========================== NON-VISIBLE HELPER FIELDS  END
-
 
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
@@ -131,8 +129,180 @@ class AircraftBucket(models.Model):
     def rating_format(self):
         return rating_format_helper(self.rating)
 
+    def percent_pvp_helper(self, key):
+        if key in self.killboard_planes:
+            return str(compute_float(self.killboard_planes[key] * 100, self.kills)) + '%'
+        else:
+            return '0%'
+
+    def percent_air_ai_helper(self, key):
+        if key in self.killboard_ground:
+            return str(compute_float(self.killboard_ground[key] * 100, self.kills)) + '%'
+        else:
+            return '0%'
+
+    def percent_ground_helper(self, key):
+        if key in self.killboard_ground:
+            return str(compute_float(self.killboard_ground[key] * 100, self.ground_kills)) + '%'
+        else:
+            return '0%'
+
+    @property
+    def percent_light_kills(self):
+        return self.percent_pvp_helper('aircraft_light')
+
+    @property
+    def percent_medium_kills(self):
+        return self.percent_pvp_helper('aircraft_medium')
+
+    @property
+    def percent_heavy_kills(self):
+        return self.percent_pvp_helper('aircraft_heavy')
+
+    @property
+    def percent_transport_kills(self):
+        return self.percent_pvp_helper('aircraft_transport')
+
+    @property
+    def percent_light_ai_kills(self):
+        return self.percent_air_ai_helper('aircraft_light')
+
+    @property
+    def percent_medium_ai_kills(self):
+        return self.percent_air_ai_helper('aircraft_medium')
+
+    @property
+    def percent_heavy_ai_kills(self):
+        return self.percent_air_ai_helper('aircraft_heavy')
+
+    @property
+    def percent_transport_ai_kills(self):
+        return self.percent_air_ai_helper('aircraft_transport')
+
+    @property
+    def percent_tank_heavy(self):
+        return self.percent_ground_helper('tank_heavy')
+
+    @property
+    def percent_tank_medium(self):
+        return self.percent_ground_helper('tank_medium')
+
+    @property
+    def percent_tank_light(self):
+        return self.percent_ground_helper('tank_light')
+
+    @property
+    def percent_armoured_vehicle(self):
+        return self.percent_ground_helper('armoured_vehicle')
+
+    @property
+    def percent_car(self):
+        return self.percent_ground_helper('car')
+
+    @property
+    def percent_truck(self):
+        return self.percent_ground_helper('truck')
+
+    @property
+    def percent_aaa_heavy(self):
+        return self.percent_ground_helper('aaa_heavy')
+
+    @property
+    def percent_aaa_light(self):
+        return self.percent_ground_helper('aaa_light')
+
+    @property
+    def percent_aaa_mg(self):
+        return self.percent_ground_helper('aaa_mg')
+
+    @property
+    def percent_machine_gunner(self):
+        return self.percent_ground_helper('machine_gunner')
+
+    @property
+    def percent_aerostat(self):
+        return self.percent_ground_helper('aerostat')
+
+    @property
+    def percent_searchlight(self):
+        return self.percent_ground_helper('searchlight')
+
+    @property
+    def percent_locomotive(self):
+        return self.percent_ground_helper('locomotive')
+
+    @property
+    def percent_wagon(self):
+        return self.percent_ground_helper('wagon')
+
+    @property
+    def percent_artillery_field(self):
+        return self.percent_ground_helper('artillery_field')
+
+    @property
+    def percent_artillery_howitzer(self):
+        return self.percent_ground_helper('artillery_howitzer')
+
+    @property
+    def percent_artillery_rocket(self):
+        return self.percent_ground_helper('artillery_rocket')
+
+    @property
+    def percent_ship(self):
+        return self.percent_ground_helper('ship')
+
+    @property
+    def percent_ship_heavy(self):
+        return self.percent_ground_helper('ship_heavy')
+
+    @property
+    def percent_ship_medium(self):
+        return self.percent_ground_helper('ship_medium')
+
+    @property
+    def percent_ship_light(self):
+        return self.percent_ground_helper('ship_light')
+
+    @property
+    def percent_aircraft_static(self):
+        return self.percent_ground_helper('aircraft_static')
+
+    @property
+    def percent_vehicle_static(self):
+        return self.percent_ground_helper('vehicle_static')
+
+    @property
+    def percent_airfield(self):
+        return self.percent_ground_helper('airfield')
+
+    @property
+    def percent_bridge(self):
+        return self.percent_ground_helper('bridge')
+
+    @property
+    def percent_industrial(self):
+        return self.percent_ground_helper('industrial')
+
+    @property
+    def percent_building_big(self):
+        return self.percent_ground_helper('building_big')
+
+    @property
+    def percent_building_medium(self):
+        return self.percent_ground_helper('building_medium')
+
+    @property
+    def percent_building_small(self):
+        return self.percent_ground_helper('building_small')
+
     def get_aircraft_url(self):
-        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[self.aircraft.id]), tour_id=self.tour.id)
+        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[self.aircraft.id]),
+                                            tour_id=self.tour.id)
+        return url
+
+    def get_killboard_url(self):
+        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[self.aircraft.id]),
+                                            tour_id=self.tour.id)
         return url
 
 
@@ -146,10 +316,10 @@ class AircraftKillboard(models.Model):
 
     # TODO: Make DB indices
     aircraft_1_kills = models.BigIntegerField(default=0)
-    aircraft_1_shotdown = models.BigIntegerField(default=0) # Nr times aircraft 1 shot down aircraft 2
+    aircraft_1_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 1 shot down aircraft 2
     aircraft_1_assists = models.BigIntegerField(default=0)
     aircraft_2_kills = models.BigIntegerField(default=0)
-    aircraft_2_shotdown = models.BigIntegerField(default=0) # Nr times aircraft 2 shot down aircraft 1
+    aircraft_2_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 2 shot down aircraft 1
     aircraft_2_assists = models.BigIntegerField(default=0)
 
     # These two count how many times aircraft_x hit aircraft_y at least once in a sortie.
@@ -172,5 +342,3 @@ class SortieAugmentation(models.Model):
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
         db_table = "Sortie_MOD_STATS_BY_AIRCRAFT"
-
-
