@@ -73,11 +73,12 @@ def aircraft_killboard(request, aircraft_id):
             killboard.append(
                 {'aircraft': k.aircraft_2,
                  'kills': k.aircraft_1_shotdown,
-                 'assists': k.aircraft_1_assists,
                  'deaths': k.aircraft_2_shotdown,
                  'kdr': compute_float(k.aircraft_1_shotdown, k.aircraft_2_shotdown),
-                 'plane_survivability': compute_float(k.aircraft_2_shotdown * 100, k.aircraft_2_distinct_hits),
-                 'pilot_survivability': compute_float(k.aircraft_2_kills * 100, k.aircraft_2_distinct_hits),
+                 'plane_survivability': round(
+                     100.0 - compute_float(k.aircraft_2_shotdown * 100, k.aircraft_2_distinct_hits), 2),
+                 'pilot_survivability': round(
+                     100.0 - compute_float(k.aircraft_2_kills * 100, k.aircraft_2_distinct_hits), 2),
                  'plane_lethality': compute_float(k.aircraft_1_shotdown * 100, k.aircraft_1_distinct_hits),
                  'pilot_lethality': compute_float(k.aircraft_1_kills * 100, k.aircraft_1_distinct_hits),
                  'url': k.get_aircraft_url(2),
@@ -87,11 +88,12 @@ def aircraft_killboard(request, aircraft_id):
             killboard.append(
                 {'aircraft': k.aircraft_1,
                  'kills': k.aircraft_2_shotdown,
-                 'assists': k.aircraft_2_assists,
                  'deaths': k.aircraft_1_shotdown,
                  'kdr': compute_float(k.aircraft_2_shotdown, k.aircraft_1_shotdown),
-                 'plane_survivability': compute_float(k.aircraft_1_shotdown * 100, k.aircraft_1_distinct_hits),
-                 'pilot_survivability': compute_float(k.aircraft_1_kills * 100, k.aircraft_1_distinct_hits),
+                 'plane_survivability': round(
+                     100.0 - compute_float(k.aircraft_1_shotdown * 100, k.aircraft_1_distinct_hits), 2),
+                 'pilot_survivability': round(
+                     100.0 - compute_float(k.aircraft_1_kills * 100, k.aircraft_1_distinct_hits), 2),
                  'plane_lethality': compute_float(k.aircraft_2_shotdown * 100, k.aircraft_2_distinct_hits),
                  'pilot_lethality': compute_float(k.aircraft_2_kills * 100, k.aircraft_2_distinct_hits),
                  'url': k.get_aircraft_url(1),

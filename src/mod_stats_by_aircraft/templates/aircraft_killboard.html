@@ -36,13 +36,6 @@
                     </a>
                 </div>
                 <div class="cell" style="width: 90px;">
-                    <a class="sort_by" href="?sort_by=-assists">
-                        <img src="{% static 'img/icons/small/score.png' %}" width="18" height="18"
-                             alt="{% trans 'Assisted' context 'killboard' %}"
-                             title="{% trans 'Assisted' context 'killboard' %}">
-                    </a>
-                </div>
-                <div class="cell" style="width: 90px;">
                     <a class="sort_by" href="?sort_by=-kdr">
                         <img src="{% static 'img/icons/small/kd.png' %}" width="18" height="18"
                              alt="{% trans 'K/D - Kills per Death' context 'killboard' %}"
@@ -84,7 +77,6 @@
                 <div class="cell" style="text-align: left;">{{ k.aircraft.name }}</div>
                 <div class="cell">{{ k.kills }}</div>
                 <div class="cell">{{ k.deaths }}</div>
-                <div class="cell">{{ k.assists }}</div>
                 <div class="cell">{{ k.kdr }}</div>
                 <div class="cell">{{ k.plane_survivability }}%</div>
                 <div class="cell">{{ k.pilot_survivability }}%</div>

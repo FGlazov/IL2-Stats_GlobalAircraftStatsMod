@@ -370,23 +370,21 @@
             </div>
             <!--- TODO: sub_sub_item divs? -->
             <div class="sub_item">
-                <div class="name">{% trans 'Bailout' context 'total' %}</div>
+                <div class="name" style="padding-left: 75px;">{% trans 'Bailout' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_bailouts }}</div>
             </div>
             <div class="sub_item">
-                <div class="name">{% trans 'Dead' context 'total' %}</div>
+                <div class="name" style="padding-left: 75px;">{% trans 'Dead' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_deaths }}</div>
             </div>
-            <div class="sub_item">
-                <div class="name">{% trans 'Captured' context 'total' %}</div>
+            <div class="sub_item" >
+                <div class="name" style="padding-left: 75px;">{% trans 'Captured' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_captures }}</div>
             </div>
             <div class="sub_item">
-                <div class="name">{% trans 'Ditched' context 'total' %}</div>
+                <div class="name" style="padding-left: 75px;">{% trans 'Ditched' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_ditches }}</div>
             </div>
-            <!--- TODO: Maybe also shotdown? -->
-
         </div>
 
         <div class="clearfix"></div>

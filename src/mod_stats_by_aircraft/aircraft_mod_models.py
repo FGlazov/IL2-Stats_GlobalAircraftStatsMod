@@ -372,10 +372,8 @@ class AircraftKillboard(models.Model):
 
     aircraft_1_kills = models.BigIntegerField(default=0)  # Nr times aircraft 1 hit aircraft 2 which lead to pilot death
     aircraft_1_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 1 shot down aircraft 2
-    aircraft_1_assists = models.BigIntegerField(default=0)
     aircraft_2_kills = models.BigIntegerField(default=0)  # Nr times aircraft 2 hit aircraft 1 which lead to pilot death
     aircraft_2_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 2 shot down aircraft 1
-    aircraft_2_assists = models.BigIntegerField(default=0)
 
     # These two count how many times aircraft_x hit aircraft_y at least once in a sortie.
     # To calculate survivability/lethality.

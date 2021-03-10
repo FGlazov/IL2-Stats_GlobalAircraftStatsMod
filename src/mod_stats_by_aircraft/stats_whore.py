@@ -432,7 +432,7 @@ def process_aircraft_stats(sortie):
 
     events = (LogEntry.objects
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
-              .filter(Q(act_sortie_id=sortie.id) | Q(cact_sortie_id=sortie.id),
+              .filter(Q(act_sortie_id=sortie.id),
                       Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
                       act_object__cls_base='aircraft', cact_object__cls_base='aircraft',
                       # Disregard AI sorties
@@ -445,29 +445,14 @@ def process_aircraft_stats(sortie):
     enemies_shotdown = set()
     enemies_killed = set()
 
-    damaged_by = set()
-    # Technically these following two need not be sets, but for code consistency we keep them like this.
-    # (Can only be shotdown/killed by one enemy per sortie)
-    shotdown_by = set()
-    killed_by = set()
-
     for event in events:
-        if event.act_sortie_id == sortie.id:  # We did the damaging/shooting down/killing
-            enemy_plane_sortie_pair = (event.cact_object, event.cact_sortie_id)
-            if event.type == 'damaged':
-                enemies_damaged.add(enemy_plane_sortie_pair)
-            elif event.type == 'shotdown':
-                enemies_shotdown.add(enemy_plane_sortie_pair)
-            elif event.type == 'killed':
-                enemies_killed.add(enemy_plane_sortie_pair)
-        else:  # The enemy plane damaged us/shot us down/killed us
-            enemy_plane_sortie_pair = (event.act_object, event.act_sortie_id)
-            if event.type == 'damaged':
-                damaged_by.add(enemy_plane_sortie_pair)
-            elif event.type == 'shotdown':
-                shotdown_by.add(enemy_plane_sortie_pair)
-            elif event.type == 'killed':
-                killed_by.add(enemy_plane_sortie_pair)
+        enemy_plane_sortie_pair = (event.cact_object, event.cact_sortie_id)
+        if event.type == 'damaged':
+            enemies_damaged.add(enemy_plane_sortie_pair)
+        elif event.type == 'shotdown':
+            enemies_shotdown.add(enemy_plane_sortie_pair)
+        elif event.type == 'killed':
+            enemies_killed.add(enemy_plane_sortie_pair)
 
     cache_kb = dict()
 
@@ -475,15 +460,13 @@ def process_aircraft_stats(sortie):
         enemy_sortie = damaged_enemy[1]
         kb = get_killboard(damaged_enemy, sortie, cache_kb)
 
-        # TODO: Refactor the common parts here into a function, two copies of the same long code.
+        # TODO: Refactor the common parts here into a function, two copies of the basically same code.
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_distinct_hits += 1
             bucket.distinct_enemies_hit += 1
             enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
             if enemy_sortie_db.is_shotdown:
                 bucket.plane_lethality_counter += 1
-                if damaged_enemy not in shotdown_by:
-                    kb.aircraft_1_assists += 1
             if enemy_sortie_db.is_dead:
                 bucket.pilot_lethality_counter += 1
         else:
@@ -492,20 +475,24 @@ def process_aircraft_stats(sortie):
             enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
             if enemy_sortie_db.is_shotdown:
                 bucket.plane_lethality_counter += 1
-                if damaged_enemy not in shotdown_by:
-                    kb.aircraft_2_assists += 1
             if enemy_sortie_db.is_dead:
                 bucket.pilot_lethality_counter += 1
 
     cache_enemy_buckets = dict()
     for shotdown_enemy in enemies_shotdown:
         enemy_bucket_key = (sortie.tour, shotdown_enemy[0])
+        if enemy_bucket_key not in cache_enemy_buckets:
+            cache_enemy_buckets[enemy_bucket_key] = (AircraftBucket.objects.get_or_create(
+                tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
+        enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
 
-        if enemy_bucket_key in cache_enemy_buckets:
-            enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
-        else:
-            enemy_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
-        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+        if bucket.id < enemy_bucket.id:
+            # To make sure each encounter is parsed once for elo. This encounter is also parsed on the enemy's sortie.
+            print("--------------------------------")
+            print("Winner Elo Before: ", bucket.elo, "Loser Elo Before: ", enemy_bucket.elo)
+            bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+            print("Winner Elo After: ", bucket.elo, "Loser Elo After: ", enemy_bucket.elo)
+
         kb = get_killboard(shotdown_enemy, sortie, cache_kb)
 
         if kb.aircraft_1 == sortie.aircraft:
@@ -557,10 +544,10 @@ def calc_elo(winner_rating, loser_rating):
     result = expected_result(winner_rating, loser_rating)
     new_winner_rating = winner_rating + k * (1 - result)
     new_loser_rating = loser_rating + k * (0 - (1 - result))
-    return new_winner_rating, new_loser_rating
+    return int(round(new_winner_rating)), int(round(new_loser_rating))
 
 
 def expected_result(p1, p2):
     exp = (p2 - p1) / 400.0
-    return 1 / ((10.0 ** (exp)) + 1)
+    return 1 / ((10.0 ** exp) + 1)
 # ======================== MODDED PART END
