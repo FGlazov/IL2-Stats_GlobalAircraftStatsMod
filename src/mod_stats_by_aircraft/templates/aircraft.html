@@ -357,18 +357,17 @@
                 <div class="num">{{ aircraft_bucket.total_sorties }}</div>
             </div>
             <div class="sub_item">
-                <div class="name">{% trans 'Landings' context 'total' %}</div>
+                <div class="name">{% trans "Landed on Airfield" context 'sortie' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_landings }}</div>
             </div>
             <div class="sub_item">
-                <div class="name">{% trans 'In flight' context 'total' %}</div>
+                <div class="name">{% trans "in flight" context 'sortie_status' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_in_flight }}</div>
             </div>
             <div class="sub_item">
                 <div class="name">{% trans 'Lost aircraft' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_aircraft_lost }}</div>
             </div>
-            <!--- TODO: sub_sub_item divs? -->
             <div class="sub_item">
                 <div class="name" style="padding-left: 75px;">{% trans 'Bailout' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_bailouts }}</div>
@@ -382,7 +381,7 @@
                 <div class="num">{{ aircraft_bucket.percent_captures }}</div>
             </div>
             <div class="sub_item">
-                <div class="name" style="padding-left: 75px;">{% trans 'Ditched' context 'total' %}</div>
+                <div class="name" style="padding-left: 75px;">{% trans "ditched" context 'sortie_status' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_ditches }}</div>
             </div>
         </div>
