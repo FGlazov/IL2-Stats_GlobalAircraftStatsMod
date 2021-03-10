@@ -12,9 +12,7 @@ from stats.helpers import Paginator, get_sort_by, redirect_fix_url
 from stats.models import (Player, Mission, PlayerMission, PlayerAircraft, Sortie, KillboardPvP,
                           Tour, LogEntry, Profile, Squad, Reward, PlayerOnline, VLife)
 from stats import sortie_log
-from stats.views import (_get_rating_position, _get_squad, pilot_vlife, pilot_vlifes, online, mission, missions_list,
-                         pilot_sortie_log, pilot_sortie, pilot_sorties, pilot_killboard, pilot_awards, pilot_rankings,
-                         squad_rankings, squad, squad_pilots, pilot, main)
+from stats.views import *
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
