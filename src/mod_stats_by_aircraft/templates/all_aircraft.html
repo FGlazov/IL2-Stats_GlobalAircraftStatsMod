@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n staticfiles tz stats %}
+{% load i18n staticfiles tz stats filters %}
 {% block title %}{% trans 'Aircraft Rankings' %} / {{ block.super }}{% endblock title %}
 
 {% block head %}
@@ -102,7 +102,7 @@
                 <div>
                     {% include 'inline/table_coal_pref_icon.html' with coal_pref=aircraft_bucket.coalition %}
                 </div>
-                <div class="cell">{{ aircraft_bucket.total_flight_time|seconds_to_time }}</div>
+                <div class="cell">{{ aircraft_bucket.total_flight_time|seconds_to_long_time }}</div>
                 <div class="cell">{{ aircraft_bucket.kd }}</div>
                 <div class="cell">{{ aircraft_bucket.khr }}</div>
                 <div class="cell">{{ aircraft_bucket.gkd }}</div>

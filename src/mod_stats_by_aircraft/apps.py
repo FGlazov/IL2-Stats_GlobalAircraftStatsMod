@@ -17,3 +17,8 @@ class ModConfig(AppConfig):
 
         old_stats_whore.main = stats_whore.main
         old_stats_whore.stats_whore = stats_whore.stats_whore
+
+        # monkey-patch the new config parameter.
+        import config
+
+        config.DEFAULT['stats']['retro_compute_for_last_tours'] = 10

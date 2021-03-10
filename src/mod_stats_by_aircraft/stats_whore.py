@@ -5,10 +5,10 @@ from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, up
 from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
 from stats.online import update_online
-from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie
+from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour
 from users.utils import cleanup_registration
 from django.conf import settings
-from django.db.models import Q, F
+from django.db.models import Q, F, Max
 from core import __version__
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
 import sys
@@ -21,6 +21,7 @@ from mission_report.statuses import LifeStatus
 from collections import defaultdict
 from django.db import transaction
 import operator
+import config
 
 MISSION_REPORT_BACKUP_PATH = settings.MISSION_REPORT_BACKUP_PATH
 MISSION_REPORT_BACKUP_DAYS = settings.MISSION_REPORT_BACKUP_DAYS
@@ -34,6 +35,9 @@ WIN_SCORE_MIN = settings.WIN_SCORE_MIN
 WIN_SCORE_RATIO = settings.WIN_SCORE_RATIO
 SORTIE_MIN_TIME = settings.SORTIE_MIN_TIME
 
+# ======================== MODDED PART BEGIN
+RETRO_COMPUTE_FOR_LAST_HOURS = config.get_conf()['stats'].getint('retro_compute_for_last_tours')
+# ======================== MODDED PART END
 
 def main():
     logger.info('IL2 stats {stats}, Python {python}, Django {django}'.format(
@@ -353,8 +357,11 @@ def stats_whore(m_report_file):
 # ======================== MODDED PART BEGIN
 @transaction.atomic
 def process_old_sorties_batch_aircraft_stats(backfill_log):
+    max_id = Tour.objects.aggregate(Max('id'))['id__max']
+    tour_cutoff = max_id - RETRO_COMPUTE_FOR_LAST_HOURS
+
     backfill_sorties = (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__isnull=True,
-                                              aircraft__cls_base='aircraft')
+                                              aircraft__cls_base='aircraft', tour__id__gte=tour_cutoff)
                         .order_by('-tour__id'))
     nr_left = backfill_sorties.count()
     if nr_left == 0:

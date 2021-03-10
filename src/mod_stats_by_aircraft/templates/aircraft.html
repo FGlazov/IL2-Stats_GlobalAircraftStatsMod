@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n staticfiles tz stats %}
+{% load i18n staticfiles tz stats filters %}
 {% block title %}{{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
 
 {% block nav_tabs %}
@@ -347,6 +347,10 @@
         <div class="player_detailed" style="float: right;">
             <div class="title">
                 {% trans 'Detailed sorties results' %}
+            </div>
+            <div class="item">
+                <div class="name">{% trans "Flight Time" %}</div>
+                <div class="num">{{ aircraft_bucket.total_flight_time|seconds_to_long_time }}</div>
             </div>
             <div class="item">
                 <div class="name">{% trans 'Score' context 'total' %}</div>
