@@ -467,16 +467,26 @@ def process_aircraft_stats(sortie):
             enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
             if enemy_sortie_db.is_shotdown:
                 bucket.plane_lethality_counter += 1
+                if damaged_enemy not in enemies_shotdown:
+                    kb.aircraft_1_assists += 1
+
             if enemy_sortie_db.is_dead:
                 bucket.pilot_lethality_counter += 1
+                if damaged_enemy not in enemies_killed:
+                    kb.aircraft_1_pk_assists += 1
         else:
             kb.aircraft_2_distinct_hits += 1
             bucket.distinct_enemies_hit += 1
             enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
             if enemy_sortie_db.is_shotdown:
                 bucket.plane_lethality_counter += 1
+                if damaged_enemy not in enemies_shotdown:
+                    kb.aircraft_2_assists += 1
+
             if enemy_sortie_db.is_dead:
                 bucket.pilot_lethality_counter += 1
+                if damaged_enemy not in enemies_killed:
+                    kb.aircraft_2_pk_assists += 1
 
     cache_enemy_buckets = dict()
     for shotdown_enemy in enemies_shotdown:
@@ -488,10 +498,7 @@ def process_aircraft_stats(sortie):
 
         if bucket.id < enemy_bucket.id:
             # To make sure each encounter is parsed once for elo. This encounter is also parsed on the enemy's sortie.
-            print("--------------------------------")
-            print("Winner Elo Before: ", bucket.elo, "Loser Elo Before: ", enemy_bucket.elo)
             bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-            print("Winner Elo After: ", bucket.elo, "Loser Elo After: ", enemy_bucket.elo)
 
         kb = get_killboard(shotdown_enemy, sortie, cache_kb)
 
