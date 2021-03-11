@@ -37,6 +37,8 @@ SORTIE_MIN_TIME = settings.SORTIE_MIN_TIME
 
 # ======================== MODDED PART BEGIN
 RETRO_COMPUTE_FOR_LAST_HOURS = config.get_conf()['stats'].getint('retro_compute_for_last_tours')
+
+
 # ======================== MODDED PART END
 
 def main():
@@ -503,10 +505,7 @@ def process_aircraft_stats(sortie):
                 tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
         enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
 
-        if bucket.id < enemy_bucket.id:
-            # To make sure each encounter is parsed once for elo. This encounter is also parsed on the enemy's sortie.
-            bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-
+        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
         kb = get_killboard(shotdown_enemy, sortie, cache_kb)
 
         if kb.aircraft_1 == sortie.aircraft:
@@ -553,6 +552,7 @@ def get_killboard(enemy, sortie, cache_kb):
     return kb
 
 
+# From https://github.com/ddm7018/Elo
 def calc_elo(winner_rating, loser_rating):
     k = 15  # Low k factor (in chess ~30 is common), because there will be a lot of engagements.
     result = expected_result(winner_rating, loser_rating)
@@ -561,6 +561,7 @@ def calc_elo(winner_rating, loser_rating):
     return int(round(new_winner_rating)), int(round(new_loser_rating))
 
 
+# From https://github.com/ddm7018/Elo
 def expected_result(p1, p2):
     exp = (p2 - p1) / 400.0
     return 1 / ((10.0 ** exp) + 1)
