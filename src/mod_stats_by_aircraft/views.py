@@ -27,7 +27,7 @@ def all_aircraft(request):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
-    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id).order_by(sort_by, 'id')
+    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type='NO_FILTER').order_by(sort_by, 'id')
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
@@ -116,17 +116,17 @@ def aircraft_killboard(request, aircraft_id):
     })
 
 
-def find_aircraft_bucket(aircraft_id, tour_id):
+def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
     if tour_id:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .get(aircraft=aircraft_id, tour_id=tour_id))
+                      .get(aircraft=aircraft_id, tour_id=tour_id, filter_type=bucket_filter))
         except AircraftBucket.DoesNotExist:
             bucket = None
     else:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .filter(aircraft=aircraft_id)
+                      .filter(aircraft=aircraft_id, filter_type=bucket_filter)
                       .order_by('-id'))[0]
         except IndexError:
             raise Http404

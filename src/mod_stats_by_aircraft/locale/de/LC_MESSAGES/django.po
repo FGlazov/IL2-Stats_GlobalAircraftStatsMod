@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 14:19+0100\n"
+"POT-Creation-Date: 2021-03-16 13:19+0100\n"
 "PO-Revision-Date: 2016-07-18 19:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -116,7 +116,7 @@ msgstr "Unterstüzter Abschuss"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:134
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:70
 msgctxt "total"
-msgid "Bomben-/Raketentrefferquote"
+msgid "Bomb/Rocket Accuracy"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:139
@@ -290,56 +290,60 @@ msgid "Detailed sorties results"
 msgstr "Detaillierte Einsatzergebnisse"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:352
+msgid "Flight Time"
+msgstr "Flugzeit"
+
+#: .\mod_stats_by_aircraft\templates\aircraft.html:356
 msgctxt "total"
 msgid "Score"
 msgstr "Punktestand"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:356
+#: .\mod_stats_by_aircraft\templates\aircraft.html:360
 msgctxt "total"
 msgid "Sorties"
 msgstr "Einsätze"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:360
+#: .\mod_stats_by_aircraft\templates\aircraft.html:364
 msgctxt "sortie"
 msgid "Landed on Airfield"
 msgstr "Gelandet"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:364
+#: .\mod_stats_by_aircraft\templates\aircraft.html:368
 msgctxt "sortie_status"
 msgid "in flight"
 msgstr "Im Flug"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:368
+#: .\mod_stats_by_aircraft\templates\aircraft.html:372
 msgctxt "total"
 msgid "Lost aircraft"
 msgstr "Verlorene Flugzeuge"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:372
+#: .\mod_stats_by_aircraft\templates\aircraft.html:376
 msgctxt "total"
 msgid "Bailout"
 msgstr "Abgesprungen"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:376
+#: .\mod_stats_by_aircraft\templates\aircraft.html:380
 msgctxt "total"
 msgid "Dead"
 msgstr "Gestorben"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:380
+#: .\mod_stats_by_aircraft\templates\aircraft.html:384
 msgctxt "total"
 msgid "Captured"
 msgstr "Gefangenschaft"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:384
+#: .\mod_stats_by_aircraft\templates\aircraft.html:388
 msgctxt "sortie_status"
 msgid "ditched"
 msgstr "Bauchlandung"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:396
+#: .\mod_stats_by_aircraft\templates\aircraft.html:400
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:76
 msgid "Plane Durability"
 msgstr "Flugzeugbeständigkeit"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:403
+#: .\mod_stats_by_aircraft\templates\aircraft.html:407
 msgid ""
 "if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in "
 "the majority"
@@ -347,54 +351,54 @@ msgstr ""
 "Wenn das Verhältnis der Piloten >1 ist. Dann sind diese in der Minderheit. "
 "Wenn das Verhältnis der Piloten <1 ist, dann sind diese in der Mehrheit"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:405
+#: .\mod_stats_by_aircraft\templates\aircraft.html:409
 msgid "Pilot Survivability"
 msgstr "Pilotenschutz "
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:413
+#: .\mod_stats_by_aircraft\templates\aircraft.html:417
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:82
 msgid "Plane Lethality"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:421
+#: .\mod_stats_by_aircraft\templates\aircraft.html:425
 msgid "Pilot Lethality"
 msgstr "Pilotentödlichkeit"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:431
+#: .\mod_stats_by_aircraft\templates\aircraft.html:435
 msgid "K/D - Kills per Death"
 msgstr "Luftsiege pro Tod"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:439
+#: .\mod_stats_by_aircraft\templates\aircraft.html:443
 msgid "K/L - Kills per Aircraft Lost"
 msgstr "Luftsiege pro Flugzeugverlust"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:447
+#: .\mod_stats_by_aircraft\templates\aircraft.html:451
 msgid "K/S - Kills per Sortie"
 msgstr "Luftsiege pro Einsatz"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:455
+#: .\mod_stats_by_aircraft\templates\aircraft.html:459
 msgid "K/H - Kills per Hour of Flight"
 msgstr "Luftsiege pro Stunde"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:465
+#: .\mod_stats_by_aircraft\templates\aircraft.html:469
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:52
 msgid "GK/D - G.Kills per Death"
 msgstr "zer. Bodenziele pro Tod"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:473
+#: .\mod_stats_by_aircraft\templates\aircraft.html:477
 msgid "GK/L - G.Kills per Aircraft Lost"
 msgstr "zer. Bodenziele pro Flugzeugverlust"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:481
+#: .\mod_stats_by_aircraft\templates\aircraft.html:485
 msgid "GK/S - G.Kills per Sortie"
 msgstr "zer. Bodenziele pro Einsatz"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:489
+#: .\mod_stats_by_aircraft\templates\aircraft.html:493
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:58
 msgid "GK/H - G.Kills per Hour of Flight"
 msgstr "zer. Bodenziele pro Flug"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:503
+#: .\mod_stats_by_aircraft\templates\aircraft.html:507
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:92
 msgid ""
 "* Plane Durability is percent of sorties the plane survived after taking "
@@ -404,13 +408,17 @@ msgid ""
 "Assists count. </br> * Pilot Lethality is the percent of enemy pilots which "
 "died after taking damage from this plane. Assists count."
 msgstr ""
-" * Mit Flugzeugbeständigkeit ist der Prosentsatz von Einsätzen gemeint, die mit einer Landung enden, nachdem das Flugzeug beschädigt wurde.<br/>"
-" * Mit Pilotenschutz ist der Prosentsatz von Einsätzen gemeint, wo der Pilot überlebt hat, nachdem sein Flugzeug beschädigt wurde.<br/>"
-" * Mit Flugzeugtödlichkeit ist der Prosentsatz von feindlichen Flugzeuge gemeint, die verloren wurden, nachdem sie beschädigt wurden. Unterstüzter Abschüsse zählen mit. <br/>"
-" * Mit Pilotentödlichkeit ist der Prosentsatz von feindlichen Piloten gemeint, die gestroben sind, nachdem ihr Flugzeug beschädigt wurde. Unterstüzter Abschüsse zählen mit."
-""
+" * Mit Flugzeugbeständigkeit ist der Prosentsatz von Einsätzen gemeint, die "
+"mit einer Landung enden, nachdem das Flugzeug beschädigt wurde.<br/> * Mit "
+"Pilotenschutz ist der Prosentsatz von Einsätzen gemeint, wo der Pilot "
+"überlebt hat, nachdem sein Flugzeug beschädigt wurde.<br/> * Mit "
+"Flugzeugtödlichkeit ist der Prosentsatz von feindlichen Flugzeuge gemeint, "
+"die verloren wurden, nachdem sie beschädigt wurden. Unterstüzter Abschüsse "
+"zählen mit. <br/> * Mit Pilotentödlichkeit ist der Prosentsatz von "
+"feindlichen Piloten gemeint, die gestroben sind, nachdem ihr Flugzeug "
+"beschädigt wurde. Unterstüzter Abschüsse zählen mit."
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:511
+#: .\mod_stats_by_aircraft\templates\aircraft.html:515
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:102
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:132
 msgid ""
@@ -421,7 +429,7 @@ msgstr ""
 "<strong>Achtung!</strong> Diese Statistik berücksichtigt nur Flüge auf "
 "diesem Server. Die Bewertungen erfolgen unabhänig der Anzeigen im Spiel"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:518
+#: .\mod_stats_by_aircraft\templates\aircraft.html:522
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:109
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:139
 #, python-format
@@ -520,9 +528,11 @@ msgid ""
 "damage. </br> * Plane Lethality is the percent of enemy aircraft which went "
 "down after taking damage from this plane. Assists count. </br>"
 msgstr ""
-" * Mit Flugzeugbeständigkeit ist der Prosentsatz von Einsätzen gemeint, die mit einer Landung enden, nachdem das Flugzeug beschädigt wurde.<br/>"
-" * Mit Flugzeugtödlichkeit ist der Prosentsatz von feindlichen Flugzeuge gemeint, die verloren wurden, nachdem sie beschädigt wurden. Unterstüzter Abschüsse zählen mit. <br/>"
-""
+" * Mit Flugzeugbeständigkeit ist der Prosentsatz von Einsätzen gemeint, die "
+"mit einer Landung enden, nachdem das Flugzeug beschädigt wurde.<br/> * Mit "
+"Flugzeugtödlichkeit ist der Prosentsatz von feindlichen Flugzeuge gemeint, "
+"die verloren wurden, nachdem sie beschädigt wurden. Unterstüzter Abschüsse "
+"zählen mit. <br/>"
 
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:156
 msgid "on the number of air kills"
@@ -1298,9 +1308,6 @@ msgstr "Flugzeug-Killboard"
 
 #~ msgid "Best Ground Streak"
 #~ msgstr "Beste zer. Bodenziele in Folge"
-
-#~ msgid "Flight Time"
-#~ msgstr "Flugzeit"
 
 #~ msgid "Position in Rating"
 #~ msgstr "Position in der Rangliste"

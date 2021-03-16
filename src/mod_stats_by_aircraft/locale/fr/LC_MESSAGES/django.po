@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-03-10 14:56+0100\n"
+"POT-Creation-Date: 2021-03-16 13:19+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -290,56 +290,60 @@ msgid "Detailed sorties results"
 msgstr "Résultats détaillés de la sortie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:352
+msgid "Flight Time"
+msgstr "Temps de vol"
+
+#: .\mod_stats_by_aircraft\templates\aircraft.html:356
 msgctxt "total"
 msgid "Score"
 msgstr "Score"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:356
+#: .\mod_stats_by_aircraft\templates\aircraft.html:360
 msgctxt "total"
 msgid "Sorties"
 msgstr "Sorties"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:360
+#: .\mod_stats_by_aircraft\templates\aircraft.html:364
 msgctxt "sortie"
 msgid "Landed on Airfield"
 msgstr "Posé sur un aérodrome"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:364
+#: .\mod_stats_by_aircraft\templates\aircraft.html:368
 msgctxt "sortie_status"
 msgid "in flight"
 msgstr "en vol"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:368
+#: .\mod_stats_by_aircraft\templates\aircraft.html:372
 msgctxt "total"
 msgid "Lost aircraft"
 msgstr "Avion perdu"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:372
+#: .\mod_stats_by_aircraft\templates\aircraft.html:376
 msgctxt "total"
 msgid "Bailout"
 msgstr "Ejecté"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:376
+#: .\mod_stats_by_aircraft\templates\aircraft.html:380
 msgctxt "total"
 msgid "Dead"
 msgstr "Tué"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:380
+#: .\mod_stats_by_aircraft\templates\aircraft.html:384
 msgctxt "total"
 msgid "Captured"
 msgstr "Capturé"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:384
+#: .\mod_stats_by_aircraft\templates\aircraft.html:388
 msgctxt "sortie_status"
 msgid "ditched"
 msgstr "posé en catastrophe"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:396
+#: .\mod_stats_by_aircraft\templates\aircraft.html:400
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:76
 msgid "Plane Durability"
 msgstr "Le Taux de survie de l’appareil"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:403
+#: .\mod_stats_by_aircraft\templates\aircraft.html:407
 msgid ""
 "if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in "
 "the majority"
@@ -347,54 +351,54 @@ msgstr ""
 "Si le ratio > 1 - le pilote vole pour le côté en sousnombre, si le ratio < 1 "
 "- le pilote vole pour le côté en surnombre"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:405
+#: .\mod_stats_by_aircraft\templates\aircraft.html:409
 msgid "Pilot Survivability"
 msgstr "Le Taux de survie du pilote"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:413
+#: .\mod_stats_by_aircraft\templates\aircraft.html:417
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:82
 msgid "Plane Lethality"
 msgstr "Le Taux de létalité de l’appareil"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:421
+#: .\mod_stats_by_aircraft\templates\aircraft.html:425
 msgid "Pilot Lethality"
 msgstr "Le Taux de létalité de pilote"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:431
+#: .\mod_stats_by_aircraft\templates\aircraft.html:435
 msgid "K/D - Kills per Death"
 msgstr "K/D - Victoires/Mort"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:439
+#: .\mod_stats_by_aircraft\templates\aircraft.html:443
 msgid "K/L - Kills per Aircraft Lost"
 msgstr "K/L - Victoires/Appareil perdu"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:447
+#: .\mod_stats_by_aircraft\templates\aircraft.html:451
 msgid "K/S - Kills per Sortie"
 msgstr "K/S - Victoires/Sortie"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:455
+#: .\mod_stats_by_aircraft\templates\aircraft.html:459
 msgid "K/H - Kills per Hour of Flight"
 msgstr "K/H - Victoires/Heure de vol"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:465
+#: .\mod_stats_by_aircraft\templates\aircraft.html:469
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:52
 msgid "GK/D - G.Kills per Death"
 msgstr "GK/D - Cibles au sol/Mort"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:473
+#: .\mod_stats_by_aircraft\templates\aircraft.html:477
 msgid "GK/L - G.Kills per Aircraft Lost"
 msgstr "GK/L - Cibles au sol/Appareil perdu"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:481
+#: .\mod_stats_by_aircraft\templates\aircraft.html:485
 msgid "GK/S - G.Kills per Sortie"
 msgstr "GK/S - Cibles au sol/Sortie"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:489
+#: .\mod_stats_by_aircraft\templates\aircraft.html:493
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:58
 msgid "GK/H - G.Kills per Hour of Flight"
 msgstr "GK/H - Cibles au sol/Heure de vol"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:503
+#: .\mod_stats_by_aircraft\templates\aircraft.html:507
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:92
 msgid ""
 "* Plane Durability is percent of sorties the plane survived after taking "
@@ -413,7 +417,7 @@ msgstr ""
 "pilote est le pourcentage de pilotes ennemis tués par cet appareil. Les "
 "assistances sont calculées. </br>"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:511
+#: .\mod_stats_by_aircraft\templates\aircraft.html:515
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:102
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:132
 msgid ""
@@ -425,7 +429,7 @@ msgstr ""
 "différent de celui du jeu. En conséquence les statistiques peuvent parfois "
 "être différentes entre le site et le jeu."
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:518
+#: .\mod_stats_by_aircraft\templates\aircraft.html:522
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:109
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:139
 #, python-format
@@ -5592,9 +5596,6 @@ msgstr "Ratio Victoires-défaites de l’appareil"
 
 #~ msgid "Best Ground Streak"
 #~ msgstr "Meilleure série de cibles au sol"
-
-#~ msgid "Flight Time"
-#~ msgstr "Temps de vol"
 
 #~ msgid "Position in Rating"
 #~ msgstr "Position dans le classement"

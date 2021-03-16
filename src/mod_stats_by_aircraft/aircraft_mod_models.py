@@ -12,9 +12,26 @@ def compute_float(numerator, denominator, round_to=2):
 
 
 class AircraftBucket(models.Model):
+    # ========================= CHOICES
+    NO_FILTER = 'NO_FILTER'
+    NO_BOMBS_NO_JUICE = 'NO_BOMBS_JUICE'
+    BOMBS = 'BOMBS'  # Without Juice
+    JUICED = 'JUICE'  # Without Bombs
+    ALL = 'ALL'  # Bombs and juice
+
+    filter_choices = [
+        (NO_FILTER, 'no filter'),
+        (NO_BOMBS_NO_JUICE, 'no bombs nor juice'),
+        (BOMBS, 'bomb sorties only with no juice'),
+        (JUICED, 'juiced (upgraded engine/fuel)'),
+        (ALL, 'all'),
+    ]
+    # ========================= CHOICES END
+
     # ========================= NATURAL KEY
     tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
     aircraft = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
+    filter_type = models.CharField(max_length=16, choices=filter_choices, default=NO_FILTER)
     # ========================= NATURAL KEY END
 
     # ========================= SORTABLE FIELDS
@@ -347,6 +364,22 @@ class AircraftBucket(models.Model):
     def ground_kills_per_sortie(self):
         return compute_float(self.ground_kills, self.total_sorties)
 
+    @property
+    def has_juiced_variant(self):
+        juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 ser.8', 'Bf 109 G-6 Late', 'Bf 109 K-4',
+                      'Spitfire Mk.IXe', 'Hurricane Mk.II']
+
+        return self.aircraft.name in juiceables
+
+    @property
+    def has_bomb_variant(self):
+        aircraft = self.aircraft
+        if aircraft.name == "P-38J-25" or aircraft.name == "Me 262 A":
+            return True
+
+        if aircraft.cls != "aircraft_light":
+            return False
+
     def get_aircraft_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id)
 
@@ -378,7 +411,6 @@ class AircraftKillboard(models.Model):
     aircraft_2_shotdown = models.BigIntegerField(default=0)  # Nr times aircraft 2 shot down aircraft 1
     aircraft_2_assists = models.BigIntegerField(default=0)
     aircraft_2_pk_assists = models.BigIntegerField(default=0)
-
 
     # These two count how many times aircraft_x hit aircraft_y at least once in a sortie.
     # To calculate survivability/lethality.
