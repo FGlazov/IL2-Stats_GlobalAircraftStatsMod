@@ -9,8 +9,8 @@
 {% block content %}
 <section id="content">
     <div class="wrapper">
-<div class="profile_name">
-            {{ aircraft_bucket.aircraft.name }}
+        <div class="profile_name">
+            {% trans 'Aircraft Killboard' %} : {{ aircraft_bucket.aircraft.name }}
         </div>
         <div class="profile_head">
             <div class="head_left">
@@ -30,27 +30,35 @@
             <div class="head_right">
                 {% if aircraft_bucket.has_bomb_variant and not aircraft_bucket.has_juiced_variant %}
                 <label>{% trans 'Filter by:' %}</label>
-                <select>
+                <select style="background: #303030; border: 1px solid #252525; width: 400px;">
                     <!-- TODO: Select the correct option. -->
                     <option value="NO_FILTER">{% trans 'no filter' %}</option>
                     <option value="NO_BOMBS_JUICE">{% trans 'with bombs only' %}</option>
                     <option value="NO_BOMBS">{% trans 'without bombs only' %}</option>
                 </select>
+                <div class="clearfix"></div>
+                <div class="info">
+                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
+                </div>
                 {% endif %}
 
                 {% if not aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
                 <label>{% trans 'Filter by:' %}</label>
-                <select>
+                <select style="background: #303030; border: 1px solid #252525; width: 400px;">
                     <!-- TODO: Select the correct option. -->
                     <option value="NO_FILTER">{% trans 'no filter' %}</option>
                     <option value="NO_BOMBS_JUICE">{% trans 'with upgraded engine' %}</option>
                     <option value="NO_JUICE">{% trans 'without upgraded engine' %}</option>
                 </select>
+                <div class="clearfix"></div>
+                <div class="info">
+                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
+                </div>
                 {% endif %}
 
                 {% if aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
                 <label>{% trans 'Filter by:' %}</label>
-                <select>
+                <select style="background: #303030; border: 1px solid #252525; width: 400px;">
                     <!-- TODO: Select the correct option. -->
                     <option value="NO_FILTER">{% trans 'no filter' %}</option>
                     <option value="JUICE">{% trans 'with upgraded engine and no bombs' %}</option>
@@ -58,6 +66,10 @@
                     <option value="ALL">{% trans 'with upgraded engine and bombs' %}</option>
                     <option value="BOMBS">{% trans 'without upgraded engine and bombs' %}</option>
                 </select>
+                <div class="clearfix"></div>
+                <div class="info">
+                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -169,6 +181,8 @@
         $(document).ready(function() {
             uri_sort_by('-kdr');
         });
+
+
 
 
 </script>
