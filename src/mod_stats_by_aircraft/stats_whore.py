@@ -597,6 +597,7 @@ def is_jabo(sortie):
 
 # Whether the aircraft has an upgraded engine or better fuel
 def is_juiced(sortie):
+    # TODO: Add Hurri
     #          P47/P51/Spit9     Tempest                               BF-109 K-4          La-5
     juices = ['150 grade fuel', 'Sabre IIA engine with +11 lb boost', 'DB 605 DC engine', 'M-82F engine']
 

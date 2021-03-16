@@ -9,12 +9,56 @@
 {% block content %}
 <section id="content">
     <div class="wrapper">
-        <div class="content_head">
-            <div class="content_title">
-                {% trans 'Killboard' %}
-                <div class="content_title_sm">{% trans 'aircraft' %}: {{ aircraft_bucket.aircraft.name }}</div>
+<div class="profile_name">
+            {{ aircraft_bucket.aircraft.name }}
+        </div>
+        <div class="profile_head">
+            <div class="head_left">
+                {% if aircraft_bucket.coalition == 1 %}
+                <img src="{% static 'img/flag/coal_1.png' %}" width="" height="" class="coal_flag"
+                     title="{{ COAL_1_NAME }}" alt="{{ COAL_1_NAME }}" align="left">
+                <div class="coalition">{% trans 'coalition' %}: <span>{{ COAL_1_NAME }}</span></div>
+                {% else %}
+                <img src="{% static 'img/flag/coal_2.png' %}" width="" height="" class="coal_flag"
+                     title="{{ COAL_2_NAME }}" alt="{{ COAL_2_NAME }}" align="left">
+                <div class="coalition">{% trans 'coalition' %}: <span>{{ COAL_2_NAME }}</span></div>
+                {% endif %}
                 <img src="{{ aircraft_bucket.aircraft.aircraft_image }}" width="670" height="240" class="fav_aircraft"
                      title="{% trans aircraft_bucket.aircraft.name %}" alt="{% trans aircraft_bucket.aircraft.name %}">
+            </div>
+
+            <div class="head_right">
+                {% if aircraft_bucket.has_bomb_variant and not aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'with bombs only' %}</option>
+                    <option value="NO_BOMBS">{% trans 'without bombs only' %}</option>
+                </select>
+                {% endif %}
+
+                {% if not aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'with upgraded engine' %}</option>
+                    <option value="NO_JUICE">{% trans 'without upgraded engine' %}</option>
+                </select>
+                {% endif %}
+
+                {% if aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="JUICE">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="ALL">{% trans 'with upgraded engine and bombs' %}</option>
+                    <option value="BOMBS">{% trans 'without upgraded engine and bombs' %}</option>
+                </select>
+                {% endif %}
             </div>
         </div>
         {% if killboard %}

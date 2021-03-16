@@ -366,7 +366,7 @@ class AircraftBucket(models.Model):
 
     @property
     def has_juiced_variant(self):
-        juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 ser.8', 'Bf 109 G-6 Late', 'Bf 109 K-4',
+        juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
                       'Spitfire Mk.IXe', 'Hurricane Mk.II']
 
         return self.aircraft.name in juiceables
@@ -379,6 +379,12 @@ class AircraftBucket(models.Model):
 
         if aircraft.cls != "aircraft_light":
             return False
+
+        no_jabo_possible = ['Spitfire Mk.VB', 'Yak-9 ser.1', 'Yak-9T ser.1', 'Hurricane Mk.II']
+        if aircraft.name in no_jabo_possible:
+            return False
+
+        return True
 
     def get_aircraft_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id)

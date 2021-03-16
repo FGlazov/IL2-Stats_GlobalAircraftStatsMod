@@ -26,6 +26,40 @@
                 <img src="{{ aircraft_bucket.aircraft.aircraft_image }}" width="670" height="240" class="fav_aircraft"
                      title="{% trans aircraft_bucket.aircraft.name %}" alt="{% trans aircraft_bucket.aircraft.name %}">
             </div>
+
+            <div class="head_right">
+                {% if aircraft_bucket.has_bomb_variant and not aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'with bombs only' %}</option>
+                    <option value="NO_BOMBS">{% trans 'without bombs only' %}</option>
+                </select>
+                {% endif %}
+
+                {% if not aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'with upgraded engine' %}</option>
+                    <option value="NO_JUICE">{% trans 'without upgraded engine' %}</option>
+                </select>
+                {% endif %}
+
+                {% if aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
+                <label>{% trans 'Filter by:' %}</label>
+                <select>
+                    <!-- TODO: Select the correct option. -->
+                    <option value="NO_FILTER">{% trans 'no filter' %}</option>
+                    <option value="JUICE">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="NO_BOMBS_JUICE">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="ALL">{% trans 'with upgraded engine and bombs' %}</option>
+                    <option value="BOMBS">{% trans 'without upgraded engine and bombs' %}</option>
+                </select>
+                {% endif %}
+            </div>
         </div>
 
         <div class="profile_main_stats">
@@ -380,7 +414,7 @@
                 <div class="name" style="padding-left: 75px;">{% trans 'Dead' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_deaths }}</div>
             </div>
-            <div class="sub_item" >
+            <div class="sub_item">
                 <div class="name" style="padding-left: 75px;">{% trans 'Captured' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_captures }}</div>
             </div>
@@ -507,8 +541,10 @@
                 {% blocktrans trimmed %}
                 * Plane Durability is percent of sorties the plane survived after taking damage. </br>
                 * Pilot Survivability is the percent of sorties the pilot survived after the plane took damage. </br>
-                * Plane Lethality is the percent of enemy aircraft which went down after taking damage from this plane. Assists count. </br>
-                * Pilot Lethality is the percent of enemy pilots which died after taking damage from this plane. Assists count.
+                * Plane Lethality is the percent of enemy aircraft which went down after taking damage from this plane.
+                Assists count. </br>
+                * Pilot Lethality is the percent of enemy pilots which died after taking damage from this plane. Assists
+                count.
                 {% endblocktrans %}
             </div>
             <div>
