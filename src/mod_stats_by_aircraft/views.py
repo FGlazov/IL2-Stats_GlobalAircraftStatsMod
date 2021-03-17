@@ -5,6 +5,7 @@ from django.db.models import Q, Sum
 from django.http import Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
+from django.urls import reverse
 
 from mission_report.constants import Coalition
 
@@ -23,11 +24,11 @@ aircraft_killboard_sort_fields = ['kills', 'assists', 'deaths', 'kdr', 'plane_su
 ITEMS_PER_PAGE = 20
 
 
-def all_aircraft(request):
+def all_aircraft(request, airfilter='NO_FILTER'):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
-    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type='NO_FILTER').order_by(sort_by, 'id')
+    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type=airfilter).order_by(sort_by, 'id')
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
@@ -35,7 +36,19 @@ def all_aircraft(request):
 
     return render(request, 'all_aircraft.html', {
         'all_aircraft': buckets,
+        'filter_type': airfilter,
+        'no_filter_url': all_aircraft_url(request.tour.id, 'NO_FILTER'),
+        'no_mods_url': all_aircraft_url(request.tour.id, 'NO_BOMBS_JUICE'),
+        'bombs_url': all_aircraft_url(request.tour.id, 'BOMBS'),
+        'juiced_url': all_aircraft_url(request.tour.id, 'JUICE'),
+        'all_mods_urls': all_aircraft_url(request.tour.id, 'ALL'),
     })
+
+
+def all_aircraft_url(tour_id, filter_type):
+    url = '{url}?tour={tour_id}'.format(url=reverse('stats:all_aircraft', args=[filter_type]),
+                                        tour_id=tour_id)
+    return url
 
 
 def aircraft(request, aircraft_id, airfilter):

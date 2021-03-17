@@ -9,11 +9,55 @@
 <section id="content">
     <div class="wrapper aircraft" style="width: 1400px;">
         <div class="content_head">
-            <div class="content_title">
+            <div class="content_title" style="width: 700px">
                 {% trans 'Aircraft Rankings' %}
                 <div class="content_title_sm" id="sort_by_text"></div>
             </div>
-            <div class="form_search">
+            <label>{% trans 'Filter by:' %}</label>
+                <select style="background: #303030; border: 1px solid #252525; width: 400px;"
+                        onchange="if (this.value) window.location.href=this.value">
+                    {% if filter_type == "NO_FILTER" %}
+                    <option value="{{ no_filter_url }}" selected>{% trans 'no filter' %}</option>
+                    <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ bombs_url }}">{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if filter_type == "JUICE" %}
+                    <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
+                    <option value="{{ juiced_url }}" selected>{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ bombs_url }}">{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if filter_type == "NO_BOMBS_JUICE" %}
+                   <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
+                    <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ no_mods_url }}" selected>{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ bombs_url }}">{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if filter_type == "ALL" %}
+                   <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
+                    <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ all_mods_urls }}" selected>{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ bombs_url }}">{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if filter_type == "BOMBS" %}
+                    <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
+                    <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ all_mods_urls }}" >{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ bombs_url }}" selected>{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                </select>
+            <div class="form_search" style="margin-top: 9px;">
                 <form action="" method="GET">
                     <input type="hidden" name="tour" value="{{ request.tour.id }}"/>
                     <input type="text" name="search" value="" placeholder="{% trans 'Search aircraft' %}">
