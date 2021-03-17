@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^pilots/(?P<squad_id>\d+)/(?P<squad_tag>\S+)/$', views.squad_pilots, name='squad_pilots'),
 
     url(r'^pilot/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot, name='pilot'),
-    url(r'^aircraft/(?P<aircraft_id>\d+)/$', views.aircraft, name='aircraft'),
+    url(r'^aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft, name='aircraft'),
     url(r'^aircraft_killboard/(?P<aircraft_id>\d+)/$', views.aircraft_killboard, name='aircraft_killboard'),
     url(r'^sortie/(?P<sortie_id>\d+)/$', views.pilot_sortie, name='pilot_sortie'),
     url(r'^sortie/log/(?P<sortie_id>\d+)/$', views.pilot_sortie_log, name='pilot_sortie_log'),

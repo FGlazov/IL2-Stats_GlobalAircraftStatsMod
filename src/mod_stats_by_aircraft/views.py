@@ -38,14 +38,14 @@ def all_aircraft(request):
     })
 
 
-def aircraft(request, aircraft_id):
-    bucket = find_aircraft_bucket(aircraft_id, request.GET.get('tour'))
+def aircraft(request, aircraft_id, airfilter):
+    bucket = find_aircraft_bucket(aircraft_id, request.GET.get('tour'), airfilter)
     if bucket is None:
-        # TODO: Create this html.
         return render(request, 'aircraft_does_not_exist.html')
 
     return render(request, 'aircraft.html', {
         'aircraft_bucket': bucket,
+        'filter_option' : airfilter,
     })
 
 

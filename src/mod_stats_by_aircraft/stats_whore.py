@@ -393,22 +393,22 @@ def process_aircraft_stats(sortie):
                                                    filter_type='NO_FILTER'))[0]
     process_bucket(bucket, sortie)
 
-    if is_juiced(sortie):
-        if is_jabo(sortie):
-            filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
-                                                                    filter_type='ALL'))[0]
-        else:
-            filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
-                                                                    filter_type='JUICE'))[0]
-    else:
-        if is_jabo(sortie):
-            filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
-                                                                    filter_type='BOMBS'))[0]
-        else:
-            filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
-                                                                    filter_type='NO_BOMBS_JUICE'))[0]
-
     if bucket.has_juiced_variant or bucket.has_bomb_variant:
+        if is_juiced(sortie):
+            if is_jabo(sortie):
+                filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                                        filter_type='ALL'))[0]
+            else:
+                filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                                        filter_type='JUICE'))[0]
+        else:
+            if is_jabo(sortie):
+                filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                                        filter_type='BOMBS'))[0]
+            else:
+                filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                                        filter_type='NO_BOMBS_JUICE'))[0]
+
         process_bucket(filtered_bucket, sortie)
 
 
@@ -458,6 +458,21 @@ def process_bucket(bucket, sortie):
             bucket.killboard_ground[key] += value
         else:
             bucket.killboard_ground[key] = value
+
+    cache_enemy_buckets, cache_kb = process_log_entries(bucket, sortie)
+
+    sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
+    sortie_augmentation.sortie_stats_processed = True
+    for killboard in cache_kb.values():
+        killboard.save()
+    for enemy_bucket in cache_enemy_buckets.values():
+        enemy_bucket.save()
+    bucket.update_derived_fields()
+    bucket.save()
+    sortie_augmentation.save()
+
+
+def process_log_entries(bucket, sortie):
     events = (LogEntry.objects
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
               .filter(Q(act_sortie_id=sortie.id),
@@ -466,11 +481,12 @@ def process_bucket(bucket, sortie):
                       # Disregard AI sorties
                       act_sortie_id__isnull=False, cact_sortie_id__isnull=False, )
               # Disregard friendly fire incidents.
-              .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
-              )
+              .exclude(act_sortie__coalition=F('cact_sortie__coalition')))
+
     enemies_damaged = set()
     enemies_shotdown = set()
     enemies_killed = set()
+
     for event in events:
         enemy_plane_sortie_pair = (event.cact_object, event.cact_sortie_id)
         if event.type == 'damaged':
@@ -479,12 +495,20 @@ def process_bucket(bucket, sortie):
             enemies_shotdown.add(enemy_plane_sortie_pair)
         elif event.type == 'killed':
             enemies_killed.add(enemy_plane_sortie_pair)
+
+    return update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown, sortie)
+
+
+# New encounters pre-processed:
+# Aircraft in Bucket has damaged, killed, and shotdown enemy aircraft encoded as (enemy_aircraft, enemy_sortie) pair.
+# This function updates all the database entries in AircraftBuckets/AircraftKillboards from this info.
+# Return: maps whose values need to be saved.
+def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown, sortie):
     cache_kb = dict()
     for damaged_enemy in enemies_damaged:
         enemy_sortie = damaged_enemy[1]
         kb = get_killboard(damaged_enemy, sortie, cache_kb)
 
-        # TODO: Refactor the common parts here into a function, two copies of the basically same code.
         if kb.aircraft_1 == sortie.aircraft:
             kb.aircraft_1_distinct_hits += 1
             bucket.distinct_enemies_hit += 1
@@ -533,15 +557,7 @@ def process_bucket(bucket, sortie):
             kb.aircraft_1_kills += 1
         else:
             kb.aircraft_2_kills += 1
-    sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
-    sortie_augmentation.sortie_stats_processed = True
-    for killboard in cache_kb.values():
-        killboard.save()
-    for enemy_bucket in cache_enemy_buckets.values():
-        enemy_bucket.save()
-    bucket.update_derived_fields()
-    bucket.save()
-    sortie_augmentation.save()
+    return cache_enemy_buckets, cache_kb
 
 
 def get_killboard(enemy, sortie, cache_kb):
@@ -597,12 +613,12 @@ def is_jabo(sortie):
 
 # Whether the aircraft has an upgraded engine or better fuel
 def is_juiced(sortie):
-    # TODO: Add Hurri
     #          P47/P51/Spit9     Tempest                               BF-109 K-4          La-5
-    juices = ['150 grade fuel', 'Sabre IIA engine with +11 lb boost', 'DB 605 DC engine', 'M-82F engine']
+    juices = ['150 grade fuel', 'Sabre IIA engine with +11 lb boost', 'DB 605 DC engine', 'M-82F engine',
+              # Hurricane
+              'Merlin XX engine with +14 lb boost']
 
     for modification in sortie.modifications:
-        print(modification)
         if modification in juices:
             return True
 

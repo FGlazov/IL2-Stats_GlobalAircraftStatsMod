@@ -389,14 +389,26 @@ class AircraftBucket(models.Model):
     def get_aircraft_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id)
 
+    def get_url_no_mods(self):
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE)
+
+    def get_url_bombs(self):
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.BOMBS)
+
+    def get_url_juiced(self):
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.JUICED)
+
+    def get_url_all_mods(self):
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.ALL)
+
     def get_killboard_url(self):
         url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[self.aircraft.id]),
                                             tour_id=self.tour.id)
         return url
 
 
-def get_aircraft_url(aircraft_id, tour_id):
-    url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id]),
+def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
+    url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id, bucket_filter]),
                                         tour_id=tour_id)
     return url
 
