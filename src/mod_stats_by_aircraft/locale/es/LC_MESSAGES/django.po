@@ -39,7 +39,7 @@ msgstr "Coaliciones"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:84
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:16
 msgid "Filter by:"
-msgstr ""
+msgstr "Filtro:"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:36
 #: .\mod_stats_by_aircraft\templates\aircraft.html:41
@@ -69,7 +69,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:44
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:52
 msgid "no filter"
-msgstr ""
+msgstr "Sin flitro"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:37
 #: .\mod_stats_by_aircraft\templates\aircraft.html:42
@@ -78,7 +78,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:42
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:47
 msgid "with bombs only"
-msgstr ""
+msgstr "Sólo con bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:38
 #: .\mod_stats_by_aircraft\templates\aircraft.html:43
@@ -87,7 +87,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:43
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:48
 msgid "without bombs only"
-msgstr ""
+msgstr "Sólo sin bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:59
 #: .\mod_stats_by_aircraft\templates\aircraft.html:64
@@ -96,7 +96,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:68
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:73
 msgid "with upgraded fuel/engine"
-msgstr ""
+msgstr "Con motor mejorado"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:60
 #: .\mod_stats_by_aircraft\templates\aircraft.html:65
@@ -105,7 +105,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:69
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:74
 msgid "without upgraded fuel/engine"
-msgstr ""
+msgstr "Sin motor mejorado"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:81
 #: .\mod_stats_by_aircraft\templates\aircraft.html:89
@@ -123,7 +123,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:45
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:53
 msgid "with upgraded engine and no bombs"
-msgstr ""
+msgstr "Con motor mejorado sin bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:82
 #: .\mod_stats_by_aircraft\templates\aircraft.html:90
@@ -141,7 +141,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:46
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:54
 msgid "without upgraded engine and no bombs"
-msgstr ""
+msgstr "Sin motor mejorado sin bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:83
 #: .\mod_stats_by_aircraft\templates\aircraft.html:91
@@ -159,7 +159,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:47
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:55
 msgid "with upgraded fuel/engine and bombs"
-msgstr ""
+msgstr "Con motor mejorado con bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:84
 #: .\mod_stats_by_aircraft\templates\aircraft.html:92
@@ -177,7 +177,7 @@ msgstr ""
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:48
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:56
 msgid "without upgraded fuel/engine and bombs"
-msgstr ""
+msgstr "Sin motor mejorado con bombas"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:127
 msgid "Air K/HR"
@@ -595,7 +595,7 @@ msgstr[1] ""
 
 #: .\mod_stats_by_aircraft\templates\aircraft_does_not_exist.html:12
 msgid "There are no sorties of this aircraft with the applied filter."
-msgstr ""
+msgstr "No hay salidas de esta aeronave con el filtro aplicado"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:3
 msgid "Killboard"
@@ -614,7 +614,7 @@ msgstr "Tabla de derribos de aeronave"
 msgid ""
 "This filter applies to all aircraft (where applicable), including the ones "
 "inside the table below."
-msgstr ""
+msgstr "Este filtro aplica a todas las aeronaves (si corresponde), incluidas las que están dentro de la tabla siguiente"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:143
 #, fuzzy
@@ -671,7 +671,7 @@ msgstr "Clasificación de aeronave"
 #| msgctxt "total"
 #| msgid "Static Aircraft"
 msgid "Search aircraft"
-msgstr "Aviones aparcados"
+msgstr "Buscar aeronave"
 
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:77
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:78

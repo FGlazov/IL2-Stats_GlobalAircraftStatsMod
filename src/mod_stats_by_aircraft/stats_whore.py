@@ -508,7 +508,7 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     enemies_shotdown = set()
     enemies_killed = set()
 
-    if len(turret_events) > 0:
+    if len(turret_events) > 0 and not is_subtype:
         cache_turret_buckets = dict()
 
         for event in turret_events:
