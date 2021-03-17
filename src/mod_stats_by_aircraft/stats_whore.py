@@ -392,15 +392,18 @@ def process_aircraft_stats(sortie):
 
     bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                    filter_type='NO_FILTER'))[0]
-    process_bucket(bucket, sortie)
 
-    if bucket.has_juiced_variant or bucket.has_bomb_variant:
+    has_subtype = bucket.has_juiced_variant or bucket.has_bomb_variant
+
+    process_bucket(bucket, sortie, has_subtype, False)
+
+    if has_subtype:
         filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                                 filter_type=get_sortie_type(sortie)))[0]
-        process_bucket(filtered_bucket, sortie)
+        process_bucket(filtered_bucket, sortie, True, True)
 
 
-def process_bucket(bucket, sortie):
+def process_bucket(bucket, sortie, has_subtype, is_subtype):
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
         bucket.total_flight_time += sortie.flight_time
@@ -447,14 +450,14 @@ def process_bucket(bucket, sortie):
         else:
             bucket.killboard_ground[key] = value
 
-    process_log_entries(bucket, sortie)
+    process_log_entries(bucket, sortie, has_subtype, is_subtype)
 
     sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
     sortie_augmentation.sortie_stats_processed = True
     sortie_augmentation.save()
 
 
-def process_log_entries(bucket, sortie):
+def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     events = (LogEntry.objects
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
               .filter(Q(act_sortie_id=sortie.id),
@@ -480,7 +483,8 @@ def process_log_entries(bucket, sortie):
         elif event.type == 'killed':
             enemies_killed.add(enemy_plane_sortie_pair)
 
-    enemy_buckets, kbs = update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown)
+    enemy_buckets, kbs = update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown,
+                                             has_subtype, is_subtype)
 
     for killboard in kbs.values():
         killboard.save()
@@ -531,7 +535,9 @@ def process_log_entries(bucket, sortie):
             if turret_name in enemies_killed:
                 enemy_killed.add((bucket.aircraft, sortie))
 
-            buckets, kbs = update_from_entries(turret_bucket, enemy_damaged, enemy_killed, enemy_shotdown)
+            buckets, kbs = update_from_entries(turret_bucket, enemy_damaged, enemy_killed, enemy_shotdown,
+                                               # No bombers have subtypes
+                                               False, False)
 
             turret_bucket.save()
             for bucket in buckets.values():
@@ -541,7 +547,7 @@ def process_log_entries(bucket, sortie):
                 kb.save()
 
 
-def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown):
+def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown, has_subtype, is_subtype):
     cache_kb = dict()
     cache_enemy_buckets_kb = dict()  # Helper cache needed in order to find buckets (quickly) inside get_killboard.
     for damaged_enemy in enemies_damaged:
@@ -552,13 +558,45 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
 
     cache_enemy_buckets = dict()
     for shotdown_enemy in enemies_shotdown:
-        enemy_bucket_key = (bucket.tour, shotdown_enemy[0])
-        if enemy_bucket_key not in cache_enemy_buckets:
-            cache_enemy_buckets[enemy_bucket_key] = (AircraftBucket.objects.get_or_create(
-                tour=bucket.tour, aircraft=shotdown_enemy[0], filter_type='NO_FILTER'))[0]
-        enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
+        enemy_sortie = shotdown_enemy[1]
+        enemy_sortie_type = get_sortie_type(enemy_sortie)
 
-        bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+        subtype_enemy_bucket_key = (bucket.tour, shotdown_enemy[0], enemy_sortie_type)
+        subtype_enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, subtype_enemy_bucket_key)
+
+        # There are in essecence three cases for the Elo Update:
+
+        # Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
+        # Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.
+        # Aircraft 1 has subtypes, Aircraft 2 does not:
+        #
+
+        if enemy_sortie_type == bucket.NO_FILTER:  # No subtypes for enemy
+            if not has_subtype:
+                bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+            else:
+                bucket.elo, new_elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+                delta_elo = new_elo - subtype_enemy_bucket.elo
+                # This elo will be touched twice: once in subtype, once in not-filtered type.
+                # Hence take approximately the average delta.
+                subtype_enemy_bucket.elo += round(delta_elo / 2)
+        else: # Enemy has subtyhpes
+            enemy_bucket_key = (bucket.tour, shotdown_enemy[0], bucket.NO_FILTER)
+            enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, enemy_bucket_key)
+
+            if has_subtype:
+                if is_subtype:
+                    bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+                else:
+                    bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+            else:
+                first_new_elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+                second_new_elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+
+                first_delta_elo = first_new_elo - bucket.elo
+                second_delta_elo = second_new_elo - bucket.elo
+                bucket.elo = round(bucket.elo + first_delta_elo / 2 + second_delta_elo / 2)
+
         kbs = get_killboards(shotdown_enemy, bucket, cache_kb, cache_enemy_buckets_kb)
         for kb in kbs:
             if kb.aircraft_1.aircraft == bucket.aircraft:
@@ -574,6 +612,14 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
             else:
                 kb.aircraft_2_kills += 1
     return cache_enemy_buckets, cache_kb
+
+
+def ensure_bucket_in_cache(cache_enemy_buckets, bucket_key):
+    if bucket_key not in cache_enemy_buckets:
+        cache_enemy_buckets[bucket_key] = (AircraftBucket.objects.get_or_create(
+            tour=bucket_key[0], aircraft=bucket_key[1], filter_type=bucket_key[2]))[0]
+
+    return cache_enemy_buckets[bucket_key]
 
 
 def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown, enemy_sortie, kb):
@@ -686,6 +732,10 @@ def is_juiced(sortie):
 
 # Whether the aircraft has an upgraded engine or better fuel
 def get_sortie_type(sortie):
+    aircraft = sortie.aircraft
+    if not has_juiced_variant(aircraft) and not has_bomb_variant(aircraft):
+        return "NO_FILTER"
+
     if is_juiced(sortie):
         if is_jabo(sortie):
             return 'ALL'
