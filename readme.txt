@@ -25,7 +25,7 @@ Installation
 
 2. Copy the src folder inside this .zip into your il2 stats folder.
 
-3. Inside your src/conf.ini, add the line "mods = mod_rating_by_type" under [stats].
+3. Inside your src/conf.ini, add the line "mods = mod_stats_by_aircraft" under [stats]. If you already have a mods line, you should change it instead - just be sure to remove any semicolons inside that line if there are any.
 
 4. Configure retro_compute_for_last_tours=10 under [stats] to any value you'd like. See above for an explanation.
 
