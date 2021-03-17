@@ -45,20 +45,21 @@ def aircraft(request, aircraft_id, airfilter):
 
     return render(request, 'aircraft.html', {
         'aircraft_bucket': bucket,
-        'filter_option' : airfilter,
+        'filter_option': airfilter,
     })
 
 
-def aircraft_killboard(request, aircraft_id):
+def aircraft_killboard(request, aircraft_id, airfilter):
     tour_id = request.GET.get('tour')
-    bucket = find_aircraft_bucket(aircraft_id, tour_id)
+    bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter)
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
     aircraft_id = int(aircraft_id)
 
     unsorted_killboard = (AircraftKillboard.objects
                           .select_related('aircraft_1', 'aircraft_2')
-                          .filter(Q(aircraft_1_id=aircraft_id) | Q(aircraft_2_id=aircraft_id),
+                          .filter((Q(aircraft_1=bucket) & Q(aircraft_1__filter_type=airfilter)) |
+                                  (Q(aircraft_2=bucket) & Q(aircraft_2__filter_type=airfilter)),
                                   # Edge case: Killboards with only assists/distinct hits. Look strange.
                                   Q(aircraft_1_shotdown__gt=0) | Q(aircraft_2_shotdown__gt=0),
                                   tour__id=tour_id,
@@ -66,9 +67,13 @@ def aircraft_killboard(request, aircraft_id):
 
     killboard = []
     for k in unsorted_killboard:
-        if k.aircraft_1.id == aircraft_id:
+        aircraft_1 = k.aircraft_1.aircraft
+        if aircraft_1.id == aircraft_id:
+            if not allow_killboard_line(k.aircraft_1, k.aircraft_2):
+                continue
+
             killboard.append(
-                {'aircraft': k.aircraft_2,
+                {'aircraft': k.aircraft_2.aircraft,
                  'kills': k.aircraft_1_shotdown,
                  'deaths': k.aircraft_2_shotdown,
                  'kdr': compute_float(k.aircraft_1_shotdown, k.aircraft_2_shotdown),
@@ -86,8 +91,11 @@ def aircraft_killboard(request, aircraft_id):
                  }
             )
         else:
+            if not allow_killboard_line(k.aircraft_2, k.aircraft_1):
+                continue
+
             killboard.append(
-                {'aircraft': k.aircraft_1,
+                {'aircraft': k.aircraft_1.aircraft,
                  'kills': k.aircraft_2_shotdown,
                  'deaths': k.aircraft_1_shotdown,
                  'kdr': compute_float(k.aircraft_2_shotdown, k.aircraft_1_shotdown),
@@ -116,7 +124,33 @@ def aircraft_killboard(request, aircraft_id):
     })
 
 
-def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
+def allow_killboard_line(our_aircraft, enemy_aircraft):
+    b = our_aircraft
+    # Technically speaking this function could be folded into the query and it would likely be quicker.
+    # The logic here is so complicated, that it is IMO more readable as a separate python function.
+    # Not much performance lost anyways - it's at most 50 objects which are iterated over in (slow) python.
+
+    if enemy_aircraft.has_juiced_variant and enemy_aircraft.has_bomb_variant:
+        return our_aircraft.filter_type == enemy_aircraft.filter_type
+    elif enemy_aircraft.has_juiced_variant:
+        if our_aircraft.filter_type == b.BOMBS:
+            return enemy_aircraft.filter_type == b.NO_FILTER
+        elif our_aircraft.filter_type == b.ALL:
+            return enemy_aircraft.filter_type == b.JUICED
+        else:
+            return our_aircraft.filter_type == enemy_aircraft.filter_type
+    elif enemy_aircraft.has_bomb_variant:
+        if our_aircraft.filter_type == b.JUICED:
+            return enemy_aircraft.filter_type == b.NO_FILTER
+        elif our_aircraft.filter_type == b.ALL:
+            return enemy_aircraft.filter_type == b.BOMBS
+        else:
+            return our_aircraft.filter_type == enemy_aircraft.filter_type
+    else:
+        return True  # Enemy aircraft type is always NO_FILTER, so there are no duplicates here anyways.
+
+
+def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter):
     if tour_id:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')

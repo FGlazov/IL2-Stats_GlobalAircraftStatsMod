@@ -11,6 +11,27 @@ def compute_float(numerator, denominator, round_to=2):
     return round(numerator / max(denominator, 1), round_to)
 
 
+def has_juiced_variant(aircraft):
+    juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
+                  'Spitfire Mk.IXe', 'Hurricane Mk.II', 'Tempest Mk.V ser.2']
+
+    return aircraft.name in juiceables
+
+
+def has_bomb_variant(aircraft):
+    if aircraft.name == "P-38J-25" or aircraft.name == "Me 262 A":
+        return True
+
+    if aircraft.cls != "aircraft_light":
+        return False
+
+    no_jabo_possible = ['Spitfire Mk.VB', 'Yak-9 ser.1', 'Yak-9T ser.1', 'Hurricane Mk.II']
+    if aircraft.name in no_jabo_possible:
+        return False
+
+    return True
+
+
 class AircraftBucket(models.Model):
     # ========================= CHOICES
     NO_FILTER = 'NO_FILTER'
@@ -98,6 +119,9 @@ class AircraftBucket(models.Model):
     distinct_enemies_hit = models.BigIntegerField(default=0)
     pilot_kills = models.BigIntegerField(default=0)
 
+    has_juiced_variant = models.BooleanField(default=False, db_index=True)
+    has_bomb_variant = models.BooleanField(default=False, db_index=True)
+
     # ========================== NON-VISIBLE HELPER FIELDS  END
 
     class Meta:
@@ -119,6 +143,8 @@ class AircraftBucket(models.Model):
         self.update_rating()
         self.ahr = compute_float(self.assists, self.flight_time_hours)
         self.ahd = compute_float(self.assists, self.relive)
+        self.has_juiced_variant = has_juiced_variant(self.aircraft)
+        self.has_bomb_variant = has_bomb_variant(self.aircraft)
 
     def update_rating(self):
         # score per death
@@ -364,30 +390,8 @@ class AircraftBucket(models.Model):
     def ground_kills_per_sortie(self):
         return compute_float(self.ground_kills, self.total_sorties)
 
-    @property
-    def has_juiced_variant(self):
-        juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
-                      'Spitfire Mk.IXe', 'Hurricane Mk.II']
-
-        return self.aircraft.name in juiceables
-
-    @property
-    def has_bomb_variant(self):
-        aircraft = self.aircraft
-        if aircraft.name == "P-38J-25" or aircraft.name == "Me 262 A":
-            return True
-
-        if aircraft.cls != "aircraft_light":
-            return False
-
-        no_jabo_possible = ['Spitfire Mk.VB', 'Yak-9 ser.1', 'Yak-9T ser.1', 'Hurricane Mk.II']
-        if aircraft.name in no_jabo_possible:
-            return False
-
-        return True
-
     def get_aircraft_url(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER)
 
     def get_url_no_mods(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE)
@@ -402,9 +406,19 @@ class AircraftBucket(models.Model):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.ALL)
 
     def get_killboard_url(self):
-        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[self.aircraft.id]),
-                                            tour_id=self.tour.id)
-        return url
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.NO_FILTER)
+
+    def get_killboard_no_mods(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE)
+
+    def get_killboard_bombs(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.BOMBS)
+
+    def get_killboard_juiced(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.JUICED)
+
+    def get_killboard_all_mods(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL)
 
 
 def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
@@ -413,12 +427,18 @@ def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
     return url
 
 
+def get_killboard_url(aircraft_id, tour_id, bucket_filter):
+    url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[aircraft_id, bucket_filter]),
+                                        tour_id=tour_id)
+    return url
+
+
 # All pairs of aircraft. Here, aircraft_1.name < aircraft_2.name (Lex order)
 class AircraftKillboard(models.Model):
     # ========================= NATURAL KEY
-    aircraft_1 = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
-    aircraft_2 = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
-    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
+    aircraft_1 = models.ForeignKey(AircraftBucket, related_name='+', on_delete=models.PROTECT, db_index=True)
+    aircraft_2 = models.ForeignKey(AircraftBucket, related_name='+', on_delete=models.PROTECT, db_index=True)
+    tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT, db_index=True)
     # ========================= NATURAL KEY END
 
     aircraft_1_kills = models.BigIntegerField(default=0)  # Nr times aircraft 1 hit aircraft 2 which lead to pilot death
@@ -442,9 +462,9 @@ class AircraftKillboard(models.Model):
 
     def get_aircraft_url(self, one_or_two):
         if one_or_two == 1:
-            return get_aircraft_url(self.aircraft_1.id, self.tour.id)
+            return get_aircraft_url(self.aircraft_1.aircraft.id, self.tour.id)
         else:
-            return get_aircraft_url(self.aircraft_2.id, self.tour.id)
+            return get_aircraft_url(self.aircraft_2.aircraft.id, self.tour.id)
 
 
 # Additional fields to Sortie objects used by this mod.
