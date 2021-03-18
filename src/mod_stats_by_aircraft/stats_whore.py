@@ -489,6 +489,7 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     for killboard in kbs.values():
         killboard.save()
     for enemy_bucket in enemy_buckets.values():
+        enemy_bucket.update_derived_fields()
         enemy_bucket.save()
 
     bucket.update_derived_fields()
@@ -539,8 +540,10 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
                                                # No bombers have subtypes
                                                False, False)
 
+            turret_bucket.update_derived_fields()
             turret_bucket.save()
             for bucket in buckets.values():
+                bucket.update_derived_fields()
                 bucket.save()
 
             for kb in kbs.values():
@@ -667,6 +670,7 @@ def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):
                 tour=enemy_bucket_key[0], aircraft=enemy_bucket_key[1], filter_type=enemy_bucket_key[2])
             cache_enemy_buckets_kb[enemy_bucket_key] = enemy_bucket
             if created:
+                enemy_bucket.update_derived_fields()
                 enemy_bucket.save()
 
         if bucket.id < enemy_bucket.id:
