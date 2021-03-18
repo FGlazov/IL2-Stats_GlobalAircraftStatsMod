@@ -10,7 +10,8 @@ from users.utils import cleanup_registration
 from django.conf import settings
 from django.db.models import Q, F, Max
 from core import __version__
-from .aircraft_mod_models import AircraftBucket, AircraftKillboard, SortieAugmentation
+from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation, has_juiced_variant,
+                                  has_bomb_variant)
 import sys
 import django
 import pytz
@@ -37,6 +38,10 @@ SORTIE_MIN_TIME = settings.SORTIE_MIN_TIME
 
 # ======================== MODDED PART BEGIN
 RETRO_COMPUTE_FOR_LAST_HOURS = config.get_conf()['stats'].getint('retro_compute_for_last_tours')
+if RETRO_COMPUTE_FOR_LAST_HOURS is None:
+    RETRO_COMPUTE_FOR_LAST_HOURS = 10
+
+
 # ======================== MODDED PART END
 
 def main():
@@ -282,14 +287,14 @@ def stats_whore(m_report_file):
             params['type'] = 'end'
             params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
             params['act_sortie_id'] = event['sortie'].sortie_db.id
+        elif event['type'] == 'disco':
+            params['type'] = 'disco'
+            params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
+            params['act_sortie_id'] = event['sortie'].sortie_db.id						
         elif event['type'] == 'takeoff':
             params['type'] = 'takeoff'
             params['act_object_id'] = event['aircraft'].sortie.sortie_db.aircraft.id
             params['act_sortie_id'] = event['aircraft'].sortie.sortie_db.id
-        elif event['type'] == 'disco':
-            params['type'] = 'disco'	
-            params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
-            params['act_sortie_id'] = event['sortie'].sortie_db.id
         elif event['type'] == 'landed':
             params['act_object_id'] = event['aircraft'].sortie.sortie_db.aircraft.id
             params['act_sortie_id'] = event['aircraft'].sortie.sortie_db.id
@@ -389,11 +394,23 @@ def process_aircraft_stats(sortie):
     if not sortie.aircraft.cls_base == "aircraft":
         return
 
-    bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft))[0]
+    bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                   filter_type='NO_FILTER'))[0]
+
+    has_subtype = has_juiced_variant(bucket.aircraft) or has_bomb_variant(bucket.aircraft)
+
+    process_bucket(bucket, sortie, has_subtype, False)
+
+    if has_subtype:
+        filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                                filter_type=get_sortie_type(sortie)))[0]
+        process_bucket(filtered_bucket, sortie, True, True)
+
+
+def process_bucket(bucket, sortie, has_subtype, is_subtype):
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
         bucket.total_flight_time += sortie.flight_time
-
     bucket.kills += sortie.ak_total
     bucket.ground_kills += sortie.gk_total
     bucket.assists += sortie.ak_assist
@@ -408,7 +425,6 @@ def process_aircraft_stats(sortie):
     bucket.crashes += 1 if sortie.is_crashed else 0
     bucket.shotdown += 1 if sortie.is_shotdown else 0
     bucket.coalition = sortie.coalition
-
     if sortie.ammo['used_cartridges']:
         bucket.ammo_shot += sortie.ammo['used_cartridges']
     if sortie.ammo['hit_bullets']:
@@ -421,19 +437,16 @@ def process_aircraft_stats(sortie):
         bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
     if sortie.ammo['hit_rockets']:
         bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
-
     if sortie.damage:
         bucket.sorties_plane_was_hit += 1
         bucket.plane_survivability_counter += 1 if not sortie.is_lost_aircraft else 0
         bucket.pilot_survivability_counter += 1 if not sortie.is_relive else 0
-
     for key in sortie.killboard_pvp:
         value = sortie.killboard_pvp[key]
         if key in bucket.killboard_planes:
             bucket.killboard_planes[key] += value
         else:
             bucket.killboard_planes[key] = value
-
     for key in sortie.killboard_pve:
         value = sortie.killboard_pve[key]
         if key in bucket.killboard_ground:
@@ -441,6 +454,14 @@ def process_aircraft_stats(sortie):
         else:
             bucket.killboard_ground[key] = value
 
+    process_log_entries(bucket, sortie, has_subtype, is_subtype)
+
+    sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
+    sortie_augmentation.sortie_stats_processed = True
+    sortie_augmentation.save()
+
+
+def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     events = (LogEntry.objects
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
               .filter(Q(act_sortie_id=sortie.id),
@@ -449,15 +470,16 @@ def process_aircraft_stats(sortie):
                       # Disregard AI sorties
                       act_sortie_id__isnull=False, cact_sortie_id__isnull=False, )
               # Disregard friendly fire incidents.
-              .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
-              )
+              .exclude(act_sortie__coalition=F('cact_sortie__coalition')))
 
     enemies_damaged = set()
     enemies_shotdown = set()
     enemies_killed = set()
 
     for event in events:
-        enemy_plane_sortie_pair = (event.cact_object, event.cact_sortie_id)
+        enemy_sortie = Sortie.objects.filter(id=event.cact_sortie_id).get()
+
+        enemy_plane_sortie_pair = (event.cact_object, enemy_sortie)
         if event.type == 'damaged':
             enemies_damaged.add(enemy_plane_sortie_pair)
         elif event.type == 'shotdown':
@@ -465,107 +487,281 @@ def process_aircraft_stats(sortie):
         elif event.type == 'killed':
             enemies_killed.add(enemy_plane_sortie_pair)
 
-    cache_kb = dict()
+    enemy_buckets, kbs = update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown,
+                                             has_subtype, is_subtype)
 
-    for damaged_enemy in enemies_damaged:
-        enemy_sortie = damaged_enemy[1]
-        kb = get_killboard(damaged_enemy, sortie, cache_kb)
-
-        # TODO: Refactor the common parts here into a function, two copies of the basically same code.
-        if kb.aircraft_1 == sortie.aircraft:
-            kb.aircraft_1_distinct_hits += 1
-            bucket.distinct_enemies_hit += 1
-            enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
-            if enemy_sortie_db.is_shotdown:
-                bucket.plane_lethality_counter += 1
-                if damaged_enemy not in enemies_shotdown:
-                    kb.aircraft_1_assists += 1
-
-            if enemy_sortie_db.is_dead:
-                bucket.pilot_lethality_counter += 1
-                if damaged_enemy not in enemies_killed:
-                    kb.aircraft_1_pk_assists += 1
-        else:
-            kb.aircraft_2_distinct_hits += 1
-            bucket.distinct_enemies_hit += 1
-            enemy_sortie_db = Sortie.objects.filter(id=enemy_sortie).get()
-            if enemy_sortie_db.is_shotdown:
-                bucket.plane_lethality_counter += 1
-                if damaged_enemy not in enemies_shotdown:
-                    kb.aircraft_2_assists += 1
-
-            if enemy_sortie_db.is_dead:
-                bucket.pilot_lethality_counter += 1
-                if damaged_enemy not in enemies_killed:
-                    kb.aircraft_2_pk_assists += 1
-
-    cache_enemy_buckets = dict()
-    for shotdown_enemy in enemies_shotdown:
-        enemy_bucket_key = (sortie.tour, shotdown_enemy[0])
-        if enemy_bucket_key not in cache_enemy_buckets:
-            cache_enemy_buckets[enemy_bucket_key] = (AircraftBucket.objects.get_or_create(
-                tour=sortie.tour, aircraft=shotdown_enemy[0]))[0]
-        enemy_bucket = cache_enemy_buckets[enemy_bucket_key]
-
-        if bucket.id < enemy_bucket.id:
-            # To make sure each encounter is parsed once for elo. This encounter is also parsed on the enemy's sortie.
-            bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-
-        kb = get_killboard(shotdown_enemy, sortie, cache_kb)
-
-        if kb.aircraft_1 == sortie.aircraft:
-            kb.aircraft_1_shotdown += 1
-        else:
-            kb.aircraft_2_shotdown += 1
-
-    for killed_enemy in enemies_killed:
-        bucket.pilot_kills += 1
-        kb = get_killboard(killed_enemy, sortie, cache_kb)
-        if kb.aircraft_1 == sortie.aircraft:
-            kb.aircraft_1_kills += 1
-        else:
-            kb.aircraft_2_kills += 1
-
-    sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
-    sortie_augmentation.sortie_stats_processed = True
-
-    for killboard in cache_kb.values():
+    for killboard in kbs.values():
         killboard.save()
-
-    for enemy_bucket in cache_enemy_buckets.values():
+    for enemy_bucket in enemy_buckets.values():
+        enemy_bucket.update_derived_fields()
         enemy_bucket.save()
 
     bucket.update_derived_fields()
     bucket.save()
 
-    sortie_augmentation.save()
+    # LogEntry does not store what your turrets did. Only what turrets hit you.
+    # So we parse all turret encounters from the perspective of the turret's plane.
+    turret_events = (LogEntry.objects
+                     .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
+                     .filter(Q(cact_sortie_id=sortie.id),
+                             Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
+                             act_object__cls='aircraft_turret', cact_object__cls_base='aircraft')
+                     # Disregard friendly fire incidents.
+                     .exclude(extra_data__is_friendly_fire=True))
+
+    enemies_damaged = set()
+    enemies_shotdown = set()
+    enemies_killed = set()
+
+    if len(turret_events) > 0 and not is_subtype:
+        cache_turret_buckets = dict()
+
+        for event in turret_events:
+            turret_name = event.act_object.name
+            if turret_name not in cache_turret_buckets:
+                cache_turret_buckets[turret_name] = turret_to_aircraft_bucket(turret_name, bucket.tour)
+
+            if event.type == 'damaged':
+                enemies_damaged.add(turret_name)
+            elif event.type == 'shotdown':
+                enemies_shotdown.add(turret_name)
+            elif event.type == 'killed':
+                enemies_killed.add(turret_name)
+
+        for turret_name in cache_turret_buckets:
+            turret_bucket = cache_turret_buckets[turret_name]
+            enemy_damaged = set()
+            if turret_name in enemies_damaged:
+                enemy_damaged.add((bucket.aircraft, sortie))
+            enemy_shotdown = set()
+            if turret_name in enemies_shotdown:
+                enemy_shotdown.add((bucket.aircraft, sortie))
+            enemy_killed = set()
+            if turret_name in enemies_killed:
+                enemy_killed.add((bucket.aircraft, sortie))
+
+            buckets, kbs = update_from_entries(turret_bucket, enemy_damaged, enemy_killed, enemy_shotdown,
+                                               # No bombers have subtypes
+                                               False, False)
+
+            turret_bucket.update_derived_fields()
+            turret_bucket.save()
+            for bucket in buckets.values():
+                bucket.update_derived_fields()
+                bucket.save()
+
+            for kb in kbs.values():
+                kb.save()
 
 
-def get_killboard(enemy, sortie, cache_kb):
-    (enemy_aircraft, _) = enemy
-    if sortie.aircraft.id < enemy_aircraft.id:
-        kb_key = (sortie.aircraft, enemy_aircraft)
+def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown, has_subtype, is_subtype):
+    cache_kb = dict()
+    cache_enemy_buckets_kb = dict()  # Helper cache needed in order to find buckets (quickly) inside get_killboard.
+    for damaged_enemy in enemies_damaged:
+        enemy_sortie = damaged_enemy[1]
+        kbs = get_killboards(damaged_enemy, bucket, cache_kb, cache_enemy_buckets_kb)
+        for kb in kbs:
+            update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown, enemy_sortie, kb)
+
+    cache_enemy_buckets = dict()
+    for shotdown_enemy in enemies_shotdown:
+        enemy_sortie = shotdown_enemy[1]
+        enemy_sortie_type = get_sortie_type(enemy_sortie)
+
+        subtype_enemy_bucket_key = (bucket.tour, shotdown_enemy[0], enemy_sortie_type)
+        subtype_enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, subtype_enemy_bucket_key)
+
+        # There are in essecence three cases for the Elo Update:
+
+        # Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
+        # Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.
+        # Aircraft 1 has subtypes, Aircraft 2 does not:
+        # Aircraft 1 main type and subtype updates directly from Aircraft 2 only type
+        # Aircraft 2 has "half an encounter" with aircraft 1 main type, and "half an encounter" with aircraft 1 subtype.
+
+        if enemy_sortie_type == bucket.NO_FILTER:  # No subtypes for enemy
+            if not has_subtype:
+                bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+            else:
+                bucket.elo, new_elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+                delta_elo = new_elo - subtype_enemy_bucket.elo  # This is negative!
+                # This elo will be touched twice: once in subtype, once in not-filtered type.
+                # Hence take (approximately) the average delta.
+                subtype_enemy_bucket.elo += round(delta_elo / 2)
+        else:  # Enemy has subtypes
+            enemy_bucket_key = (bucket.tour, shotdown_enemy[0], bucket.NO_FILTER)
+            enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, enemy_bucket_key)
+
+            if has_subtype:
+                if is_subtype:
+                    bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+                else:
+                    bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+            else:
+                first_new_elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+                second_new_elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+
+                first_delta_elo = first_new_elo - bucket.elo
+                second_delta_elo = second_new_elo - bucket.elo
+                bucket.elo = round(bucket.elo + first_delta_elo / 2 + second_delta_elo / 2)
+
+        kbs = get_killboards(shotdown_enemy, bucket, cache_kb, cache_enemy_buckets_kb)
+        for kb in kbs:
+            if kb.aircraft_1.aircraft == bucket.aircraft:
+                kb.aircraft_1_shotdown += 1
+            else:
+                kb.aircraft_2_shotdown += 1
+    for killed_enemy in enemies_killed:
+        bucket.pilot_kills += 1
+        kbs = get_killboards(killed_enemy, bucket, cache_kb, cache_enemy_buckets_kb)
+        for kb in kbs:
+            if kb.aircraft_1.aircraft == bucket.aircraft:
+                kb.aircraft_1_kills += 1
+            else:
+                kb.aircraft_2_kills += 1
+    return cache_enemy_buckets, cache_kb
+
+
+def ensure_bucket_in_cache(cache_enemy_buckets, bucket_key):
+    if bucket_key not in cache_enemy_buckets:
+        cache_enemy_buckets[bucket_key] = (AircraftBucket.objects.get_or_create(
+            tour=bucket_key[0], aircraft=bucket_key[1], filter_type=bucket_key[2]))[0]
+
+    return cache_enemy_buckets[bucket_key]
+
+
+def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown, enemy_sortie, kb):
+    if kb.aircraft_1.aircraft == bucket.aircraft:
+        kb.aircraft_1_distinct_hits += 1
+        bucket.distinct_enemies_hit += 1
+        if enemy_sortie.is_shotdown:
+            bucket.plane_lethality_counter += 1
+            if damaged_enemy not in enemies_shotdown:
+                kb.aircraft_1_assists += 1
+
+        if enemy_sortie.is_dead:
+            bucket.pilot_lethality_counter += 1
+            if damaged_enemy not in enemies_killed:
+                kb.aircraft_1_pk_assists += 1
     else:
-        kb_key = (enemy_aircraft, sortie.aircraft)
+        kb.aircraft_2_distinct_hits += 1
+        bucket.distinct_enemies_hit += 1
+        if enemy_sortie.is_shotdown:
+            bucket.plane_lethality_counter += 1
+            if damaged_enemy not in enemies_shotdown:
+                kb.aircraft_2_assists += 1
 
-    if kb_key in cache_kb:
-        return cache_kb[kb_key]
+        if enemy_sortie.is_dead:
+            bucket.pilot_lethality_counter += 1
+            if damaged_enemy not in enemies_killed:
+                kb.aircraft_2_pk_assists += 1
 
-    kb = (AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1],
-                                                  tour=sortie.tour))[0]
-    cache_kb[kb_key] = kb
-    return kb
+
+def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):
+    (enemy_aircraft, enemy_sortie) = enemy
+
+    enemy_bucket_keys = set()
+    enemy_bucket_keys.add((bucket.tour, enemy_aircraft, bucket.NO_FILTER))
+    if has_bomb_variant(enemy_aircraft) or has_juiced_variant(enemy_aircraft):
+        enemy_bucket_keys.add((bucket.tour, enemy_aircraft, get_sortie_type(enemy_sortie)))
+
+    result = []
+    for enemy_bucket_key in enemy_bucket_keys:
+        if enemy_bucket_key in cache_enemy_buckets_kb:
+            enemy_bucket = cache_enemy_buckets_kb[enemy_bucket_key]
+        else:
+            (enemy_bucket, created) = AircraftBucket.objects.get_or_create(
+                tour=enemy_bucket_key[0], aircraft=enemy_bucket_key[1], filter_type=enemy_bucket_key[2])
+            cache_enemy_buckets_kb[enemy_bucket_key] = enemy_bucket
+            if created:
+                enemy_bucket.update_derived_fields()
+                enemy_bucket.save()
+
+        if bucket.id < enemy_bucket.id:
+            kb_key = (bucket, enemy_bucket)
+        else:
+            kb_key = (enemy_bucket, bucket)
+
+        if kb_key not in cache_kb:
+            kb = (AircraftKillboard.objects.get_or_create(aircraft_1=kb_key[0], aircraft_2=kb_key[1],
+                                                          tour=bucket.tour))[0]
+            cache_kb[kb_key] = kb
+        result.append(cache_kb[kb_key])
+
+    return result
 
 
 def calc_elo(winner_rating, loser_rating):
     k = 15  # Low k factor (in chess ~30 is common), because there will be a lot of engagements.
+    # k factor is the largest amount elo can shift. So a plane gains/loses at most k = 15 per engagement.
     result = expected_result(winner_rating, loser_rating)
     new_winner_rating = winner_rating + k * (1 - result)
     new_loser_rating = loser_rating + k * (0 - (1 - result))
     return int(round(new_winner_rating)), int(round(new_loser_rating))
 
 
+# From https://github.com/ddm7018/Elo
 def expected_result(p1, p2):
     exp = (p2 - p1) / 400.0
     return 1 / ((10.0 ** exp) + 1)
+
+
+# From https://github.com/ddm7018/Elo
+def is_jabo(sortie):
+    allowed_exceptions = ['P-38J-25', 'Me 262 A']
+    if sortie.aircraft.cls != 'aircraft_light' and sortie.aircraft.name not in allowed_exceptions:
+        return False
+
+    #             P-47                          FW-190 A-5
+    jabo_mods = ['Ground attack modification', 'U17 strike modification']
+
+    for modification in sortie.modifications:
+        if 'bomb' in modification or 'rocket' in modification:
+            return True
+        if modification in jabo_mods:
+            return True
+
+    return False
+
+
+# The P-38 and Me-262 are considered as fighters for this function.
+# (They're technically aircraft_medium, i.e. attackers)
+def is_juiced(sortie):
+    #          P47/P51/Spit9     Tempest                               BF-109 K-4          La-5
+    juices = ['150 grade fuel', 'Sabre IIA engine with +11 lb boost', 'DB 605 DC engine', 'M-82F engine',
+              # Hurricane                          BF-109 G-6 Late
+              'Merlin XX engine with +14 lb boost', 'MW-50 System']
+
+    for modification in sortie.modifications:
+        if modification in juices:
+            return True
+
+    return False
+
+
+# Whether the aircraft has an upgraded engine or better fuel
+def get_sortie_type(sortie):
+    aircraft = sortie.aircraft
+    if not has_juiced_variant(aircraft) and not has_bomb_variant(aircraft):
+        return "NO_FILTER"
+
+    if is_juiced(sortie):
+        if is_jabo(sortie):
+            return 'ALL'
+        else:
+            return 'JUICE'
+    else:
+        if is_jabo(sortie):
+            return 'BOMBS'
+        else:
+            return 'NO_BOMBS_JUICE'
+
+
+def turret_to_aircraft_bucket(turret_name, tour):
+    aircraft_name = turret_name[:len(turret_name) - 7]
+    if aircraft_name == 'U-2VS':
+        aircraft_name = 'U-﻿2'
+    aircraft = Object.objects.filter(name=aircraft_name).get()
+    return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER'))[0]
+
 # ======================== MODDED PART END
