@@ -1,5 +1,5 @@
 ====================================================
-IL-2 Stats Mod: Aircraft Stats
+IL-2 Stats Mod: Global Aircraft Stats Mod
 ====================================================
 Authors: =FEW=Revolves and Enigma89
 
@@ -14,7 +14,7 @@ We wish to thank =FB=Vaal and =FB=Isaay for their work creating the wonderful IL
 
 This version is compatible with 1.2.48 of IL2 stats.
 
-This mod does work retroactively. It hijacks the stats process while no new reports are found in order to retroactively aggregate old sorties (while checking for new reports periodically). This process may take a while. On an i7-6700k with an SSD the mod achieved a throughput of roughly 4000 sorties processed per minute. As a rule of thumb, you can expect a single month tour to be processed in about 15 minutes. 
+This mod does work retroactively. It hijacks the stats process while no new reports are found in order to retroactively aggregate old sorties (while checking for new reports periodically). This process may take a while. On an i7-6700k with an SSD the mod achieved a throughput of roughly 4000 sorties processed per minute. As a rule of thumb, you can expect a month to be processed in 15 to 45 minutes.
 
 If you want to adjust how many previous tours you wish to retroactively compute, there is a new config paramater under [stats] called "retro_compute_for_last_tours=10" to adjust this. A value of 0 will retroactively compute for only the current tour (for any sorties in the current tour before this mod was installed), a value of -1 will completely disable the retroactive computations. The default value of 10 retroactively aggregates stats for the previous 10 tours and the current one.
 
