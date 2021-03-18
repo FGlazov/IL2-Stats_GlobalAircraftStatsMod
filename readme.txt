@@ -53,7 +53,10 @@ This mod is licensed under the MIT License.
 How Our Elo system works (Elo gained/lost may vary slightly):
 
 All Aircraft start with 1500 Elo. Some aircraft have subtypes.
-For example, the BF 109 K-4 has 4 subtypes (NO_BOMBS, BOMBS, UPGRADED_ENGINE_NO_BOMBS, UPGRADED ENGINE_BOMBS)
+For example, the BF 109 K-4 has 4 subtypes (no bombs, bombs, upgraded engine, upgraded engine with bombs)
+
+Most fighters have jabo/pure fighter subtypes (bombs, no bombs). Some have upgraded engine subtypes (if you have 150 octane or better engines).
+Attackers and Bombers other than the P-38 do not have subtypes. They're all pretty much purely ground attackers, so bombs/no bombs would not make much sense.
 
 ===============================================================================
 Case 1: Aircraft 1 and 2 both have no subtypes.
@@ -65,6 +68,9 @@ For example:
 
 Aircraft 1 (1500 Elo) wins vs Aircraft 2 (1500 Elo), new Elos are 1504 and 1496, respectively.
 Aircraft 1 (1500 Elo) wins vs Aircraft 2 (3000 Elo), new elos are 1508 and 2992, respectively.
+Aircraft 1 (3000 Elo) wins vs Aircraft 2 (1500 Elo), new elos are 1501 and 2999, respectively.
+
+This is done in such a way so that elo changes the most when there is a suprising event. (3000 should almost always win vs 1500!)
 ===============================================================================
 Case 2: Aircraft 1 and 2 both have subtypes.
 ===============================================================================
@@ -78,6 +84,7 @@ The Updated elos are:
 Aircraft 1 (Main Elo 1504, 1508)
 Aircraft 2 (Main Elo 1496, 2992)
 
+Main elos update each other, subtype elos update each other.
 ===============================================================================
 Case 3: Aircraft 1 has a subtype, but aircraft 2 does not.
 ===============================================================================

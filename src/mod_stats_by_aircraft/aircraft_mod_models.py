@@ -12,7 +12,7 @@ def compute_float(numerator, denominator, round_to=2):
 
 
 def has_juiced_variant(aircraft):
-    juiceables = ['p-47d-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
+    juiceables = ['P-47D-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
                   'Spitfire Mk.IXe', 'Hurricane Mk.II', 'Tempest Mk.V ser.2']
 
     return aircraft.name in juiceables

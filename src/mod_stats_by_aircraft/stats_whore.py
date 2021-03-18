@@ -393,7 +393,7 @@ def process_aircraft_stats(sortie):
     bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                    filter_type='NO_FILTER'))[0]
 
-    has_subtype = bucket.has_juiced_variant or bucket.has_bomb_variant
+    has_subtype = has_juiced_variant(bucket.aircraft) or has_bomb_variant(bucket.aircraft)
 
     process_bucket(bucket, sortie, has_subtype, False)
 
@@ -502,7 +502,7 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
                              Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
                              act_object__cls='aircraft_turret', cact_object__cls_base='aircraft')
                      # Disregard friendly fire incidents.
-                     .exclude(act_sortie__coalition=F('cact_sortie__coalition')))
+                     .exclude(extra_data__is_friendly_fire=True))
 
     enemies_damaged = set()
     enemies_shotdown = set()
@@ -569,18 +569,19 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
         # Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
         # Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.
         # Aircraft 1 has subtypes, Aircraft 2 does not:
-        #
+        # Aircraft 1 main type and subtype updates directly from Aircraft 2 only type
+        # Aircraft 2 has "half an encounter" with aircraft 1 main type, and "half an encounter" with aircraft 1 subtype.
 
         if enemy_sortie_type == bucket.NO_FILTER:  # No subtypes for enemy
             if not has_subtype:
                 bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
             else:
                 bucket.elo, new_elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
-                delta_elo = new_elo - subtype_enemy_bucket.elo
+                delta_elo = new_elo - subtype_enemy_bucket.elo  # This is negative!
                 # This elo will be touched twice: once in subtype, once in not-filtered type.
-                # Hence take approximately the average delta.
+                # Hence take (approximately) the average delta.
                 subtype_enemy_bucket.elo += round(delta_elo / 2)
-        else: # Enemy has subtyhpes
+        else:  # Enemy has subtypes
             enemy_bucket_key = (bucket.tour, shotdown_enemy[0], bucket.NO_FILTER)
             enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, enemy_bucket_key)
 
