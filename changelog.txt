@@ -5,3 +5,8 @@ Version 1.0:
 Version 1.0.1
 
 - Retroactive computation was not starting in some cases. This has been fixed.
+
+Version 1.0.2
+
+- Prevent crash of stats process if mod is run without any tours or sorties present.
+- Fix bug with killboard and elo computation, where it was taking AI shotdown by aircraft turrets into account.
