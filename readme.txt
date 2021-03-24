@@ -40,8 +40,10 @@ Compatibility with other mods
 ---------------------------------------------
 
 This mod is compatible with IL-2 Split Rankings. Make sure mod_stats_by_aircraft comes after mod_rating_by_type in the mods config parameter.
-This mod is mildly incompatible with the disconnect mod. Copy the src/ folder in compatibility_patch/disconnect/ inside this zip over into your il-2 stats folder after installing both mods.
-This mod is mildly incompatible with the tank mod. Copy the src/folder in compatibility_patch/tank/ over into your il-2 stats folder after installing both mods.
+
+This mod is mildly incompatible with the disconnect mod. Copy the src/ folder in compatibility_patch/disconnect/ inside this zip over into your il-2 stats folder after installing both mods. This compatibility patch was made for version 1.5 of the disconnect mod.
+
+This mod is mildly incompatible with the tank mod. Copy the src/folder in compatibility_patch/tank/ over into your il-2 stats folder after installing both mods. This compatibility patch was made for version 2.9.1 of the tank mod.
 
 If you want to install all four of these mods, then check out this bundle: https://forum.il2sturmovik.com/topic/70029-il-2-stats-mod-bundle-disco-tanks-splitrankings/
 
