@@ -10,8 +10,7 @@ from users.utils import cleanup_registration
 from django.conf import settings
 from django.db.models import Q, F, Max
 from core import __version__
-from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation, has_juiced_variant,
-                                  has_bomb_variant)
+from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation)
 import sys
 import django
 import pytz
@@ -23,6 +22,8 @@ from collections import defaultdict
 from django.db import transaction
 import operator
 import config
+
+from .variant_utils import get_sortie_type, has_bomb_variant, has_juiced_variant
 
 MISSION_REPORT_BACKUP_PATH = settings.MISSION_REPORT_BACKUP_PATH
 MISSION_REPORT_BACKUP_DAYS = settings.MISSION_REPORT_BACKUP_DAYS
@@ -714,57 +715,6 @@ def calc_elo(winner_rating, loser_rating):
 def expected_result(p1, p2):
     exp = (p2 - p1) / 400.0
     return 1 / ((10.0 ** exp) + 1)
-
-
-# From https://github.com/ddm7018/Elo
-def is_jabo(sortie):
-    allowed_exceptions = ['P-38J-25', 'Me 262 A']
-    if sortie.aircraft.cls != 'aircraft_light' and sortie.aircraft.name not in allowed_exceptions:
-        return False
-
-    #             P-47                          FW-190 A-5
-    jabo_mods = ['Ground attack modification', 'U17 strike modification']
-
-    for modification in sortie.modifications:
-        if 'bomb' in modification or 'rocket' in modification:
-            return True
-        if modification in jabo_mods:
-            return True
-
-    return False
-
-
-# The P-38 and Me-262 are considered as fighters for this function.
-# (They're technically aircraft_medium, i.e. attackers)
-def is_juiced(sortie):
-    #          P47/P51/Spit9     Tempest                               BF-109 K-4          La-5
-    juices = ['150 grade fuel', 'Sabre IIA engine with +11 lb boost', 'DB 605 DC engine', 'M-82F engine',
-              # Hurricane                          BF-109 G-6 Late
-              'Merlin XX engine with +14 lb boost', 'MW-50 System']
-
-    for modification in sortie.modifications:
-        if modification in juices:
-            return True
-
-    return False
-
-
-# Whether the aircraft has an upgraded engine or better fuel
-def get_sortie_type(sortie):
-    aircraft = sortie.aircraft
-    if not has_juiced_variant(aircraft) and not has_bomb_variant(aircraft):
-        return "NO_FILTER"
-
-    if is_juiced(sortie):
-        if is_jabo(sortie):
-            return 'ALL'
-        else:
-            return 'JUICE'
-    else:
-        if is_jabo(sortie):
-            return 'BOMBS'
-        else:
-            return 'NO_BOMBS_JUICE'
 
 
 def turret_to_aircraft_bucket(turret_name, tour):

@@ -13,4 +13,8 @@ Version 1.0.2
 
 Version 1.0.3
 
-- Compatbility patch for tanks updated to work with lastest version.
+- Compatibility patch for tanks updated to work with latest version.
+
+Version 1.1.0
+
+- Official support for Flying Circus. I.e. the jabo filters should now work properly for Flying Circus planes.

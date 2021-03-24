@@ -6,30 +6,11 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.conf import settings
 from django.urls import reverse
 
+from src.mod_stats_by_aircraft.variant_utils import has_bomb_variant, has_juiced_variant
+
 
 def compute_float(numerator, denominator, round_to=2):
     return round(numerator / max(denominator, 1), round_to)
-
-
-def has_juiced_variant(aircraft):
-    juiceables = ['P-47D-28', 'P-47D-22', 'P-51D-15', 'La-5 (series 8)', 'Bf 109 G-6 Late', 'Bf 109 K-4',
-                  'Spitfire Mk.IXe', 'Hurricane Mk.II', 'Tempest Mk.V ser.2']
-
-    return aircraft.name in juiceables
-
-
-def has_bomb_variant(aircraft):
-    if aircraft.name == "P-38J-25" or aircraft.name == "Me 262 A":
-        return True
-
-    if aircraft.cls != "aircraft_light":
-        return False
-
-    no_jabo_possible = ['Spitfire Mk.VB', 'Yak-9 ser.1', 'Yak-9T ser.1', 'Hurricane Mk.II']
-    if aircraft.name in no_jabo_possible:
-        return False
-
-    return True
 
 
 class AircraftBucket(models.Model):
