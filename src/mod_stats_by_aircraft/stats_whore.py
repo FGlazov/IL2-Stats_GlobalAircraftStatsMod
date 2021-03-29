@@ -1,5 +1,6 @@
 import time
-from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, update_killboard_pvp, create_new_sortie, backup_log,
+from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, update_killboard_pvp, create_new_sortie,
+                               backup_log,
                                get_tour, update_fairplay, update_bonus_score, update_sortie, create_profiles)
 from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
@@ -7,7 +8,7 @@ from stats.online import update_online
 from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour
 from users.utils import cleanup_registration
 from django.conf import settings
-from django.db.models import Q, F, Max
+from django.db.models import Q, F, Max, Count
 from core import __version__
 from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation)
 import sys
@@ -365,7 +366,7 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
     max_id = Tour.objects.aggregate(Max('id'))['id__max']
     if max_id is None:  # Edge case: No tour yet
         return False
-	
+
     tour_cutoff = max_id - RETRO_COMPUTE_FOR_LAST_HOURS
 
     backfill_sorties = (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__isnull=True,
@@ -657,6 +658,8 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
             bucket.pilot_lethality_counter += 1
             if damaged_enemy not in enemies_killed:
                 kb.aircraft_2_pk_assists += 1
+
+
 
 
 def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):

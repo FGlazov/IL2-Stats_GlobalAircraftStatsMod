@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.conf import settings
 from django.urls import reverse
 
-from src.mod_stats_by_aircraft.variant_utils import has_bomb_variant, has_juiced_variant
+from .variant_utils import has_bomb_variant, has_juiced_variant
 
 
 def compute_float(numerator, denominator, round_to=2):
@@ -102,7 +102,6 @@ class AircraftBucket(models.Model):
 
     has_juiced_variant = models.BooleanField(default=False, db_index=True)
     has_bomb_variant = models.BooleanField(default=False, db_index=True)
-
     # ========================== NON-VISIBLE HELPER FIELDS  END
 
     class Meta:

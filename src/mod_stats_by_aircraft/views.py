@@ -15,7 +15,7 @@ from stats.models import (Player, Mission, PlayerMission, PlayerAircraft, Sortie
 from stats import sortie_log
 from stats.views import *
 
-import src.mod_stats_by_aircraft.variant_utils
+from .variant_utils import has_juiced_variant, has_bomb_variant
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
@@ -145,16 +145,16 @@ def allow_killboard_line(our_aircraft, enemy_aircraft):
     # The logic here is so complicated, that it is IMO more readable as a separate python function.
     # Not much performance lost anyways - it's at most 50 objects which are iterated over in (slow) python.
 
-    if src.mod_stats_by_aircraft.variant_utils.has_juiced_variant and src.mod_stats_by_aircraft.variant_utils.has_bomb_variant:
+    if enemy_aircraft.has_juiced_variant and enemy_aircraft.has_bomb_variant:
         return our_aircraft.filter_type == enemy_aircraft.filter_type
-    elif src.mod_stats_by_aircraft.variant_utils.has_juiced_variant:
+    elif enemy_aircraft.has_juiced_variant:
         if our_aircraft.filter_type == b.BOMBS:
             return enemy_aircraft.filter_type == b.NO_FILTER
         elif our_aircraft.filter_type == b.ALL:
             return enemy_aircraft.filter_type == b.JUICED
         else:
             return our_aircraft.filter_type == enemy_aircraft.filter_type
-    elif src.mod_stats_by_aircraft.variant_utils.has_bomb_variant:
+    elif enemy_aircraft.has_bomb_variant:
         if our_aircraft.filter_type == b.JUICED:
             return enemy_aircraft.filter_type == b.NO_FILTER
         elif our_aircraft.filter_type == b.ALL:
