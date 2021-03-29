@@ -8,6 +8,46 @@ from django.urls import reverse
 
 from .variant_utils import has_bomb_variant, has_juiced_variant
 
+TOTALS = 'totals'
+AVERAGES = 'avg'
+CANNON = 'cannon'
+MACHINE_GUN = 'mg'
+CANNON_MG = 'all'
+RECEIVED = 'received'
+GIVEN = 'given'
+INST = 'instances'
+COUNT = 'count'
+
+
+def default_ammo_breakdown():
+    return {
+        GIVEN: {
+            TOTALS: dict(),
+            AVERAGES: dict(),
+        },
+        RECEIVED: {
+            TOTALS: {
+                MACHINE_GUN: {
+                    INST: 0,
+                    COUNT: 0,
+                },
+                CANNON: {
+                    INST: 0,
+                    COUNT: 0,
+                },
+                CANNON_MG: {
+                    INST: 0,
+                    COUNT: 0,
+                },
+            },
+            AVERAGES: {
+                MACHINE_GUN: 0.0,
+                CANNON: 0.0,
+                CANNON_MG: 0.0,
+            }
+        },
+    }
+
 
 def compute_float(numerator, denominator, round_to=2):
     return round(numerator / max(denominator, 1), round_to)
@@ -53,6 +93,11 @@ class AircraftBucket(models.Model):
     # ========================= SORTABLE FIELDS END
 
     # ========================= NON-SORTABLE VISIBLE FIELDS
+    plane_lethality_no_assists = models.FloatField(default=0)
+    # TODO: At some point add pilot_lethality_no_assists.
+    # Problem is, it can't be computed because it is not known how much of pilot_lethality_counter is assists.
+    # Can't use pilot_lethality_counter - assists, since assists are defined for shotdowns.
+
     total_sorties = models.BigIntegerField(default=0)
     score = models.BigIntegerField(default=0)
     # Assists per hour
@@ -83,6 +128,8 @@ class AircraftBucket(models.Model):
     in_flight = models.BigIntegerField(default=0)
     crashes = models.BigIntegerField(default=0)
     shotdown = models.BigIntegerField(default=0)
+
+    ammo_breakdown = JSONField(default=default_ammo_breakdown())
     # ========================== NON-SORTABLE VISIBLE FIELDS END
 
     # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
@@ -102,6 +149,7 @@ class AircraftBucket(models.Model):
 
     has_juiced_variant = models.BooleanField(default=False, db_index=True)
     has_bomb_variant = models.BooleanField(default=False, db_index=True)
+
     # ========================== NON-VISIBLE HELPER FIELDS  END
 
     class Meta:
@@ -120,6 +168,7 @@ class AircraftBucket(models.Model):
         self.pilot_survivability = compute_float(100 * self.pilot_survivability_counter, self.sorties_plane_was_hit)
         self.plane_lethality = compute_float(100 * self.plane_lethality_counter, self.distinct_enemies_hit)
         self.pilot_lethality = compute_float(100 * self.pilot_lethality_counter, self.distinct_enemies_hit)
+        self.plane_lethality_no_assists = compute_float(100 * self.kills, self.distinct_enemies_hit)
         self.update_rating()
         self.ahr = compute_float(self.assists, self.flight_time_hours)
         self.ahd = compute_float(self.assists, self.relive)
@@ -399,6 +448,52 @@ class AircraftBucket(models.Model):
 
     def get_killboard_all_mods(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL)
+
+    def increment_ammo_received(self, ammo_log_name, is_cannon, times_hits):
+        self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT] += times_hits
+        self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST] += 1
+        self.ammo_breakdown[RECEIVED][AVERAGES][CANNON_MG] = compute_float(
+                self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
+                self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
+        if is_cannon:
+            self.ammo_breakdown[RECEIVED][TOTALS][CANNON][COUNT] += times_hits
+            self.ammo_breakdown[RECEIVED][TOTALS][CANNON][INST] += 1
+            self.ammo_breakdown[RECEIVED][AVERAGES][CANNON] = compute_float(
+                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
+                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
+        else:
+            self.ammo_breakdown[RECEIVED][TOTALS][MACHINE_GUN][COUNT] += times_hits
+            self.ammo_breakdown[RECEIVED][TOTALS][MACHINE_GUN][INST] += 1
+            self.ammo_breakdown[RECEIVED][AVERAGES][MACHINE_GUN] = compute_float(
+                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
+                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
+
+        if ammo_log_name not in self.ammo_breakdown[RECEIVED][TOTALS]:
+            self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name] = {
+                INST: 0,
+                COUNT: 0,
+            }
+
+        self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][COUNT] += times_hits
+        self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][INST] += 1
+        self.ammo_breakdown[RECEIVED][AVERAGES][ammo_log_name] = compute_float(
+                self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][COUNT],
+                self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][INST]
+        )
+
+    def increment_ammo_given(self, ammo_log_name, times_hit):
+        if ammo_log_name not in self.ammo_breakdown[GIVEN][TOTALS]:
+            self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name] = {
+                INST: 0,
+                COUNT: 0,
+            }
+
+        self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][COUNT] += times_hit
+        self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][INST] += 1
+        self.ammo_breakdown[GIVEN][AVERAGES][ammo_log_name] = compute_float(
+                self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][COUNT],
+                self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][INST]
+        )
 
 
 def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):

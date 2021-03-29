@@ -496,9 +496,6 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
         enemy_bucket.update_derived_fields()
         enemy_bucket.save()
 
-    bucket.update_derived_fields()
-    bucket.save()
-
     # LogEntry does not store what your turrets did. Only what turrets hit you.
     # So we parse all turret encounters from the perspective of the turret's plane.
     turret_events = (LogEntry.objects
@@ -515,6 +512,12 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     enemies_damaged = set()
     enemies_shotdown = set()
     enemies_killed = set()
+
+    if 'ammo_breakdown' in sortie.ammo and not is_subtype:
+        process_ammo_breakdown(bucket, sortie)
+
+    bucket.update_derived_fields()
+    bucket.save()
 
     if len(turret_events) > 0 and not is_subtype:
         cache_turret_buckets = dict()
@@ -660,6 +663,70 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
                 kb.aircraft_2_pk_assists += 1
 
 
+def process_ammo_breakdown(bucket, sortie):
+    # We only care about statistics like "avg shots to kill" or "avg shots to death".
+    if not sortie.is_shotdown:
+        return
+
+    # We only process Sorties where there was essentially a single source of damage.
+    # Note: Planes also take damage when crashing into the ground.
+    # So to be more precise, we only want damage from exactly a single enemy aircraft/AA/Tank/object type.
+    # I.e. "Only took damage from a Spitfire Mk IX" or "Only took damage from a BF 109 K-4".
+
+    enemy_objects = list((LogEntry.objects
+                          .values_list('act_object', 'act_sortie')
+                          .filter(Q(cact_sortie_id=sortie.id),
+                                  Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
+                                  Q(act_object__cls_base='aircraft') | Q(act_object__cls_base='vehicle')
+                                  | Q(act_object__cls_base='tank') | Q(act_object__cls='aircraft_turret'),
+                                  # Disregard AI sorties
+                                  Q(act_object__cls='aircraft_turret') | Q(act_sortie_id__isnull=False),
+                                  cact_sortie_id__isnull=False)
+                          # Disregard friendly fire incidents.
+                          .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
+                          .order_by().distinct()))
+
+    print(len(enemy_objects))
+    if len(enemy_objects) != 1:
+        return
+    ammo_breakdown = sortie.ammo['ammo_breakdown']
+
+    for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
+        db_ammo = Object.objects.get(log_name=ammo_log_name.lower())
+        is_cannon = db_ammo.cls == 'shell'
+        bucket.increment_ammo_received(ammo_log_name, is_cannon, times_hit)
+
+    enemy_object = enemy_objects[0][0]
+    enemy_sortie = enemy_objects[0][1]
+
+    db_object = Object.objects.get(id=enemy_object)
+    if db_object.cls_base != 'aircraft' and db_object.cls != 'aircraft_turret':
+        return
+    if db_object.cls_base == 'aircraft' and not enemy_sortie:
+        return
+
+    if db_object.cls_base == 'aircraft':
+        db_sortie = Sortie.objects.get(id=enemy_sortie)
+        filter_type = get_sortie_type(db_sortie)
+        base_bucket = AircraftBucket.objects.get_or_create(
+            tour=bucket.tour, aircraft=db_object, filter_type='NO_FILTER')[0]
+    else:  # Turret
+        base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
+        filter_type = 'NO_FILTER'
+
+    for ammo_log_name, times_hit in ammo_breakdown['total_hits'].items():
+        base_bucket.increment_ammo_given(ammo_log_name, times_hit)
+
+    base_bucket.save()
+
+    if filter_type != 'NO_FILTER':
+        filtered_bucket = AircraftBucket.objects.get_or_create(
+            tour=bucket.tour, aircraft=db_object, filter_type=filter_type)[0]
+
+        for ammo_log_name, times_hit in ammo_breakdown['total_hits'].items():
+            filtered_bucket.increment_ammo_given(ammo_log_name, times_hit)
+
+        filtered_bucket.save()
 
 
 def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):
