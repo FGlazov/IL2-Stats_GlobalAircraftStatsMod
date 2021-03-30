@@ -17,6 +17,7 @@ from stats.views import *
 
 from .variant_utils import has_juiced_variant, has_bomb_variant
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float
+from .bullets_types import render_ammo_breakdown
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
                         'bomb_rocket_accuracy', 'plane_survivability', 'pilot_survivability', 'plane_lethality',
@@ -58,9 +59,12 @@ def aircraft(request, aircraft_id, airfilter):
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
 
+    ammo_breakdown = render_ammo_breakdown(bucket.ammo_breakdown)
+
     return render(request, 'aircraft.html', {
         'aircraft_bucket': bucket,
         'filter_option': airfilter,
+        'ammo_breakdown': ammo_breakdown
     })
 
 

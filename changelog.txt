@@ -18,3 +18,7 @@ Version 1.0.3
 Version 1.1.0
 
 - Official support for Flying Circus. I.e. the jabo filters should now work properly for Flying Circus planes.
+
+Version 1.1.1
+
+- Fix error introduced in last version which prevented updates.

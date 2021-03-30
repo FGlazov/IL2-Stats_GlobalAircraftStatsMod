@@ -485,6 +485,35 @@
 
         <div class="clearfix"></div>
 
+
+        {% if ammo_breakdown.given|length > 0 %}
+         <div class="player_detailed" style="float: left;">
+            <div class="title">
+                {% trans 'Offensive ammo breakdown' %}
+            </div>
+            <div class="item">
+                <div class="name">{% trans 'Average hits per aircraft kill' %} ★</div>
+            </div>
+
+             {% for ammo_name, avg_used in ammo_breakdown.given.items %}
+             <div class="sub_item">
+                <div class="name">{{ammo_name}}</div>
+                <div class="num">{{avg_used}}</div>
+            </div>
+             {% endfor %}
+
+
+         </div>
+        {% endif  %}
+
+        <div class="player_detailed" style="float: right;">
+            <div class="title">
+                {% trans 'Defensive ammo breakdown' %}
+            </div>
+         </div>
+
+        <div class="clearfix"></div>
+
         <div class="player_analytics">
 
             <div class="left_block">
@@ -597,6 +626,9 @@
 
         <div class="info">
             <div>
+                {% blocktrans trimmed %}
+                ★ This data is pulled purely from 1v1 engagements. </br>
+                {% endblocktrans %}
                 {% blocktrans trimmed %}
                 * Plane Durability is percent of sorties the plane survived after taking damage. </br>
                 * Pilot Survivability is the percent of sorties the pilot survived after the plane took damage. </br>

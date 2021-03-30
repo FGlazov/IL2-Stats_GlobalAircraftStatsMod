@@ -664,30 +664,36 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
 
 
 def process_ammo_breakdown(bucket, sortie):
-    # We only care about statistics like "avg shots to kill" or "avg shots to death".
+    # We only care about statistics like "avg shots to kill" or "avg shots till our plane shotdown".
     if not sortie.is_shotdown:
         return
 
     # We only process Sorties where there was essentially a single source of damage.
-    # Note: Planes also take damage when crashing into the ground.
+    # Note: Planes also take damage when crashing into the ground. We ignore these sources of damage.
     # So to be more precise, we only want damage from exactly a single enemy aircraft/AA/Tank/object type.
-    # I.e. "Only took damage from a Spitfire Mk IX" or "Only took damage from a BF 109 K-4".
+    # I.e. "Only took damage from a Spitfire Mk IX" or "Only took damage from a Flak 88".
+    if not sortie.ammo['ammo_breakdown']['dmg_from_one_source']:
+        return
 
     enemy_objects = list((LogEntry.objects
                           .values_list('act_object', 'act_sortie')
                           .filter(Q(cact_sortie_id=sortie.id),
                                   Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
                                   Q(act_object__cls_base='aircraft') | Q(act_object__cls_base='vehicle')
-                                  | Q(act_object__cls_base='tank') | Q(act_object__cls='aircraft_turret'),
-                                  # Disregard AI sorties
-                                  Q(act_object__cls='aircraft_turret') | Q(act_sortie_id__isnull=False),
+                                  | Q(act_object__cls__contains='tank') | Q(act_object__cls_base='turret'),
+                                  # Disregard Sorties flown by AI
                                   cact_sortie_id__isnull=False)
-                          # Disregard friendly fire incidents.
-                          .exclude(act_sortie__coalition=F('cact_sortie__coalition'))
+                          # Disregard sorties shotdown by AI plane.
+                          .exclude(Q(act_object__cls_base='aircraft') & Q(act_sortie_id__isnull=True))
                           .order_by().distinct()))
 
-    print(len(enemy_objects))
+    print(sortie.id, len(enemy_objects), sortie.ammo['ammo_breakdown']['dmg_from_one_source'])
     if len(enemy_objects) != 1:
+        # Something went wrong here. This is likely due to errors in the sortie logs.
+        # I.e. "Damage" and "Hits" ATypes tell a different story.
+        # According to "Hits", there should be one source of damage, according to "Damage" that isn't the case.
+        # (Likely) Because the hits were so minor that they didn't register as damage.
+        # Just in case, we're still throwing the data out, there will be more than enough left over.
         return
     ammo_breakdown = sortie.ammo['ammo_breakdown']
 
@@ -714,7 +720,7 @@ def process_ammo_breakdown(bucket, sortie):
         base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
         filter_type = 'NO_FILTER'
 
-    for ammo_log_name, times_hit in ammo_breakdown['total_hits'].items():
+    for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
         base_bucket.increment_ammo_given(ammo_log_name, times_hit)
 
     base_bucket.save()
@@ -723,7 +729,7 @@ def process_ammo_breakdown(bucket, sortie):
         filtered_bucket = AircraftBucket.objects.get_or_create(
             tour=bucket.tour, aircraft=db_object, filter_type=filter_type)[0]
 
-        for ammo_log_name, times_hit in ammo_breakdown['total_hits'].items():
+        for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
             filtered_bucket.increment_ammo_given(ammo_log_name, times_hit)
 
         filtered_bucket.save()
