@@ -513,8 +513,8 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     enemies_shotdown = set()
     enemies_killed = set()
 
-    if 'ammo_breakdown' in sortie.ammo and not is_subtype:
-        process_ammo_breakdown(bucket, sortie)
+    if 'ammo_breakdown' in sortie.ammo:
+        process_ammo_breakdown(bucket, sortie, is_subtype)
 
     bucket.update_derived_fields()
     bucket.save()
@@ -663,7 +663,7 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
                 kb.aircraft_2_pk_assists += 1
 
 
-def process_ammo_breakdown(bucket, sortie):
+def process_ammo_breakdown(bucket, sortie, is_subtype):
     # We only care about statistics like "avg shots to kill" or "avg shots till our plane shotdown".
     if not sortie.is_shotdown:
         return
@@ -687,7 +687,6 @@ def process_ammo_breakdown(bucket, sortie):
                           .exclude(Q(act_object__cls_base='aircraft') & Q(act_sortie_id__isnull=True))
                           .order_by().distinct()))
 
-    print(sortie.id, len(enemy_objects), sortie.ammo['ammo_breakdown']['dmg_from_one_source'])
     if len(enemy_objects) != 1:
         # Something went wrong here. This is likely due to errors in the sortie logs.
         # I.e. "Damage" and "Hits" ATypes tell a different story.
@@ -697,10 +696,11 @@ def process_ammo_breakdown(bucket, sortie):
         return
     ammo_breakdown = sortie.ammo['ammo_breakdown']
 
-    for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
-        db_ammo = Object.objects.get(log_name=ammo_log_name.lower())
-        is_cannon = db_ammo.cls == 'shell'
-        bucket.increment_ammo_received(ammo_log_name, is_cannon, times_hit)
+    bucket.increment_ammo_received(ammo_breakdown['total_received'])
+
+    if is_subtype:
+        # Updates for enemy aircraft were done in main type
+        return
 
     enemy_object = enemy_objects[0][0]
     enemy_sortie = enemy_objects[0][1]
@@ -715,7 +715,7 @@ def process_ammo_breakdown(bucket, sortie):
         db_sortie = Sortie.objects.get(id=enemy_sortie)
         filter_type = get_sortie_type(db_sortie)
         base_bucket = AircraftBucket.objects.get_or_create(
-            tour=bucket.tour, aircraft=db_object, filter_type='NO_FILTER')[0]
+            tour=db_sortie.tour, aircraft=db_object, filter_type='NO_FILTER')[0]
     else:  # Turret
         base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
         filter_type = 'NO_FILTER'

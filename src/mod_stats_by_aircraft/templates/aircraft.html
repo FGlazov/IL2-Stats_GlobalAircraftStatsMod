@@ -487,7 +487,7 @@
 
 
         {% if ammo_breakdown.given|length > 0 %}
-         <div class="player_detailed" style="float: left;">
+         <div class="player_detailed" style="float: left; width: 360px">
             <div class="title">
                 {% trans 'Offensive ammo breakdown' %}
             </div>
@@ -495,22 +495,33 @@
                 <div class="name">{% trans 'Average hits per aircraft kill' %} ★</div>
             </div>
 
-             {% for ammo_name, avg_used in ammo_breakdown.given.items %}
+             {% for ammo_name, avg_used in ammo_breakdown.given %}
              <div class="sub_item">
                 <div class="name">{{ammo_name}}</div>
                 <div class="num">{{avg_used}}</div>
-            </div>
+             </div>
              {% endfor %}
 
 
          </div>
         {% endif  %}
 
-        <div class="player_detailed" style="float: right;">
+        {% if ammo_breakdown.received|length > 0 %}
+        <div class="player_detailed" style="float: right; width: 770px;">
             <div class="title">
                 {% trans 'Defensive ammo breakdown' %}
             </div>
+            <div class="item">
+                <div class="name">{% trans 'Average hits per aircraft lost' %} ★</div>
+            </div>
+            {% for ammo_name, avg_used in ammo_breakdown.received %}
+             <div class="sub_item">
+                <div class="name">{{ammo_name}}</div>
+                <div class="num">{{avg_used}}</div>
+             </div>
+            {% endfor %}
          </div>
+        {% endif %}
 
         <div class="clearfix"></div>
 

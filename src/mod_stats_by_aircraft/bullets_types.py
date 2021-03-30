@@ -1,36 +1,71 @@
 from django.utils.translation import pgettext_lazy
-from .aircraft_mod_models import TOTALS, AVERAGES, CANNON, MACHINE_GUN, CANNON_MG, RECEIVED, GIVEN, INST, COUNT
+from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS,
+                                  multi_key_to_string, string_to_multikey)
+
+
+def take_first(elem):
+    return elem[0]
 
 
 def render_ammo_breakdown(ammo_breakdown):
     result = {
-        GIVEN: dict(),
-        RECEIVED: {
-            MACHINE_GUN: dict(),
-            CANNON: dict()
-        },
-        MACHINE_GUN: 0,
-        CANNON: 0,
-        CANNON_MG: 0,
+        GIVEN: [],
+        RECEIVED: [],
     }
 
     for ammo_log_name, avg_used in ammo_breakdown[GIVEN][AVERAGES].items():
-        ammo_name = translate_bullet(ammo_log_name)
-        result[GIVEN][ammo_name] = avg_used
+        if ammo_log_name == 'BULLET_PISTOL':
+            continue  # I mean...
 
-    for ammo_log_name, avg_taken in ammo_breakdown[RECEIVED][AVERAGES].items():
-        if ammo_log_name in [MACHINE_GUN, CANNON, CANNON_MG]:
+        ammo_name = translate_bullet(ammo_log_name)
+        result[GIVEN].append((ammo_name, avg_used))
+    result[GIVEN].sort(key=take_first)
+
+    total_inst = 0
+    for multi_key in ammo_breakdown[RECEIVED][TOTALS]:
+        total_inst += ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
+
+    for multi_key in ammo_breakdown[RECEIVED][TOTALS]:
+        # Don't accept small sample sizes. These are likely to be flukes (e.g. tank killing the aircraft)
+        inst = ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
+        if inst < 5 or inst/total_inst < 0.02:
             continue
 
-        ammo_name = translate_bullet(ammo_log_name)
-        if 'SHELL' in ammo_log_name:
-            result[RECEIVED][CANNON][ammo_name] = avg_taken
-        else:
-            result[RECEIVED][MACHINE_GUN][ammo_name] = avg_taken
+        keys = string_to_multikey(multi_key)
+        mg_keys = [key for key in keys if 'BULLET' in key]
+        cannon_keys = [key for key in keys if 'SHELL' in key]
 
-    result[MACHINE_GUN] = ammo_breakdown[RECEIVED][AVERAGES][MACHINE_GUN]
-    result[CANNON] = ammo_breakdown[RECEIVED][AVERAGES][CANNON]
-    result[CANNON_MG] = ammo_breakdown[RECEIVED][AVERAGES][CANNON_MG]
+        translated_mg_keys = sorted([translate_bullet(key) for key in mg_keys])
+        translated_cannon_keys = sorted([translate_bullet(key) for key in cannon_keys])
+
+        if translated_mg_keys and translated_cannon_keys:
+            ammo_names = (multi_key_to_string(translated_cannon_keys, ' | ')
+                          + " | " + multi_key_to_string(translated_mg_keys, ' | '))
+        elif translated_mg_keys:
+            ammo_names = multi_key_to_string(translated_mg_keys, ' | ')
+        else:
+            ammo_names = multi_key_to_string(translated_cannon_keys, ' | ')
+
+        mg_avgs = [0] * len(mg_keys)
+        cannon_avgs = [0] * len(cannon_keys)
+        for mg_key in mg_keys:
+            key_index = translated_mg_keys.index(translate_bullet(mg_key))
+            mg_avgs[key_index] = ammo_breakdown[RECEIVED][AVERAGES][multi_key][mg_key]
+
+        for cannon_key in cannon_keys:
+            key_index = translated_cannon_keys.index(translate_bullet(cannon_key))
+            cannon_avgs[key_index] = ammo_breakdown[RECEIVED][AVERAGES][multi_key][cannon_key]
+
+        if mg_avgs and cannon_avgs:
+            avg_use = (multi_key_to_string(cannon_avgs, ' | ') + ' | ' + multi_key_to_string(mg_avgs, ' | '))
+        elif mg_avgs:
+            avg_use = multi_key_to_string(mg_avgs, ' | ')
+        else:
+            avg_use = multi_key_to_string(cannon_avgs, ' | ')
+
+        result[RECEIVED].append((ammo_names, avg_use))
+
+    result[RECEIVED].sort(key=take_first)
 
     return result
 
@@ -44,7 +79,7 @@ def translate_bullet(bullet_type):
 
 bullet_types = {
     'BULLET_ENG_11x59_AP': pgettext_lazy('bullet_type', '11mm Vickers'),
-    'BULLET_ENG_7-7x56_AP': pgettext_lazy('bullet_type', 'British Browning .303'),
+    'BULLET_ENG_7-7x56_AP': pgettext_lazy('bullet_type', '.303 BMG'),
     'BULLET_GBR_11x59_AP': pgettext_lazy('bullet_type', '11mm Vickers'),
     'BULLET_GER_13x64_AP': pgettext_lazy('bullet_type', 'MG 131 (AP)'),
     'BULLET_GER_13x64_HE': pgettext_lazy('bullet_type', 'MG 131 (HE)'),
@@ -58,7 +93,7 @@ bullet_types = {
     'BULLET_RUS_12-7x108_HE': pgettext_lazy('bullet_type', 'UB (HE)'),
     'BULLET_RUS_7-62x54_AP': pgettext_lazy('bullet_type', 'ShKAS (AP)'),
     'BULLET_USA_12-7x99_AP': pgettext_lazy('bullet_type', '.50 BMG'),
-    'BULLET_USA_7-62x63_AP': pgettext_lazy('bullet_type', 'American Browning .303'),
+    'BULLET_USA_7-62x63_AP': pgettext_lazy('bullet_type', '.303 BMG'),
     'NPC_BULLET_GER_7-92': pgettext_lazy('bullet_type', 'MG 34'),
     'NPC_BULLET_GER_7-92_AP_short': pgettext_lazy('bullet_type', '7.92mm Kurz'),
     'NPC_BULLET_RUS_7-62_AP_short': pgettext_lazy('bullet_type', '7.62 Soviet'),

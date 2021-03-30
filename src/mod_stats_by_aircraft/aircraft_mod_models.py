@@ -26,25 +26,8 @@ def default_ammo_breakdown():
             AVERAGES: dict(),
         },
         RECEIVED: {
-            TOTALS: {
-                MACHINE_GUN: {
-                    INST: 0,
-                    COUNT: 0,
-                },
-                CANNON: {
-                    INST: 0,
-                    COUNT: 0,
-                },
-                CANNON_MG: {
-                    INST: 0,
-                    COUNT: 0,
-                },
-            },
-            AVERAGES: {
-                MACHINE_GUN: 0.0,
-                CANNON: 0.0,
-                CANNON_MG: 0.0,
-            }
+            TOTALS: dict(),
+            AVERAGES: dict(),
         },
     }
 
@@ -129,7 +112,7 @@ class AircraftBucket(models.Model):
     crashes = models.BigIntegerField(default=0)
     shotdown = models.BigIntegerField(default=0)
 
-    ammo_breakdown = JSONField(default=default_ammo_breakdown())
+    ammo_breakdown = JSONField(default=default_ammo_breakdown)
     # ========================== NON-SORTABLE VISIBLE FIELDS END
 
     # ========================== NON-VISIBLE HELPER FIELDS (used to calculate other visible fields)
@@ -449,37 +432,29 @@ class AircraftBucket(models.Model):
     def get_killboard_all_mods(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL)
 
-    def increment_ammo_received(self, ammo_log_name, is_cannon, times_hits):
-        self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT] += times_hits
-        self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST] += 1
-        self.ammo_breakdown[RECEIVED][AVERAGES][CANNON_MG] = compute_float(
-                self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
-                self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
-        if is_cannon:
-            self.ammo_breakdown[RECEIVED][TOTALS][CANNON][COUNT] += times_hits
-            self.ammo_breakdown[RECEIVED][TOTALS][CANNON][INST] += 1
-            self.ammo_breakdown[RECEIVED][AVERAGES][CANNON] = compute_float(
-                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
-                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
-        else:
-            self.ammo_breakdown[RECEIVED][TOTALS][MACHINE_GUN][COUNT] += times_hits
-            self.ammo_breakdown[RECEIVED][TOTALS][MACHINE_GUN][INST] += 1
-            self.ammo_breakdown[RECEIVED][AVERAGES][MACHINE_GUN] = compute_float(
-                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][COUNT],
-                    self.ammo_breakdown[RECEIVED][TOTALS][CANNON_MG][INST])
+    def increment_ammo_received(self, ammo_dict):
+        key = multi_key_to_string(list(ammo_dict.keys()))
+        if not key:
+            return
 
-        if ammo_log_name not in self.ammo_breakdown[RECEIVED][TOTALS]:
-            self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name] = {
+        if key not in self.ammo_breakdown[RECEIVED][TOTALS]:
+            self.ammo_breakdown[RECEIVED][TOTALS][key] = {
                 INST: 0,
-                COUNT: 0,
+                COUNT: dict(),
             }
+            self.ammo_breakdown[RECEIVED][AVERAGES][key] = dict()
 
-        self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][COUNT] += times_hits
-        self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][INST] += 1
-        self.ammo_breakdown[RECEIVED][AVERAGES][ammo_log_name] = compute_float(
-                self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][COUNT],
-                self.ammo_breakdown[RECEIVED][TOTALS][ammo_log_name][INST]
-        )
+            for ammo_key in ammo_dict:
+                self.ammo_breakdown[RECEIVED][TOTALS][key][COUNT][ammo_key] = 0
+
+        self.ammo_breakdown[RECEIVED][TOTALS][key][INST] += 1
+        for ammo_key in ammo_dict:
+            times_hit = ammo_dict[ammo_key]
+            self.ammo_breakdown[RECEIVED][TOTALS][key][COUNT][ammo_key] += times_hit
+            self.ammo_breakdown[RECEIVED][AVERAGES][key][ammo_key] = compute_float(
+                self.ammo_breakdown[RECEIVED][TOTALS][key][COUNT][ammo_key],
+                self.ammo_breakdown[RECEIVED][TOTALS][key][INST]
+            )
 
     def increment_ammo_given(self, ammo_log_name, times_hit):
         if ammo_log_name not in self.ammo_breakdown[GIVEN][TOTALS]:
@@ -491,9 +466,26 @@ class AircraftBucket(models.Model):
         self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][COUNT] += times_hit
         self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][INST] += 1
         self.ammo_breakdown[GIVEN][AVERAGES][ammo_log_name] = compute_float(
-                self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][COUNT],
-                self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][INST]
+            self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][COUNT],
+            self.ammo_breakdown[GIVEN][TOTALS][ammo_log_name][INST]
         )
+
+
+def multi_key_to_string(keys, separator='|'):
+    keys = sorted(keys)
+    if len(keys) == 0:
+        return ''
+    if len(keys) == 1:
+        return str(keys[0])
+
+    result = str(keys[0])
+    for key in keys[1:]:
+        result += separator + str(key)
+    return result
+
+
+def string_to_multikey(string, separator='|'):
+    return string.split(separator)
 
 
 def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
