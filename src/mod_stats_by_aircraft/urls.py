@@ -19,7 +19,6 @@ from django.views.generic import RedirectView
 
 from . import views
 
-
 app_name = 'stats'
 urlpatterns = [
     url(r'^pilots/$', views.pilot_rankings, name='pilots'),
@@ -37,7 +36,8 @@ urlpatterns = [
 
     url(r'^pilot/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot, name='pilot'),
     url(r'^aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft, name='aircraft'),
-    url(r'^aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft_killboard, name='aircraft_killboard'),
+    url(r'^aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft_killboard,
+        name='aircraft_killboard'),
     url(r'^sortie/(?P<sortie_id>\d+)/$', views.pilot_sortie, name='pilot_sortie'),
     url(r'^sortie/log/(?P<sortie_id>\d+)/$', views.pilot_sortie_log, name='pilot_sortie_log'),
     url(r'^mission/(?P<mission_id>\d+)/$', views.mission, name='mission'),
@@ -51,3 +51,6 @@ urlpatterns = [
     url(r'^sorties/(?P<profile_id>\d+)/$', views.pilot_sorties),
     url(r'^vlifes/(?P<profile_id>\d+)/$', views.pilot_vlifes),
 ]
+
+if hasattr(views, 'ironman_stats'):  # For compatibility with mod_rating_by_type.
+    urlpatterns.append(url(r'^ironman/$', views.ironman_stats, name='ironman'))

@@ -39,7 +39,8 @@ Contact =FEW=Revolves on the IL2 forums.
 Compatibility with other mods
 ---------------------------------------------
 
-This mod is compatible with IL-2 Split Rankings. Make sure mod_stats_by_aircraft comes after mod_rating_by_type in the mods config parameter.
+This mod is compatible with IL-2 Split Rankings. Make sure mod_stats_by_aircraft comes after mod_rating_by_type in the mods config parameter. I.e., like:
+mods = mod_rating_by_type, mod_stats_by_aircraft
 
 This mod is mildly incompatible with the disconnect mod. Copy the src/ folder in compatibility_patch/disconnect/ inside this zip over into your il-2 stats folder after installing both mods. This compatibility patch was made for version 1.5 of the disconnect mod.
 
