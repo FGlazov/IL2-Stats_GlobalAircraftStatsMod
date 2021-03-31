@@ -1,5 +1,5 @@
 from django.db import models
-from stats.models import Tour, Object, Sortie, rating_format_helper
+from stats.models import Tour, Object, Sortie, rating_format_helper, Player
 from mission_report.constants import Coalition
 from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
@@ -57,6 +57,7 @@ class AircraftBucket(models.Model):
     tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
     aircraft = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
     filter_type = models.CharField(max_length=16, choices=filter_choices, default=NO_FILTER)
+    player = models.ForeignKey(Player, related_name='+', on_delete=models.PROTECT, null=True)
     # ========================= NATURAL KEY END
 
     # ========================= SORTABLE FIELDS
@@ -539,6 +540,7 @@ class SortieAugmentation(models.Model):
     sortie = models.OneToOneField(Sortie, on_delete=models.PROTECT, primary_key=True,
                                   related_name='SortieAugmentation_MOD_STATS_BY_AIRCRAFT')
     sortie_stats_processed = models.BooleanField(default=False, db_index=True)
+    player_stats_processed = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.

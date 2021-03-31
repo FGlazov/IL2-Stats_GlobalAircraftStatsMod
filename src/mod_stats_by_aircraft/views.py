@@ -31,7 +31,8 @@ def all_aircraft(request, airfilter='NO_FILTER'):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
-    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type=airfilter).order_by(sort_by, 'id')
+    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type=airfilter,
+                                            player__is_null=True).order_by(sort_by, 'id')
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
@@ -203,17 +204,17 @@ def allow_killboard_line(our_aircraft, enemy_aircraft):
         return True  # Enemy aircraft type is always NO_FILTER, so there are no duplicates here anyways.
 
 
-def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter):
+def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):
     if tour_id:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .get(aircraft=aircraft_id, tour_id=tour_id, filter_type=bucket_filter))
+                      .get(aircraft=aircraft_id, tour_id=tour_id, filter_type=bucket_filter, player=player))
         except AircraftBucket.DoesNotExist:
             bucket = None
     else:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
-                      .filter(aircraft=aircraft_id, filter_type=bucket_filter)
+                      .filter(aircraft=aircraft_id, filter_type=bucket_filter, player=player)
                       .order_by('-id'))[0]
         except IndexError:
             raise Http404
