@@ -28,7 +28,7 @@ def render_ammo_breakdown(ammo_breakdown):
     for multi_key in ammo_breakdown[RECEIVED][TOTALS]:
         # Don't accept small sample sizes. These are likely to be flukes (e.g. tank killing the aircraft)
         inst = ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
-        if inst < 5 or inst/total_inst < 0.02:
+        if inst < 4 or inst/total_inst < 0.05:
             continue
 
         keys = string_to_multikey(multi_key)
@@ -85,9 +85,9 @@ bullet_types = {
     'BULLET_GER_13x64_HE': pgettext_lazy('bullet_type', 'MG 131 (HE)'),
     'BULLET_GER_7-92x57_AP': pgettext_lazy('bullet_type', 'MG 17 (AP)'),
     'BULLET_GER_792x57_SS': pgettext_lazy('bullet_type', 'MG 17 (SS)'),
-    'BULLET_ITA_12-7x81_AP': pgettext_lazy('bullet_type', 'Breda-SAFAT MG 12.7mm (AP)'),
-    'BULLET_ITA_12-7x81_HE': pgettext_lazy('bullet_type', 'Breda-SAFAT MG 12.7mm (HE)'),
-    'BULLET_ITA_7-7x56_AP': pgettext_lazy('bullet_type', ' Breda-SAFAT MG 7.7mm'),
+    'BULLET_ITA_12-7x81_AP': pgettext_lazy('bullet_type', 'Breda 12.7mm (AP)'),
+    'BULLET_ITA_12-7x81_HE': pgettext_lazy('bullet_type', 'Breda 12.7mm (HE)'),
+    'BULLET_ITA_7-7x56_AP': pgettext_lazy('bullet_type', ' Breda 7.7mm'),
     'BULLET_PISTOL': pgettext_lazy('bullet_type', 'Pistol bullet'),
     'BULLET_RUS_12-7x108_AP': pgettext_lazy('bullet_type', 'UB (AP)'),
     'BULLET_RUS_12-7x108_HE': pgettext_lazy('bullet_type', 'UB (HE)'),

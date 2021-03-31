@@ -512,10 +512,14 @@
                 {% trans 'Defensive ammo breakdown' %}
             </div>
             <div class="item">
-                <div class="name">{% trans 'Average hits per aircraft lost' %} ★</div>
+                <div class="name">{% trans 'Average hits per aircraft lost' %} ⛤</div>
             </div>
             {% for ammo_name, avg_used in ammo_breakdown.received %}
-             <div class="sub_item">
+            {% if ammo_name|length <= 65 %}
+            <div class="sub_item">
+            {% else %}
+            <div class="sub_item" style="height: 80px;">
+            {% endif %}
                 <div class="name">{{ammo_name}}</div>
                 <div class="num">{{avg_used}}</div>
              </div>
@@ -638,7 +642,8 @@
         <div class="info">
             <div>
                 {% blocktrans trimmed %}
-                ★ This data is pulled purely from 1v1 engagements. </br>
+                ★ This data is pulled purely from sorties where this plane was the sole source of damage. </br>
+                ⛤ This data is pulled purely from sorties where this plane was damaged by a single enemy (one aircraft/tank/AA/etc.). Only weapon configurations which account for at least 5% of deaths are displayed.</br>
                 {% endblocktrans %}
                 {% blocktrans trimmed %}
                 * Plane Durability is percent of sorties the plane survived after taking damage. </br>
