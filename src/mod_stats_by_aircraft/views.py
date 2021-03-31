@@ -143,6 +143,40 @@ def aircraft_killboard(request, aircraft_id, airfilter):
     })
 
 
+def pilot_aircraft_overview(request, profile_id, nickname=None):
+    try:
+        player = (Player.objects.select_related('profile', 'tour')
+                  .get(profile_id=profile_id, type='pilot', tour_id=request.tour.id))
+    except Player.DoesNotExist:
+        raise Http404
+
+    if player.nickname != nickname:
+        return redirect_fix_url(request=request, param='nickname', value=player.nickname)
+    if player.profile.is_hide:
+        return render(request, 'pilot_hide.html', {'player': player})
+
+    page = request.GET.get('page', 1)
+    search = request.GET.get('search', '').strip()
+    sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
+    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type='NO_FILTER').order_by(sort_by, 'id')
+    if search:
+        buckets = buckets.filter(aircraft__name__icontains=search)
+
+    buckets = Paginator(buckets, ITEMS_PER_PAGE).page(page)
+
+    # TODO: Get the filters working properly
+    return render(request, 'pilot_aircraft_overview.html', {
+        'all_aircraft': buckets,
+        'player': player,
+        'filter_type': 'NO_FILTER',
+        'no_filter_url': all_aircraft_url(request.tour.id, 'NO_FILTER'),
+        'no_mods_url': all_aircraft_url(request.tour.id, 'NO_BOMBS_JUICE'),
+        'bombs_url': all_aircraft_url(request.tour.id, 'BOMBS'),
+        'juiced_url': all_aircraft_url(request.tour.id, 'JUICE'),
+        'all_mods_urls': all_aircraft_url(request.tour.id, 'ALL'),
+    })
+
+
 def allow_killboard_line(our_aircraft, enemy_aircraft):
     b = our_aircraft
     # Technically speaking this function could be folded into the query and it would likely be quicker.

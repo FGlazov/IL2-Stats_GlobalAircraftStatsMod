@@ -29,6 +29,9 @@ urlpatterns = [
     url(r'^vlifes/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_vlifes, name='pilot_vlifes'),
     url(r'^awards/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_awards, name='pilot_awards'),
     url(r'^killboard/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_killboard, name='pilot_killboard'),
+    url(r'^aircraft_overview/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_aircraft_overview,
+        name='pilot_aircraft_overview'),
+
     url(r'^missions/$', views.missions_list, name='missions_list'),
 
     url(r'^squad/(?P<squad_id>\d+)/(?P<squad_tag>\S+)/$', views.squad, name='squad'),

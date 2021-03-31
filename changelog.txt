@@ -22,3 +22,7 @@ Version 1.1.0
 Version 1.1.1
 
 - Fix error introduced in last version which prevented updates.
+
+Version 1.2
+
+- Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.)
