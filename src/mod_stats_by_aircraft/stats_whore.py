@@ -355,7 +355,6 @@ def stats_whore(m_report_file):
 
     # ======================== MODDED PART BEGIN
     for sortie in new_sorties:
-        sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
         process_aircraft_stats(sortie)
         process_aircraft_stats(sortie, sortie.player)
     # ======================== MODDED PART END
@@ -376,7 +375,7 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
                         .order_by('-tour__id'))
     nr_left = backfill_sorties.count()
     if nr_left == 0:
-        return False
+        return process_old_sorties_player_aircraft(backfill_log, tour_cutoff)
 
     if backfill_log:
         logger.info('[mod_stats_by_aircraft]: Retroactively computing aircraft stats. {} sorties left to process.'
@@ -388,6 +387,29 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
 
     if nr_left <= 1000:
         logger.info('[mod_stats_by_aircraft]: Completed retroactively computing aircraft stats.')
+
+    return True
+
+
+def process_old_sorties_player_aircraft(backfill_log, tour_cutoff):
+    backfill_sorties = (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__player_stats_processed=False,
+                                              aircraft__cls_base='aircraft', tour__id__gte=tour_cutoff)
+                        .order_by('-tour__id'))
+
+    nr_left = backfill_sorties.count()
+    if nr_left == 0:
+        return False
+
+    if backfill_log:
+        logger.info(
+            '[mod_stats_by_aircraft]: Retroactively computing player aircraft stats. {} sorties left to process.'
+            .format(nr_left))
+
+    for sortie in backfill_sorties[0:1000]:
+        process_aircraft_stats(sortie, sortie.player)
+
+    if nr_left <= 1000:
+        logger.info('[mod_stats_by_aircraft]: Completed retroactively computing player aircraft stats.')
 
     return True
 

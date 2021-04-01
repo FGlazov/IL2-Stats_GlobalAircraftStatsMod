@@ -419,19 +419,35 @@ class AircraftBucket(models.Model):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.ALL, self.player)
 
     def get_killboard_url(self):
-        return get_killboard_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.NO_FILTER)
 
     def get_killboard_no_mods(self):
-        return get_killboard_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE, self.player)
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.NO_BOMBS_NO_JUICE)
 
     def get_killboard_bombs(self):
-        return get_killboard_url(self.aircraft.id, self.tour.id, self.BOMBS, self.player)
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.BOMBS)
 
     def get_killboard_juiced(self):
-        return get_killboard_url(self.aircraft.id, self.tour.id, self.JUICED, self.player)
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.JUICED)
 
     def get_killboard_all_mods(self):
-        return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL, self.player)
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.ALL)
+
+    def get_killboard_enemy_no_filter(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.NO_FILTER)
+
+    def get_killboard_enemy_no_mods(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.NO_BOMBS_NO_JUICE)
+
+    def get_killboard_enemy_bombs(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.BOMBS)
+
+    def get_killboard_enemy_juiced(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.JUICED)
+
+    def get_killboard_enemy_all_mods(self):
+        return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.ALL)
+
 
     def get_pilot_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
@@ -504,15 +520,16 @@ def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER', player=Non
     return url
 
 
-def get_killboard_url(aircraft_id, tour_id, bucket_filter, player):
+def get_killboard_url(aircraft_id, tour_id, player, bucket_filter, enemy_filter='NO_FILTER'):
     if player is None:
-        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft_killboard', args=[aircraft_id, bucket_filter]),
-                                            tour_id=tour_id)
+        url = '{url}?tour={tour_id}&enemy_filter={enemy_filter}'.format(
+            url=reverse('stats:aircraft_killboard', args=[aircraft_id, bucket_filter]),
+            tour_id=tour_id, enemy_filter=enemy_filter)
     else:
-        url = '{url}?tour={tour_id}'.format(
+        url = '{url}?tour={tour_id}&enemy_filter={enemy_filter}'.format(
             url=reverse('stats:pilot_aircraft_killboard',
                         args=[aircraft_id, bucket_filter, player.profile.id, player.nickname]),
-            tour_id=tour_id)
+            tour_id=tour_id, enemy_filter=enemy_filter)
     return url
 
 

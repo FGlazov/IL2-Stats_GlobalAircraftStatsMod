@@ -1,4 +1,5 @@
 from django import template
+from django.urls import reverse
 
 register = template.Library()
 
@@ -12,3 +13,15 @@ def seconds_to_long_time(value):
         return '%d:%02d:%02d' % (total_days, hours, minutes)
     else:
         return '%d:%02d' % (total_hours, minutes)
+
+
+@register.filter()
+def get_url_enemy_no_filter(value, arg):
+    bucket = value
+
+    return ''
+
+
+@register.filter()
+def get_url_enemy_juiced(value, arg):
+    return ''

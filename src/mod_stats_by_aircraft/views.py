@@ -71,16 +71,18 @@ def aircraft(request, aircraft_id, airfilter):
 
 def aircraft_killboard(request, aircraft_id, airfilter):
     tour_id = request.GET.get('tour')
+    enemy_filter = request.GET.get('enemy_filter', 'NO_FILTER')
     bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter)
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
     aircraft_id = int(aircraft_id)
 
-    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id)
+    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id, enemy_filter, True)
 
     return render(request, 'aircraft_killboard.html', {
         'aircraft_bucket': bucket,
         'killboard': killboard,
+        'enemy_filter': enemy_filter,
     })
 
 
@@ -139,35 +141,39 @@ def pilot_aircraft_killboard(request, profile_id, aircraft_id, airfilter, nickna
         return render(request, 'pilot_hide.html', {'player': player})
 
     tour_id = request.GET.get('tour')
+    enemy_filter = request.GET.get('enemy_filter', 'NO_FILTER')
     bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter, player)
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
-    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id)
+    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id, enemy_filter, False)
 
     return render(request, 'pilot_aircraft_killboard.html', {
         'player': player,
         'aircraft_bucket': bucket,
         'killboard': killboard,
+        'enemy_filter': enemy_filter,
     })
 
 
-def render_killboard(aircraft_id, airfilter, bucket, request, tour_id):
+def render_killboard(aircraft_id, airfilter, bucket, request, tour_id, enemy_filter, no_players):
     aircraft_id = int(aircraft_id)
     unsorted_killboard = (AircraftKillboard.objects
                           .select_related('aircraft_1', 'aircraft_2')
                           .filter((Q(aircraft_1=bucket) & Q(aircraft_1__filter_type=airfilter)) |
                                   (Q(aircraft_2=bucket) & Q(aircraft_2__filter_type=airfilter)),
+                                  (Q(aircraft_2=bucket) & Q(aircraft_1__filter_type=enemy_filter)) |
+                                  (Q(aircraft_1=bucket) & Q(aircraft_2__filter_type=enemy_filter)),
                                   # Edge case: Killboards with only assists/distinct hits. Look strange.
                                   Q(aircraft_1_shotdown__gt=0) | Q(aircraft_2_shotdown__gt=0),
                                   tour__id=tour_id,
                                   ))
+    if no_players:
+        unsorted_killboard = unsorted_killboard.filter(aircraft_1__player=None, aircraft_2__player=None)
+
     killboard = []
     for k in unsorted_killboard:
         aircraft_1 = k.aircraft_1.aircraft
         if aircraft_1.id == aircraft_id:
-            if not allow_killboard_line(k.aircraft_1, k.aircraft_2):
-                continue
-
             killboard.append(
                 {'aircraft': k.aircraft_2.aircraft,
                  'kills': k.aircraft_1_shotdown,
@@ -187,9 +193,6 @@ def render_killboard(aircraft_id, airfilter, bucket, request, tour_id):
                  }
             )
         else:
-            if not allow_killboard_line(k.aircraft_2, k.aircraft_1):
-                continue
-
             killboard.append(
                 {'aircraft': k.aircraft_1.aircraft,
                  'kills': k.aircraft_2_shotdown,
@@ -239,32 +242,6 @@ def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
         'filter_option': airfilter,
         'ammo_breakdown': ammo_breakdown
     })
-
-
-def allow_killboard_line(our_aircraft, enemy_aircraft):
-    b = our_aircraft
-    # Technically speaking this function could be folded into the query and it would likely be quicker.
-    # The logic here is so complicated, that it is IMO more readable as a separate python function.
-    # Not much performance lost anyways - it's at most 50 objects which are iterated over in (slow) python.
-
-    if enemy_aircraft.has_juiced_variant and enemy_aircraft.has_bomb_variant:
-        return our_aircraft.filter_type == enemy_aircraft.filter_type
-    elif enemy_aircraft.has_juiced_variant:
-        if our_aircraft.filter_type == b.BOMBS:
-            return enemy_aircraft.filter_type == b.NO_FILTER
-        elif our_aircraft.filter_type == b.ALL:
-            return enemy_aircraft.filter_type == b.JUICED
-        else:
-            return our_aircraft.filter_type == enemy_aircraft.filter_type
-    elif enemy_aircraft.has_bomb_variant:
-        if our_aircraft.filter_type == b.JUICED:
-            return enemy_aircraft.filter_type == b.NO_FILTER
-        elif our_aircraft.filter_type == b.ALL:
-            return enemy_aircraft.filter_type == b.BOMBS
-        else:
-            return our_aircraft.filter_type == enemy_aircraft.filter_type
-    else:
-        return True  # Enemy aircraft type is always NO_FILTER, so there are no duplicates here anyways.
 
 
 def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):

@@ -12,6 +12,8 @@
         <div class="profile_name">
             {% trans 'Aircraft Killboard' %} : {{ aircraft_bucket.aircraft.name }}
         </div>
+        <div class="content_title_sm">{% trans 'pilot' context 'pilot_awards' %}: {{ player.nickname }}</div>
+
         <div class="profile_head">
             <div class="head_left">
                 {% if aircraft_bucket.coalition == 1 %}
@@ -49,10 +51,7 @@
                     <option value="{{ aircraft_bucket.get_killboard_no_mods }}" selected>{% trans 'without bombs only' %}</option>
                     {% endif %}
                 </select>
-                <div class="clearfix"></div>
-                <div class="info">
-                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
-                </div>
+                <div class="clearfix" style="height: 40px;"></div>
                 {% endif %}
 
                 {% if not aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
@@ -75,10 +74,7 @@
                     <option value="{{ aircraft_bucket.get_killboard_no_mods }}" selected>{% trans 'without upgraded fuel/engine' %}</option>
                     {% endif %}
                 </select>
-                <div class="clearfix"></div>
-                <div class="info">
-                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
-                </div>
+                <div class="clearfix" style="height: 40px;"></div>
                 {% endif %}
 
                 {% if aircraft_bucket.has_bomb_variant and aircraft_bucket.has_juiced_variant %}
@@ -126,11 +122,53 @@
                     {% endif %}
 
                 </select>
-                <div class="clearfix"></div>
-                <div class="info">
-                    {% trans 'This filter applies to all aircraft (where applicable), including the ones inside the table below.' %}
-                </div>
+                <div class="clearfix" style="height: 40px;"></div>
                 {% endif %}
+
+                <label>{% trans 'Filter below by:' %}</label>
+                <select style="background: #303030; border: 1px solid #252525; width: 400px;"
+                        onchange="if (this.value) window.location.href=this.value">
+                    {% if enemy_filter == aircraft_bucket.NO_FILTER %}
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_filter }}" selected>{% trans 'no filter' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_juiced }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_mods }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_all_mods }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_bombs }}" >{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if enemy_filter == aircraft_bucket.JUICED %}
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_filter }}">{% trans 'no filter' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_juiced }}" selected>{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_mods }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_all_mods }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_bombs }}" >{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if enemy_filter == aircraft_bucket.NO_BOMBS_NO_JUICE %}
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_filter }}" >{% trans 'no filter' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_juiced }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_mods }}" selected>{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_all_mods }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_bombs }}" >{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if enemy_filter == aircraft_bucket.ALL %}
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_filter }}" >{% trans 'no filter' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_juiced }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_mods }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_all_mods }}" selected>{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_bombs }}" >{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+
+                    {% if enemy_filter == aircraft_bucket.BOMBS %}
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_filter }}">{% trans 'no filter' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_juiced }}">{% trans 'with upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_no_mods }}">{% trans 'without upgraded engine and no bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_all_mods }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
+                    <option value="{{ aircraft_bucket.get_killboard_enemy_bombs }}" selected>{% trans 'without upgraded fuel/engine and bombs' %}</option>
+                    {% endif %}
+                </select>
+
             </div>
         </div>
         {% if killboard %}
