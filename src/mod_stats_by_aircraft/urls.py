@@ -48,6 +48,9 @@ urlpatterns = [
         name='pilot_aircraft_overview'),
     url(r'^pilot_aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/(?P<profile_id>\d+)/(?P<nickname>\S+)/$',
         views.pilot_aircraft, name='pilot_aircraft'),
+    url(r'^pilot_aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/(?P<profile_id>\d+)/(?P<nickname>\S+)/$',
+        views.pilot_aircraft_killboard, name='pilot_aircraft_killboard'),
+
 
     url(r'^online/$', views.online, name='online'),
     url(r'^$', views.main, name='main'),

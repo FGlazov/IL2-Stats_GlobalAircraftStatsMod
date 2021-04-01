@@ -76,67 +76,7 @@ def aircraft_killboard(request, aircraft_id, airfilter):
         return render(request, 'aircraft_does_not_exist.html')
     aircraft_id = int(aircraft_id)
 
-    unsorted_killboard = (AircraftKillboard.objects
-                          .select_related('aircraft_1', 'aircraft_2')
-                          .filter((Q(aircraft_1=bucket) & Q(aircraft_1__filter_type=airfilter)) |
-                                  (Q(aircraft_2=bucket) & Q(aircraft_2__filter_type=airfilter)),
-                                  # Edge case: Killboards with only assists/distinct hits. Look strange.
-                                  Q(aircraft_1_shotdown__gt=0) | Q(aircraft_2_shotdown__gt=0),
-                                  tour__id=tour_id,
-                                  ))
-
-    killboard = []
-    for k in unsorted_killboard:
-        aircraft_1 = k.aircraft_1.aircraft
-        if aircraft_1.id == aircraft_id:
-            if not allow_killboard_line(k.aircraft_1, k.aircraft_2):
-                continue
-
-            killboard.append(
-                {'aircraft': k.aircraft_2.aircraft,
-                 'kills': k.aircraft_1_shotdown,
-                 'deaths': k.aircraft_2_shotdown,
-                 'kdr': compute_float(k.aircraft_1_shotdown, k.aircraft_2_shotdown),
-                 'plane_survivability': round(
-                     100.0 - compute_float((k.aircraft_2_shotdown + k.aircraft_2_assists) * 100,
-                                           k.aircraft_2_distinct_hits), 2),
-                 'pilot_survivability': round(
-                     100.0 - compute_float((k.aircraft_2_kills + k.aircraft_2_pk_assists) * 100,
-                                           k.aircraft_2_distinct_hits), 2),
-                 'plane_lethality': compute_float((k.aircraft_1_shotdown + k.aircraft_1_assists) * 100,
-                                                  k.aircraft_1_distinct_hits),
-                 'pilot_lethality': compute_float((k.aircraft_1_kills + k.aircraft_1_pk_assists) * 100,
-                                                  k.aircraft_1_distinct_hits),
-                 'url': k.get_aircraft_url(2),
-                 }
-            )
-        else:
-            if not allow_killboard_line(k.aircraft_2, k.aircraft_1):
-                continue
-
-            killboard.append(
-                {'aircraft': k.aircraft_1.aircraft,
-                 'kills': k.aircraft_2_shotdown,
-                 'deaths': k.aircraft_1_shotdown,
-                 'kdr': compute_float(k.aircraft_2_shotdown, k.aircraft_1_shotdown),
-                 'plane_survivability': round(
-                     100.0 - compute_float((k.aircraft_1_shotdown + k.aircraft_1_assists) * 100,
-                                           k.aircraft_1_distinct_hits), 2),
-                 'pilot_survivability': round(
-                     100.0 - compute_float((k.aircraft_1_kills + k.aircraft_1_pk_assists) * 100,
-                                           k.aircraft_1_distinct_hits), 2),
-                 'plane_lethality': compute_float((k.aircraft_2_shotdown + k.aircraft_2_assists) * 100,
-                                                  k.aircraft_2_distinct_hits),
-                 'pilot_lethality': compute_float((k.aircraft_2_kills + k.aircraft_2_pk_assists) * 100,
-                                                  k.aircraft_2_distinct_hits),
-                 'url': k.get_aircraft_url(1),
-                 }
-            )
-
-    _sort_by = get_sort_by(request=request, sort_fields=aircraft_killboard_sort_fields, default='-kdr')
-    sort_reverse = True if _sort_by.startswith('-') else False
-    sort_by = _sort_by.replace('-', '')
-    killboard = sorted(killboard, key=lambda x: x[sort_by], reverse=sort_reverse)
+    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id)
 
     return render(request, 'aircraft_killboard.html', {
         'aircraft_bucket': bucket,
@@ -184,6 +124,95 @@ def pilot_aircraft_overview_url(profile_id, nickname, tour_id, filter_type):
         url=reverse('stats:pilot_aircraft_overview', args=[profile_id, nickname, filter_type]),
         tour_id=tour_id)
     return url
+
+
+def pilot_aircraft_killboard(request, profile_id, aircraft_id, airfilter, nickname=None):
+    try:
+        player = (Player.objects.select_related('profile', 'tour')
+                  .get(profile_id=profile_id, type='pilot', tour_id=request.tour.id))
+    except Player.DoesNotExist:
+        raise Http404
+
+    if player.nickname != nickname:
+        return redirect_fix_url(request=request, param='nickname', value=player.nickname)
+    if player.profile.is_hide:
+        return render(request, 'pilot_hide.html', {'player': player})
+
+    tour_id = request.GET.get('tour')
+    bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter, player)
+    if bucket is None:
+        return render(request, 'aircraft_does_not_exist.html')
+    killboard = render_killboard(aircraft_id, airfilter, bucket, request, tour_id)
+
+    return render(request, 'pilot_aircraft_killboard.html', {
+        'player': player,
+        'aircraft_bucket': bucket,
+        'killboard': killboard,
+    })
+
+
+def render_killboard(aircraft_id, airfilter, bucket, request, tour_id):
+    aircraft_id = int(aircraft_id)
+    unsorted_killboard = (AircraftKillboard.objects
+                          .select_related('aircraft_1', 'aircraft_2')
+                          .filter((Q(aircraft_1=bucket) & Q(aircraft_1__filter_type=airfilter)) |
+                                  (Q(aircraft_2=bucket) & Q(aircraft_2__filter_type=airfilter)),
+                                  # Edge case: Killboards with only assists/distinct hits. Look strange.
+                                  Q(aircraft_1_shotdown__gt=0) | Q(aircraft_2_shotdown__gt=0),
+                                  tour__id=tour_id,
+                                  ))
+    killboard = []
+    for k in unsorted_killboard:
+        aircraft_1 = k.aircraft_1.aircraft
+        if aircraft_1.id == aircraft_id:
+            if not allow_killboard_line(k.aircraft_1, k.aircraft_2):
+                continue
+
+            killboard.append(
+                {'aircraft': k.aircraft_2.aircraft,
+                 'kills': k.aircraft_1_shotdown,
+                 'deaths': k.aircraft_2_shotdown,
+                 'kdr': compute_float(k.aircraft_1_shotdown, k.aircraft_2_shotdown),
+                 'plane_survivability': round(
+                     100.0 - compute_float((k.aircraft_2_shotdown + k.aircraft_2_assists) * 100,
+                                           k.aircraft_2_distinct_hits), 2),
+                 'pilot_survivability': round(
+                     100.0 - compute_float((k.aircraft_2_kills + k.aircraft_2_pk_assists) * 100,
+                                           k.aircraft_2_distinct_hits), 2),
+                 'plane_lethality': compute_float((k.aircraft_1_shotdown + k.aircraft_1_assists) * 100,
+                                                  k.aircraft_1_distinct_hits),
+                 'pilot_lethality': compute_float((k.aircraft_1_kills + k.aircraft_1_pk_assists) * 100,
+                                                  k.aircraft_1_distinct_hits),
+                 'url': k.get_aircraft_url(2),
+                 }
+            )
+        else:
+            if not allow_killboard_line(k.aircraft_2, k.aircraft_1):
+                continue
+
+            killboard.append(
+                {'aircraft': k.aircraft_1.aircraft,
+                 'kills': k.aircraft_2_shotdown,
+                 'deaths': k.aircraft_1_shotdown,
+                 'kdr': compute_float(k.aircraft_2_shotdown, k.aircraft_1_shotdown),
+                 'plane_survivability': round(
+                     100.0 - compute_float((k.aircraft_1_shotdown + k.aircraft_1_assists) * 100,
+                                           k.aircraft_1_distinct_hits), 2),
+                 'pilot_survivability': round(
+                     100.0 - compute_float((k.aircraft_1_kills + k.aircraft_1_pk_assists) * 100,
+                                           k.aircraft_1_distinct_hits), 2),
+                 'plane_lethality': compute_float((k.aircraft_2_shotdown + k.aircraft_2_assists) * 100,
+                                                  k.aircraft_2_distinct_hits),
+                 'pilot_lethality': compute_float((k.aircraft_2_kills + k.aircraft_2_pk_assists) * 100,
+                                                  k.aircraft_2_distinct_hits),
+                 'url': k.get_aircraft_url(1),
+                 }
+            )
+    _sort_by = get_sort_by(request=request, sort_fields=aircraft_killboard_sort_fields, default='-kdr')
+    sort_reverse = True if _sort_by.startswith('-') else False
+    sort_by = _sort_by.replace('-', '')
+    killboard = sorted(killboard, key=lambda x: x[sort_by], reverse=sort_reverse)
+    return killboard
 
 
 def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
