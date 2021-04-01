@@ -1,6 +1,6 @@
 import time
-from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, update_status, update_general,
-                               update_ammo, update_killboard, update_killboard_pvp, create_new_sortie, backup_log,
+from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, update_killboard_pvp, create_new_sortie,
+                               backup_log,
                                get_tour, update_fairplay, update_bonus_score, update_sortie, create_profiles)
 from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
@@ -8,10 +8,9 @@ from stats.online import update_online
 from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour
 from users.utils import cleanup_registration
 from django.conf import settings
-from django.db.models import Q, F, Max
+from django.db.models import Q, F, Max, Count
 from core import __version__
-from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation, has_juiced_variant,
-                                  has_bomb_variant)
+from .aircraft_mod_models import (AircraftBucket, AircraftKillboard, SortieAugmentation)
 import sys
 import django
 import pytz
@@ -292,7 +291,7 @@ def stats_whore(m_report_file):
         elif event['type'] == 'disco':
             params['type'] = 'disco'
             params['act_object_id'] = event['sortie'].sortie_db.aircraft.id
-            params['act_sortie_id'] = event['sortie'].sortie_db.id						
+            params['act_sortie_id'] = event['sortie'].sortie_db.id			
         elif event['type'] == 'takeoff':
             params['type'] = 'takeoff'
             params['act_object_id'] = event['aircraft'].sortie.sortie_db.aircraft.id
@@ -371,7 +370,7 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
     max_id = Tour.objects.aggregate(Max('id'))['id__max']
     if max_id is None:  # Edge case: No tour yet
         return False
-	
+
     tour_cutoff = max_id - RETRO_COMPUTE_FOR_LAST_HOURS
 
     backfill_sorties = (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__isnull=True,
@@ -527,8 +526,10 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
         for event in turret_events:
             turret_name = event.act_object.name
             if turret_name not in cache_turret_buckets:
-                cache_turret_buckets[turret_name] = turret_to_aircraft_bucket(turret_name, bucket.tour)
-
+                turret_bucket = turret_to_aircraft_bucket(turret_name, bucket.tour)
+                if turret_bucket is None:
+                    continue
+                cache_turret_buckets[turret_name] = turret_bucket
             if event.type == 'damaged':
                 enemies_damaged.add(turret_name)
             elif event.type == 'shotdown':
@@ -665,6 +666,8 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
                 kb.aircraft_2_pk_assists += 1
 
 
+
+
 def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):
     (enemy_aircraft, enemy_sortie) = enemy
 
@@ -718,7 +721,13 @@ def turret_to_aircraft_bucket(turret_name, tour):
     aircraft_name = turret_name[:len(turret_name) - 7]
     if aircraft_name == 'U-2VS':
         aircraft_name = 'U-﻿2'
-    aircraft = Object.objects.filter(name=aircraft_name).get()
-    return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER'))[0]
-
+    if 'B25' in aircraft_name:
+        # It's an AI flight, which isn't (yet) supported.
+        return None
+    try:
+        aircraft = Object.objects.filter(name=aircraft_name).get()
+        return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER'))[0]
+    except Object.DoesNotExist:
+        logger.info("[mod_stats_by_aircraft] WARNING: Could not find aircraft for turret " + turret_name)
+        return None
 # ======================== MODDED PART END
