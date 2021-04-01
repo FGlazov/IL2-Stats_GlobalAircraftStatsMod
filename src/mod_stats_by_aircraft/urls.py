@@ -29,8 +29,6 @@ urlpatterns = [
     url(r'^vlifes/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_vlifes, name='pilot_vlifes'),
     url(r'^awards/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_awards, name='pilot_awards'),
     url(r'^killboard/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_killboard, name='pilot_killboard'),
-    url(r'^aircraft_overview/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_aircraft_overview,
-        name='pilot_aircraft_overview'),
 
     url(r'^missions/$', views.missions_list, name='missions_list'),
 
@@ -45,6 +43,11 @@ urlpatterns = [
     url(r'^sortie/log/(?P<sortie_id>\d+)/$', views.pilot_sortie_log, name='pilot_sortie_log'),
     url(r'^mission/(?P<mission_id>\d+)/$', views.mission, name='mission'),
     url(r'^vlife/(?P<vlife_id>\d+)/$', views.pilot_vlife, name='pilot_vlife'),
+
+    url(r'^aircraft_overview/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_aircraft_overview,
+        name='pilot_aircraft_overview'),
+    url(r'^pilot_aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/(?P<profile_id>\d+)/(?P<nickname>\S+)/$',
+        views.pilot_aircraft, name='pilot_aircraft'),
 
     url(r'^online/$', views.online, name='online'),
     url(r'^$', views.main, name='main'),

@@ -32,7 +32,7 @@ def all_aircraft(request, airfilter='NO_FILTER'):
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
     buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type=airfilter,
-                                            player__is_null=True).order_by(sort_by, 'id')
+                                            player=None).order_by(sort_by, 'id')
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
@@ -159,7 +159,9 @@ def pilot_aircraft_overview(request, profile_id, nickname=None):
     page = request.GET.get('page', 1)
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
-    buckets = AircraftBucket.objects.filter(tour_id=request.tour.id, filter_type='NO_FILTER').order_by(sort_by, 'id')
+    buckets = (AircraftBucket.objects
+               .filter(tour_id=request.tour.id, filter_type='NO_FILTER', player=player)
+               .order_by(sort_by, 'id'))
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
@@ -175,6 +177,32 @@ def pilot_aircraft_overview(request, profile_id, nickname=None):
         'bombs_url': all_aircraft_url(request.tour.id, 'BOMBS'),
         'juiced_url': all_aircraft_url(request.tour.id, 'JUICE'),
         'all_mods_urls': all_aircraft_url(request.tour.id, 'ALL'),
+    })
+
+
+def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
+    try:
+        player = (Player.objects.select_related('profile', 'tour')
+                  .get(profile_id=profile_id, type='pilot', tour_id=request.tour.id))
+    except Player.DoesNotExist:
+        raise Http404
+
+    if player.nickname != nickname:
+        return redirect_fix_url(request=request, param='nickname', value=player.nickname)
+    if player.profile.is_hide:
+        return render(request, 'pilot_hide.html', {'player': player})
+
+    bucket = find_aircraft_bucket(aircraft_id, request.GET.get('tour'), airfilter, player)
+    if bucket is None:
+        return render(request, 'aircraft_does_not_exist.html')
+
+    ammo_breakdown = render_ammo_breakdown(bucket.ammo_breakdown)
+
+    return render(request, 'pilot_aircraft.html', {
+        'player': player,
+        'aircraft_bucket': bucket,
+        'filter_option': airfilter,
+        'ammo_breakdown': ammo_breakdown
     })
 
 

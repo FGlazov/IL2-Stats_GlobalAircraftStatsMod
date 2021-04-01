@@ -355,7 +355,9 @@ def stats_whore(m_report_file):
 
     # ======================== MODDED PART BEGIN
     for sortie in new_sorties:
+        sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
         process_aircraft_stats(sortie)
+        process_aircraft_stats(sortie, sortie.player)
     # ======================== MODDED PART END
     logger.info('{mission} - processing finished'.format(mission=m_report_file.stem))
 
@@ -382,6 +384,7 @@ def process_old_sorties_batch_aircraft_stats(backfill_log):
 
     for sortie in backfill_sorties[0:1000]:
         process_aircraft_stats(sortie)
+        process_aircraft_stats(sortie, sortie.player)
 
     if nr_left <= 1000:
         logger.info('[mod_stats_by_aircraft]: Completed retroactively computing aircraft stats.')
@@ -457,7 +460,10 @@ def process_bucket(bucket, sortie, player, has_subtype, is_subtype):
     process_log_entries(bucket, sortie, player, has_subtype, is_subtype)
 
     sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
-    sortie_augmentation.sortie_stats_processed = True
+    if not player:
+        sortie_augmentation.sortie_stats_processed = True
+    else:
+        sortie_augmentation.player_stats_processed = True
     sortie_augmentation.save()
 
 
@@ -514,7 +520,7 @@ def process_log_entries(bucket, sortie, player, has_subtype, is_subtype):
     enemies_killed = set()
 
     if 'ammo_breakdown' in sortie.ammo:
-        process_ammo_breakdown(bucket, sortie, is_subtype)
+        process_ammo_breakdown(bucket, sortie, is_subtype, player)
 
     bucket.update_derived_fields()
     bucket.save()
@@ -578,40 +584,9 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
         subtype_enemy_bucket_key = (bucket.tour, shotdown_enemy[0], enemy_sortie_type)
         # TODO: Properly update enemy player bucket (Probably killboards?)
         subtype_enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, subtype_enemy_bucket_key, None)
-
-        # There are in essecence three cases for the Elo Update:
-
-        # Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
-        # Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.
-        # Aircraft 1 has subtypes, Aircraft 2 does not:
-        # Aircraft 1 main type and subtype updates directly from Aircraft 2 only type
-        # Aircraft 2 has "half an encounter" with aircraft 1 main type, and "half an encounter" with aircraft 1 subtype.
-
-        if enemy_sortie_type == bucket.NO_FILTER:  # No subtypes for enemy
-            if not has_subtype:
-                bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
-            else:
-                bucket.elo, new_elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
-                delta_elo = new_elo - subtype_enemy_bucket.elo  # This is negative!
-                # This elo will be touched twice: once in subtype, once in not-filtered type.
-                # Hence take (approximately) the average delta.
-                subtype_enemy_bucket.elo += round(delta_elo / 2)
-        else:  # Enemy has subtypes
-            enemy_bucket_key = (bucket.tour, shotdown_enemy[0], bucket.NO_FILTER)
-            enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, enemy_bucket_key, None)
-
-            if has_subtype:
-                if is_subtype:
-                    bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-                else:
-                    bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-            else:
-                first_new_elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
-                second_new_elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
-
-                first_delta_elo = first_new_elo - bucket.elo
-                second_delta_elo = second_new_elo - bucket.elo
-                bucket.elo = round(bucket.elo + first_delta_elo / 2 + second_delta_elo / 2)
+        if player is None:
+            update_elo(bucket, cache_enemy_buckets, enemy_sortie_type, has_subtype, is_subtype, shotdown_enemy,
+                       subtype_enemy_bucket)
 
         kbs = get_killboards(shotdown_enemy, bucket, cache_kb, cache_enemy_buckets_kb)
         for kb in kbs:
@@ -628,6 +603,42 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
             else:
                 kb.aircraft_2_kills += 1
     return cache_enemy_buckets, cache_kb
+
+
+# There are in essecence three cases for the Elo Update:
+
+# Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
+# Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.
+# Aircraft 1 has subtypes, Aircraft 2 does not:
+# Aircraft 1 main type and subtype updates directly from Aircraft 2 only type
+# Aircraft 2 has "half an encounter" with aircraft 1 main type, and "half an encounter" with aircraft 1 subtype.
+def update_elo(bucket, cache_enemy_buckets, enemy_sortie_type, has_subtype, is_subtype, shotdown_enemy,
+               subtype_enemy_bucket):
+    if enemy_sortie_type == bucket.NO_FILTER:  # No subtypes for enemy
+        if not has_subtype:
+            bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+        else:
+            bucket.elo, new_elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+            delta_elo = new_elo - subtype_enemy_bucket.elo  # This is negative!
+            # This elo will be touched twice: once in subtype, once in not-filtered type.
+            # Hence take (approximately) the average delta.
+            subtype_enemy_bucket.elo += round(delta_elo / 2)
+    else:  # Enemy has subtypes
+        enemy_bucket_key = (bucket.tour, shotdown_enemy[0], bucket.NO_FILTER)
+        enemy_bucket = ensure_bucket_in_cache(cache_enemy_buckets, enemy_bucket_key, None)
+
+        if has_subtype:
+            if is_subtype:
+                bucket.elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+            else:
+                bucket.elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+        else:
+            first_new_elo, enemy_bucket.elo = calc_elo(bucket.elo, enemy_bucket.elo)
+            second_new_elo, subtype_enemy_bucket.elo = calc_elo(bucket.elo, subtype_enemy_bucket.elo)
+
+            first_delta_elo = first_new_elo - bucket.elo
+            second_delta_elo = second_new_elo - bucket.elo
+            bucket.elo = round(bucket.elo + first_delta_elo / 2 + second_delta_elo / 2)
 
 
 def ensure_bucket_in_cache(cache_enemy_buckets, bucket_key, player):
@@ -665,7 +676,7 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
                 kb.aircraft_2_pk_assists += 1
 
 
-def process_ammo_breakdown(bucket, sortie, is_subtype):
+def process_ammo_breakdown(bucket, sortie, is_subtype, player):
     # We only care about statistics like "avg shots to kill" or "avg shots till our plane shotdown".
     if not sortie.is_shotdown:
         return
@@ -700,8 +711,8 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
 
     bucket.increment_ammo_received(ammo_breakdown['total_received'])
 
-    if is_subtype:
-        # Updates for enemy aircraft were done in main type
+    if is_subtype or player:
+        # Updates for enemy aircraft were done in main type with no player
         return
 
     enemy_object = enemy_objects[0][0]

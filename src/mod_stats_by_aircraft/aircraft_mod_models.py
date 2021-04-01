@@ -433,6 +433,9 @@ class AircraftBucket(models.Model):
     def get_killboard_all_mods(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL)
 
+    def get_pilot_url(self):
+        return get_pilot_aircraft_url(self)
+
     def increment_ammo_received(self, ammo_dict):
         key = multi_key_to_string(list(ammo_dict.keys()))
         if not key:
@@ -492,6 +495,15 @@ def string_to_multikey(string, separator='|'):
 def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
     url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id, bucket_filter]),
                                         tour_id=tour_id)
+    return url
+
+
+# To be patched into class Player inside stats/models.py of main project.
+def get_pilot_aircraft_url(bucket, bucket_filter='NO_FILTER'):
+    url = '{url}?tour={tour_id}'.format(
+        url=reverse('stats:pilot_aircraft',
+                    args=[bucket.aircraft.id, bucket_filter, bucket.player.profile.id, bucket.player.nickname]),
+        tour_id=bucket.tour_id)
     return url
 
 
