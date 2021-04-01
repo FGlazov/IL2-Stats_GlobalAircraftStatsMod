@@ -18,3 +18,11 @@ Version 1.0.3
 Version 1.1.0
 
 - Official support for Flying Circus. I.e. the jabo filters should now work properly for Flying Circus planes.
+
+Version 1.1.1
+
+- Fix error introduced in last version which prevented running update script.
+
+Version 1.1.2
+
+- Fix error which caused stats process to terminate after encountering a plane damaged by the B-25.

@@ -522,8 +522,10 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
         for event in turret_events:
             turret_name = event.act_object.name
             if turret_name not in cache_turret_buckets:
-                cache_turret_buckets[turret_name] = turret_to_aircraft_bucket(turret_name, bucket.tour)
-
+                turret_bucket = turret_to_aircraft_bucket(turret_name, bucket.tour)
+                if turret_bucket is None:
+                    continue
+                cache_turret_buckets[turret_name] = turret_bucket
             if event.type == 'damaged':
                 enemies_damaged.add(turret_name)
             elif event.type == 'shotdown':
@@ -715,7 +717,13 @@ def turret_to_aircraft_bucket(turret_name, tour):
     aircraft_name = turret_name[:len(turret_name) - 7]
     if aircraft_name == 'U-2VS':
         aircraft_name = 'U-﻿2'
-    aircraft = Object.objects.filter(name=aircraft_name).get()
-    return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER'))[0]
-
+    if 'B25' in aircraft_name:
+        # It's an AI flight, which isn't (yet) supported.
+        return None
+    try:
+        aircraft = Object.objects.filter(name=aircraft_name).get()
+        return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER'))[0]
+    except Object.DoesNotExist:
+        logger.info("[mod_stats_by_aircraft] WARNING: Could not find aircraft for turret " + turret_name)
+        return None
 # ======================== MODDED PART END
