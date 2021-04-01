@@ -5,7 +5,7 @@ from stats.stats_whore import (stats_whore, cleanup, collect_mission_reports, up
 from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vlife
 from stats.logger import logger
 from stats.online import update_online
-from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour
+from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour, Player
 from users.utils import cleanup_registration
 from django.conf import settings
 from django.db.models import Q, F, Max, Count
@@ -554,7 +554,6 @@ def process_log_entries(bucket, sortie, player, has_subtype, is_subtype):
             if turret_name in enemies_killed:
                 enemy_killed.add((bucket.aircraft, sortie))
 
-            # TODO: Also update player of enemy aircraft (but only once!)
             buckets, kbs = update_from_entries(turret_bucket, enemy_damaged, enemy_killed, enemy_shotdown,
                                                # No bombers have subtypes
                                                None, False, False)
@@ -729,28 +728,52 @@ def process_ammo_breakdown(bucket, sortie, is_subtype, player):
     if db_object.cls_base == 'aircraft':
         db_sortie = Sortie.objects.get(id=enemy_sortie)
         filter_type = get_sortie_type(db_sortie)
-        # TODO: Also update player of enemy aircraft (but only once!)
         base_bucket = AircraftBucket.objects.get_or_create(
             tour=db_sortie.tour, aircraft=db_object, filter_type='NO_FILTER', player=None)[0]
+        player_bucket = AircraftBucket.objects.get_or_create(
+            tour=db_sortie.tour, aircraft=db_object, filter_type='NO_FILTER', player=db_sortie.player)[0]
     else:  # Turret
-        # TODO: Also update player of enemy aircraft (but only once!)
+        db_sortie = None
         base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
+        if 'last_turret_account' in ammo_breakdown:
+            # There is a small chance that hits and damaged are not synced here due to log bugs.
+            player = Player.objects.filter(
+                profile__uuid=ammo_breakdown['last_turret_account'],
+                tour=bucket.tour,
+                type='pilot'
+            ).get()
+            player_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour, player=player)
+        else:
+            player = None
+            player_bucket = None
         filter_type = 'NO_FILTER'
 
-    for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
-        base_bucket.increment_ammo_given(ammo_log_name, times_hit)
+    if base_bucket:
+        for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
+            base_bucket.increment_ammo_given(ammo_log_name, times_hit)
+        base_bucket.save()
+    if player_bucket:
+        for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
+            player_bucket.increment_ammo_given(ammo_log_name, times_hit)
+        player_bucket.save()
 
-    base_bucket.save()
-
-    if filter_type != 'NO_FILTER':
-        # TODO: Also update player of enemy aircraft (but only once!)
+    if filter_type != 'NO_FILTER' and db_sortie.player:
         filtered_bucket = AircraftBucket.objects.get_or_create(
             tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=None)[0]
+        if player:
+            filtered_bucket_player = AircraftBucket.objects.get_or_create(
+                tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=db_sortie.player)[0]
+        else:
+            filtered_bucket_player = None
 
         for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
             filtered_bucket.increment_ammo_given(ammo_log_name, times_hit)
+            if filtered_bucket_player:
+                filtered_bucket_player.increment_ammo_given(ammo_log_name, times_hit)
 
         filtered_bucket.save()
+        if filtered_bucket_player:
+            filtered_bucket_player.save()
 
 
 def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb):
@@ -812,7 +835,9 @@ def turret_to_aircraft_bucket(turret_name, tour, player=None):
         return None
     try:
         aircraft = Object.objects.filter(name=aircraft_name).get()
-        return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER', player=player))[0]
+        return \
+            (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER',
+                                                  player=player))[0]
     except Object.DoesNotExist:
         logger.info("[mod_stats_by_aircraft] WARNING: Could not find aircraft for turret " + turret_name)
         return None

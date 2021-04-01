@@ -144,7 +144,7 @@ def aircraft_killboard(request, aircraft_id, airfilter):
     })
 
 
-def pilot_aircraft_overview(request, profile_id, nickname=None):
+def pilot_aircraft_overview(request, profile_id, airfilter, nickname=None):
     try:
         player = (Player.objects.select_related('profile', 'tour')
                   .get(profile_id=profile_id, type='pilot', tour_id=request.tour.id))
@@ -160,24 +160,30 @@ def pilot_aircraft_overview(request, profile_id, nickname=None):
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
     buckets = (AircraftBucket.objects
-               .filter(tour_id=request.tour.id, filter_type='NO_FILTER', player=player)
+               .filter(tour_id=request.tour.id, filter_type=airfilter, player=player)
                .order_by(sort_by, 'id'))
     if search:
         buckets = buckets.filter(aircraft__name__icontains=search)
 
     buckets = Paginator(buckets, ITEMS_PER_PAGE).page(page)
 
-    # TODO: Get the filters working properly
     return render(request, 'pilot_aircraft_overview.html', {
         'all_aircraft': buckets,
         'player': player,
-        'filter_type': 'NO_FILTER',
-        'no_filter_url': all_aircraft_url(request.tour.id, 'NO_FILTER'),
-        'no_mods_url': all_aircraft_url(request.tour.id, 'NO_BOMBS_JUICE'),
-        'bombs_url': all_aircraft_url(request.tour.id, 'BOMBS'),
-        'juiced_url': all_aircraft_url(request.tour.id, 'JUICE'),
-        'all_mods_urls': all_aircraft_url(request.tour.id, 'ALL'),
+        'filter_type': airfilter,
+        'no_filter_url': pilot_aircraft_overview_url(profile_id, nickname, request.tour.id, 'NO_FILTER'),
+        'no_mods_url': pilot_aircraft_overview_url(profile_id, nickname, request.tour.id, 'NO_BOMBS_JUICE'),
+        'bombs_url': pilot_aircraft_overview_url(profile_id, nickname, request.tour.id, 'BOMBS'),
+        'juiced_url': pilot_aircraft_overview_url(profile_id, nickname, request.tour.id, 'JUICE'),
+        'all_mods_urls': pilot_aircraft_overview_url(profile_id, nickname, request.tour.id, 'ALL'),
     })
+
+
+def pilot_aircraft_overview_url(profile_id, nickname, tour_id, filter_type):
+    url = '{url}?tour={tour_id}'.format(
+        url=reverse('stats:pilot_aircraft_overview', args=[profile_id, nickname, filter_type]),
+        tour_id=tour_id)
+    return url
 
 
 def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
@@ -196,7 +202,7 @@ def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
 
-    ammo_breakdown = render_ammo_breakdown(bucket.ammo_breakdown)
+    ammo_breakdown = render_ammo_breakdown(bucket.ammo_breakdown, filter_out_flukes=False)
 
     return render(request, 'pilot_aircraft.html', {
         'player': player,

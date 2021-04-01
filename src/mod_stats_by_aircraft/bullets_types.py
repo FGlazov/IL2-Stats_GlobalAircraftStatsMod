@@ -7,7 +7,7 @@ def take_first(elem):
     return elem[0]
 
 
-def render_ammo_breakdown(ammo_breakdown):
+def render_ammo_breakdown(ammo_breakdown, filter_out_flukes=True):
     result = {
         GIVEN: [],
         RECEIVED: [],
@@ -26,9 +26,8 @@ def render_ammo_breakdown(ammo_breakdown):
         total_inst += ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
 
     for multi_key in ammo_breakdown[RECEIVED][TOTALS]:
-        # Don't accept small sample sizes. These are likely to be flukes (e.g. tank killing the aircraft)
         inst = ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
-        if inst < 4 or inst/total_inst < 0.05:
+        if filter_out_flukes and (inst < 4 or inst/total_inst < 0.05):
             continue
 
         keys = string_to_multikey(multi_key)

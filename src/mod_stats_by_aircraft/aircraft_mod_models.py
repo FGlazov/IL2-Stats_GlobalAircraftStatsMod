@@ -404,19 +404,19 @@ class AircraftBucket(models.Model):
         return compute_float(self.ground_kills, self.total_sorties)
 
     def get_aircraft_url(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
 
     def get_url_no_mods(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_BOMBS_NO_JUICE, self.player)
 
     def get_url_bombs(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id, self.BOMBS)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.BOMBS, self.player)
 
     def get_url_juiced(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id, self.JUICED)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.JUICED), self.player
 
     def get_url_all_mods(self):
-        return get_aircraft_url(self.aircraft.id, self.tour.id, self.ALL)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.ALL, self.player)
 
     def get_killboard_url(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.NO_FILTER)
@@ -434,7 +434,7 @@ class AircraftBucket(models.Model):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.ALL)
 
     def get_pilot_url(self):
-        return get_pilot_aircraft_url(self)
+        return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
 
     def increment_ammo_received(self, ammo_dict):
         key = multi_key_to_string(list(ammo_dict.keys()))
@@ -492,9 +492,15 @@ def string_to_multikey(string, separator='|'):
     return string.split(separator)
 
 
-def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER'):
-    url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id, bucket_filter]),
-                                        tour_id=tour_id)
+def get_aircraft_url(aircraft_id, tour_id, bucket_filter='NO_FILTER', player=None):
+    if player is None:
+        url = '{url}?tour={tour_id}'.format(url=reverse('stats:aircraft', args=[aircraft_id, bucket_filter]),
+                                            tour_id=tour_id)
+    else:
+        url = '{url}?tour={tour_id}'.format(
+            url=reverse('stats:pilot_aircraft',
+                        args=[aircraft_id, bucket_filter, player.profile.id, player.nickname]),
+            tour_id=tour_id)
     return url
 
 
