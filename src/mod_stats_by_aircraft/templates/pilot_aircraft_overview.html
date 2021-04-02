@@ -15,9 +15,6 @@
         <div class="content_head">
             <div class="content_title" style="width: 620px">
                 {% trans 'Aircraft Rankings' %}
-                <div class="content_title_sm" id="sort_by_text"></div>
-                <div class="content_title_sm">{% trans 'pilot' context 'pilot_awards' %}: {{ player.nickname }}</div>
-
             </div>
             <label>{% trans 'Filter by:' %}</label>
             <select style="background: #303030; border: 1px solid #252525; width: 400px;"
@@ -69,6 +66,9 @@
                     <input type="text" name="search" value="" placeholder="{% trans 'Search aircraft' %}">
                 </form>
             </div>
+            <div class="content_title_sm">{% trans 'pilot' context 'pilot_awards' %}: {{ player.nickname }}</div>
+            <div class="content_title_sm" id="sort_by_text"></div>
+
         </div>
 
         {% if all_aircraft %}

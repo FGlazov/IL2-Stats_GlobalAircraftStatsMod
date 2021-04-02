@@ -30,5 +30,4 @@ Version 1.1.2
 Version 1.2
 
 - New pages: Show aircraft stats per player.
-- Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.)
-- Fix error introduced in last version which prevented running update script.
+- Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.) Does, and can not work retroactively.
