@@ -44,13 +44,14 @@ urlpatterns = [
     url(r'^mission/(?P<mission_id>\d+)/$', views.mission, name='mission'),
     url(r'^vlife/(?P<vlife_id>\d+)/$', views.pilot_vlife, name='pilot_vlife'),
 
+    url(r'^overall/$', views.overall, name='overall'),
+
     url(r'^aircraft_overview/(?P<profile_id>\d+)/(?P<nickname>\S+)/(?P<airfilter>\S+)/$', views.pilot_aircraft_overview,
         name='pilot_aircraft_overview'),
     url(r'^pilot_aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/(?P<profile_id>\d+)/(?P<nickname>\S+)/$',
         views.pilot_aircraft, name='pilot_aircraft'),
     url(r'^pilot_aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/(?P<profile_id>\d+)/(?P<nickname>\S+)/$',
         views.pilot_aircraft_killboard, name='pilot_aircraft_killboard'),
-
 
     url(r'^online/$', views.online, name='online'),
     url(r'^$', views.main, name='main'),

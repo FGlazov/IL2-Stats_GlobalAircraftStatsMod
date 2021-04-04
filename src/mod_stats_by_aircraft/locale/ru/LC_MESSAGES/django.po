@@ -1300,17 +1300,17 @@ msgstr "посадка вне аэродрома"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:492
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:488
 msgid "Offensive ammo breakdown"
-msgstr ""
+msgstr "Распределение наступательных боеприпасов"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:495
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:491
 msgid "Average hits per aircraft kill"
-msgstr ""
+msgstr "Среднее количество попаданий на один убитый самолет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:512
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:508
 msgid "Defensive ammo breakdown"
-msgstr ""
+msgstr "Распределение оборонительных боеприпасов"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:515
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:511
@@ -1349,10 +1349,8 @@ msgstr "Смертоносность самолёта"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:562
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:558
-#, fuzzy
-#| msgid "Plane Lethality"
 msgid "Plane Lethality (no assists)"
-msgstr "Смертоносность самолёта"
+msgstr "Летальность в самолете (без поддержки)"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:570
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:566
@@ -1411,8 +1409,12 @@ msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
 "source of damage. </br> ⛤ This data is pulled purely from sorties where this "
 "plane was damaged by a single enemy (one aircraft/tank/AA/etc.). Only weapon "
-"configurations which account for at least 5%% of deaths are displayed.</br>"
-msgstr ""
+"configurations which account for at least 1%% of deaths are displayed.</br>"
+msgstr "★ Эти данные взяты исключительно из боевых вылетов, в которых этот самолет был единственным"
+" источником повреждений.</br> "
+"⛤ Эти данные взяты исключительно из боевых вылетов, в которых этот самолет был поврежден одним противником "
+"(один самолет / танк / зенитная артиллерия и т.д). "
+"Отображаются только конфигурации оружия, на которые приходится не менее 1%% смертей."
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:656
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:243
@@ -1486,10 +1488,8 @@ msgstr "Доска эффективности самолётов"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:125
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:128
-#, fuzzy
-#| msgid "Filter by:"
 msgid "Filter below by:"
-msgstr "Отфильтровать:"
+msgstr "Отфильтровать ниже по:"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:179
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:182
@@ -1563,11 +1563,9 @@ msgstr "Найти самолёт"
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:77
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:78
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:83
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:84
-#, fuzzy
-#| msgid "Flight Time (hours:minutes)"
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:84x
 msgid "Flight Time (days:hours:minutes)"
-msgstr "Налет (часы:минуты)"
+msgstr "время полета (дни: часы: минуты)"
 
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:170
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:175
@@ -1735,7 +1733,7 @@ msgstr "Доска эффективности самолётов"
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:9
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Overview"
-msgstr ""
+msgstr "Обзор самолета"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:15
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:15
@@ -1751,14 +1749,16 @@ msgstr "пилот"
 msgid ""
 "Due to technical reasons, kills from your turret gunners are not counted "
 "towards the killboard. Plane and pilot lethality are also affected. </br>"
-msgstr ""
+msgstr "По техническим причинам убийства ваших турелей не засчитываются в счётчик убийств. Также затронуты летальность самолетов и пилотов.</br>"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:651
 msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
 "source of damage. </br> ⛤ This data is pulled purely from sorties where this "
 "plane was damaged by a single enemy (one aircraft/tank/AA/etc.).</br>"
-msgstr ""
+msgstr "★ Эти данные взяты исключительно из боевых вылетов, в которых этот самолет был единственным источником повреждений.</br>"
+"⛤ Эти данные взяты исключительно из боевых вылетов, в которых этот самолет был поврежден одним противником (один самолет / танк / зенитная артиллерия и т.д).</br>"
+
 
 #~ msgid ""
 #~ "This filter applies to all aircraft (where applicable), including the "

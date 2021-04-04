@@ -27,7 +27,7 @@ def render_ammo_breakdown(ammo_breakdown, filter_out_flukes=True):
 
     for multi_key in ammo_breakdown[RECEIVED][TOTALS]:
         inst = ammo_breakdown[RECEIVED][TOTALS][multi_key][INST]
-        if filter_out_flukes and (inst < 4 or inst/total_inst < 0.05):
+        if filter_out_flukes and (inst < 4 or inst/total_inst < 0.01):
             continue
 
         keys = string_to_multikey(multi_key)

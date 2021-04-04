@@ -129,7 +129,7 @@ def stats_whore(m_report_file):
 
     objects = MappingProxyType({obj['log_name']: obj for obj in Object.objects.values()})
     # classes = MappingProxyType({obj['cls']: obj['cls_base'] for obj in objects.values()})
-    score_dict = MappingProxyType({s.key: s.get_value() for s in Score.objects.all()})
+    score_dict = MappingProxyType({s.key: {'base': s.get_value(), 'ai': s.get_ai_value()} for s in Score.objects.all()})
 
     m_report = MissionReport(objects=objects)
     m_report.processing(files=m_report_files)
