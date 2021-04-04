@@ -483,25 +483,25 @@
             </div>
             {% if aircraft_bucket.deaths_to_aa %}
             <div class="item">
-                <div class="name">{% trans 'Percent deaths to AA' context 'total' %}</div>
+                <div class="name">{% trans 'Deaths to AA' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_deaths_to_aa }}</div>
             </div>
             {% endif %}
             {% if aircraft_bucket.deaths_to_accident %}
             <div class="item">
-                <div class="name">{% trans 'Percent deaths due to accidents' context 'total' %}</div>
+                <div class="name">{% trans 'Deaths due to accidents' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_deaths_to_accidents }}</div>
             </div>
             {% endif %}
             {% if aircraft_bucket.aircraft_lost_to_aa %}
             <div class="item">
-                <div class="name">{% trans 'Percent aircraft lost to AA' context 'total' %}</div>
+                <div class="name">{% trans 'Aircraft lost to AA' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_aircraft_lost_to_aa }}</div>
             </div>
             {% endif %}
             {% if aircraft_bucket.aircraft_lost_to_accident %}
             <div class="item">
-                <div class="name">{% trans 'Percent aircraft lost due to accidents' context 'total' %}</div>
+                <div class="name">{% trans 'Aircraft lost due to accidents' context 'total' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_aircraft_lost_to_accidents }}</div>
             </div>
             {% endif %}
