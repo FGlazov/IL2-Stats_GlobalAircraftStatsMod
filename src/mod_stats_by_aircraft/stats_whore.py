@@ -403,10 +403,17 @@ def process_old_sorties_player_aircraft(backfill_log, tour_cutoff):
     if backfill_log:
         logger.info(
             '[mod_stats_by_aircraft]: Retroactively computing player aircraft stats. {} sorties left to process.'
-            .format(nr_left))
+                .format(nr_left))
 
     for sortie in backfill_sorties[0:1000]:
         process_aircraft_stats(sortie, sortie.player)
+
+        # The 4 new fields deaths/shotdowns_by_aa/accidents were introduced with the same update as player-aircarft.
+        if sortie.is_lost_aircraft:
+            bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
+                                                           filter_type='NO_FILTER', player=None))[0]
+            process_aa_accident_death(bucket, sortie)
+            bucket.save()
 
     if nr_left <= 1000:
         logger.info('[mod_stats_by_aircraft]: Completed retroactively computing player aircraft stats.')
@@ -541,6 +548,7 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
     enemies_shotdown = set()
     enemies_killed = set()
 
+    process_aa_accident_death(bucket, sortie)
     if 'ammo_breakdown' in sortie.ammo:
         process_ammo_breakdown(bucket, sortie, is_subtype)
 
@@ -702,9 +710,32 @@ def update_damaged_enemy(bucket, damaged_enemy, enemies_killed, enemies_shotdown
                 kb.aircraft_2_pk_assists += 1
 
 
+def process_aa_accident_death(bucket, sortie):
+    if not sortie.is_lost_aircraft:
+        return
+
+    types_damaged = list((LogEntry.objects
+                          .values_list('act_object__cls', flat=True)
+                          .filter(Q(type='shotdown') | Q(type='killed') | Q(type='damaged'), cact_sortie=sortie)
+                          .order_by().distinct()))
+
+    if len(types_damaged) == 0 or (len(types_damaged) == 1 and types_damaged[0] is None):
+        bucket.aircraft_lost_to_accident += 1
+        bucket.deaths_to_accident += 1 if sortie.is_relive else 0
+    else:
+        only_aa = True
+        for type_damaged in types_damaged:
+            if type_damaged and 'aa' not in type_damaged:
+                only_aa = False
+
+        if only_aa:
+            bucket.aircraft_lost_to_aa += 1
+            bucket.deaths_to_aa += 1 if sortie.is_relive else 0
+
+
 def process_ammo_breakdown(bucket, sortie, is_subtype):
-    # We only care about statistics like "avg shots to kill" or "avg shots till our plane shotdown".
-    if not sortie.is_shotdown:
+    # We only care about statistics like "avg shots to kill" or "avg shots till our plane lost".
+    if not sortie.is_lost_aircraft:
         return
 
     # We only process Sorties where there was essentially a single source of damage.
@@ -714,19 +745,19 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     if not sortie.ammo['ammo_breakdown']['dmg_from_one_source']:
         return
 
-    enemy_objects = list((LogEntry.objects
-                          .values_list('act_object', 'act_sortie')
-                          .filter(Q(cact_sortie_id=sortie.id),
-                                  Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
-                                  Q(act_object__cls_base='aircraft') | Q(act_object__cls_base='vehicle')
-                                  | Q(act_object__cls__contains='tank') | Q(act_object__cls_base='turret'),
-                                  # Disregard Sorties flown by AI
-                                  cact_sortie_id__isnull=False)
-                          # Disregard sorties shotdown by AI plane.
-                          .exclude(Q(act_object__cls_base='aircraft') & Q(act_sortie_id__isnull=True))
-                          .order_by().distinct()))
+    enemy_objects = (LogEntry.objects
+                     .values_list('act_object', 'act_sortie')
+                     .filter(Q(cact_sortie_id=sortie.id),
+                             Q(type='shotdown') | Q(type='killed') | Q(type='damaged'),
+                             Q(act_object__cls_base='aircraft') | Q(act_object__cls_base='vehicle')
+                             | Q(act_object__cls__contains='tank') | Q(act_object__cls_base='turret'),
+                             # Disregard Sorties flown by AI
+                             cact_sortie_id__isnull=False)
+                     # Disregard sorties shotdown by AI plane.
+                     .exclude(Q(act_object__cls_base='aircraft') & Q(act_sortie_id__isnull=True))
+                     .order_by().distinct())
 
-    if len(enemy_objects) != 1:
+    if enemy_objects.count() != 1:
         # Something went wrong here. This is likely due to errors in the sortie logs.
         # I.e. "Damage" and "Hits" ATypes tell a different story.
         # According to "Hits", there should be one source of damage, according to "Damage" that isn't the case.

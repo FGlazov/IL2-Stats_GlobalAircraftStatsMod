@@ -36,6 +36,10 @@ def compute_float(numerator, denominator, round_to=2):
     return round(numerator / max(denominator, 1), round_to)
 
 
+def percent_format(percent, total):
+    return '{value}% ({total})'.format(value=percent, total=total)
+
+
 class AircraftBucket(models.Model):
     # ========================= CHOICES
     NO_FILTER = 'NO_FILTER'
@@ -113,6 +117,11 @@ class AircraftBucket(models.Model):
     crashes = models.BigIntegerField(default=0)
     shotdown = models.BigIntegerField(default=0)
 
+    deaths_to_accident = models.BigIntegerField(default=0)
+    deaths_to_aa = models.BigIntegerField(default=0)
+    aircraft_lost_to_accident = models.BigIntegerField(default=0)
+    aircraft_lost_to_aa = models.BigIntegerField(default=0)
+
     ammo_breakdown = JSONField(default=default_ammo_breakdown)
     # ========================== NON-SORTABLE VISIBLE FIELDS END
 
@@ -184,21 +193,27 @@ class AircraftBucket(models.Model):
 
     def percent_pvp_helper(self, key):
         if key in self.killboard_planes:
-            return str(compute_float(self.killboard_planes[key] * 100, self.kills)) + '%'
+            percent = compute_float(self.killboard_planes[key] * 100, self.kills)
+            total = self.killboard_planes[key]
+            return percent_format(percent, total)
         else:
-            return '0%'
+            return percent_format(0, 0)
 
     def percent_air_ai_helper(self, key):
         if key in self.killboard_ground:
-            return str(compute_float(self.killboard_ground[key] * 100, self.kills)) + '%'
+            percent = compute_float(self.killboard_ground[key] * 100, self.kills)
+            total = self.killboard_ground[key]
+            return percent_format(percent, total)
         else:
-            return '0%'
+            return percent_format(0, 0)
 
     def percent_ground_helper(self, key):
         if key in self.killboard_ground:
-            return str(compute_float(self.killboard_ground[key] * 100, self.ground_kills)) + '%'
+            percent = compute_float(self.killboard_ground[key] * 100, self.ground_kills)
+            total = self.killboard_ground[key]
+            return percent_format(percent, total)
         else:
-            return '0%'
+            return percent_format(0, 0)
 
     @property
     def percent_light_kills(self):
@@ -349,7 +364,9 @@ class AircraftBucket(models.Model):
         return self.percent_ground_helper('building_small')
 
     def percent_of_sorties_helper(self, occurrences):
-        return str(compute_float(occurrences * 100, self.total_sorties)) + "%"
+        percent = compute_float(occurrences * 100, self.total_sorties)
+        total = occurrences
+        return percent_format(percent, total)
 
     @property
     def percent_deaths(self):
@@ -403,6 +420,30 @@ class AircraftBucket(models.Model):
     def ground_kills_per_sortie(self):
         return compute_float(self.ground_kills, self.total_sorties)
 
+    @property
+    def percent_deaths_to_accidents(self):
+        percent = compute_float(100 * self.deaths_to_accident, self.relive)
+        total = self.deaths_to_accident
+        return percent_format(percent, total)
+
+    @property
+    def percent_deaths_to_aa(self):
+        percent = compute_float(100 * self.deaths_to_aa, self.relive)
+        total = self.deaths_to_aa
+        return percent_format(percent, total)
+
+    @property
+    def percent_aircraft_lost_to_accidents(self):
+        percent = compute_float(100 * self.aircraft_lost_to_accident, self.aircraft_lost)
+        total = self.aircraft_lost_to_accident
+        return percent_format(percent, total)
+
+    @property
+    def percent_aircraft_lost_to_aa(self):
+        percent = compute_float(100 * self.aircraft_lost_to_aa, self.aircraft_lost)
+        total = self.aircraft_lost_to_aa
+        return percent_format(percent, total)
+
     def get_aircraft_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
 
@@ -448,7 +489,6 @@ class AircraftBucket(models.Model):
     def get_killboard_enemy_all_mods(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.ALL)
 
-
     def get_pilot_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
 
@@ -463,7 +503,6 @@ class AircraftBucket(models.Model):
                 COUNT: dict(),
             }
             self.ammo_breakdown[RECEIVED][AVERAGES][key] = dict()
-
             for ammo_key in ammo_dict:
                 self.ammo_breakdown[RECEIVED][TOTALS][key][COUNT][ammo_key] = 0
 

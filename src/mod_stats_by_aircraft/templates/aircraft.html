@@ -481,6 +481,30 @@
                 <div class="name" style="padding-left: 75px;">{% trans "ditched" context 'sortie_status' %}</div>
                 <div class="num">{{ aircraft_bucket.percent_ditches }}</div>
             </div>
+            {% if aircraft_bucket.deaths_to_aa %}
+            <div class="item">
+                <div class="name">{% trans 'Percent deaths to AA' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_deaths_to_aa }}</div>
+            </div>
+            {% endif %}
+            {% if aircraft_bucket.deaths_to_accident %}
+            <div class="item">
+                <div class="name">{% trans 'Percent deaths due to accidents' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_deaths_to_accidents }}</div>
+            </div>
+            {% endif %}
+            {% if aircraft_bucket.aircraft_lost_to_aa %}
+            <div class="item">
+                <div class="name">{% trans 'Percent aircraft lost to AA' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_aircraft_lost_to_aa }}</div>
+            </div>
+            {% endif %}
+            {% if aircraft_bucket.aircraft_lost_to_accident %}
+            <div class="item">
+                <div class="name">{% trans 'Percent aircraft lost due to accidents' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_aircraft_lost_to_accidents }}</div>
+            </div>
+            {% endif %}
         </div>
 
         <div class="clearfix"></div>
