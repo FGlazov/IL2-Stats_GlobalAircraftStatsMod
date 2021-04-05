@@ -216,12 +216,12 @@ msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:115
 msgctxt "bullet_type"
-msgid "VYA-23 Soviet (AP)"
+msgid "VYA-23 (AP)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:116
 msgctxt "bullet_type"
-msgid "VYA-23 Soviet (HE)"
+msgid "VYA-23 (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:117
@@ -1350,7 +1350,7 @@ msgstr "Смертоносность самолёта"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:562
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:558
 msgid "Plane Lethality (no assists)"
-msgstr "Летальность в самолете (без поддержки)"
+msgstr "Смертоносность самолёта (без поддержки)<br/>"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:570
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:566

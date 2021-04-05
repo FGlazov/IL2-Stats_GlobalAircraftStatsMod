@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n staticfiles tz stats filters %}
-{% block title %}{% trans 'Killboard' %} / {{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
+{% block title %}{% trans 'Aircraft Killboard' context 'pilot_nav_tab' %} / {{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
 
 {% block nav_tabs %}
 {% include 'inline/aircraft_tabs.html' %}
@@ -10,7 +10,7 @@
 <section id="content">
     <div class="wrapper">
         <div class="profile_name">
-            {% trans 'Aircraft Killboard' %} : {{ aircraft_bucket.aircraft.name }}
+            {% trans 'Aircraft Killboard' context 'pilot_nav_tab' %} : {{ aircraft_bucket.aircraft.name }}
         </div>
         <div class="profile_head">
             <div class="head_left">

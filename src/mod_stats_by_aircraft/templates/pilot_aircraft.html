@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n staticfiles tz stats filters %}
-{% block title %}{{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
+{% block title %} {{ player.nickname }} / {{ aircraft_bucket.aircraft.name }} / {{ block.super }}{% endblock title %}
 
 {% block nav_tabs %}
 {% include 'inline/extended_pilot_tabs.html' %}
@@ -159,7 +159,7 @@
                 {% trans 'Detailed combat results' %}
             </div>
             <div class="item">
-                <div class="name">{% trans 'Gunnery Accuracy' context 'total' %}</div>
+                <div class="name">{% trans 'Gunnery Accuracy' %}</div>
                 <div class="num">{{ aircraft_bucket.accuracy }}%</div>
             </div>
             <div class="item">
@@ -503,15 +503,15 @@
             {% endif %}
         </div>
 
-        <div class="clearfix"></div>
+                <div class="clearfix"></div>
 
 
         {% if ammo_breakdown.given|length > 0 %}
-         <div class="player_detailed" style="float: left; width: 360px">
+         <div class="player_detailed" style="float: left; width: 430px">
             <div class="title">
                 {% trans 'Offensive ammo breakdown' %}
             </div>
-            <div class="item">
+            <div class="item" style="height:auto">
                 <div class="name">{% trans 'Average hits per aircraft kill' %} ★</div>
             </div>
 
@@ -527,7 +527,7 @@
         {% endif  %}
 
         {% if ammo_breakdown.received|length > 0 %}
-        <div class="player_detailed" style="float: right; width: 770px;">
+        <div class="player_detailed" style="float: right; width: 700px;">
             <div class="title">
                 {% trans 'Defensive ammo breakdown' %}
             </div>
@@ -535,7 +535,7 @@
                 <div class="name">{% trans 'Average hits per aircraft lost' %} ⛤</div>
             </div>
             {% for ammo_name, avg_used in ammo_breakdown.received %}
-            {% if ammo_name|length <= 65 %}
+            {% if ammo_name|length <= 60 %}
             <div class="sub_item">
             {% else %}
             <div class="sub_item" style="height: 80px;">
@@ -577,9 +577,9 @@
                         {{ aircraft_bucket.plane_lethality }}%
                     </div>
                 </div>
-                <div class="item">
-                    <div class="text">
-                        {% trans 'Plane Lethality (no assists)' %}*
+                <div class="item" style="height:auto">
+                    <div class="text" >
+                        {% trans 'Plane Lethality (no assists)' %}
                     </div>
                     <div class="num">
                         {{ aircraft_bucket.plane_lethality_no_assists }}%
