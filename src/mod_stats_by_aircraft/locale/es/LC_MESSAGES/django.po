@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-02 12:18+0200\n"
+"POT-Creation-Date: 2021-04-05 13:11+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\mod_stats_by_aircraft\aircraft_mod_models.py:99
+#: .\mod_stats_by_aircraft\aircraft_mod_models.py:103
 msgid "neutral"
 msgstr "neutral"
 
@@ -95,13 +95,9 @@ msgid ".50 BMG"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:96
-msgctxt "bullet_type"
-msgid "MG 34"
-msgstr ""
-
 #: .\mod_stats_by_aircraft\bullets_types.py:97
 msgctxt "bullet_type"
-msgid "7.92mm Kurz"
+msgid "MG 34"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:98
@@ -131,12 +127,12 @@ msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:103
 msgctxt "bullet_type"
-msgid "90mm US (APHE)"
+msgid "M2 90mm (APHE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:104
 msgctxt "bullet_type"
-msgid "90mm US (HE)"
+msgid "M2 90mm (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:105
@@ -221,27 +217,27 @@ msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:121
 msgctxt "bullet_type"
-msgid "76.2 mm Soviet naval AA"
+msgid "76.2mm 34-K"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:122
 msgctxt "bullet_type"
-msgid "37mm American (AP)"
+msgid "M4 Cobra (AP)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:123
 msgctxt "bullet_type"
-msgid "37mm American (HE)"
+msgid "M4 Cobra (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:124
 msgctxt "bullet_type"
-msgid "76mm American (APHE)"
+msgid "76mm M5 (APHE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:125
 msgctxt "bullet_type"
-msgid "76mm American (HE)"
+msgid "76mm M5 (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:126
@@ -257,22 +253,22 @@ msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:128
 msgctxt "bullet_type"
-msgid "20mm German (AP)"
+msgid "Flak 38 (AP)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:129
 msgctxt "bullet_type"
-msgid "20mm German (HE)"
+msgid "Flak 38 (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:130
 msgctxt "bullet_type"
-msgid "37mm German (APHE)"
+msgid "Flak 36"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:131
 msgctxt "bullet_type"
-msgid "37mm German (HE)"
+msgid "37mm Pak-35 (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:132
@@ -336,13 +332,15 @@ msgid "152mm Soviet (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:145
+#: .\mod_stats_by_aircraft\bullets_types.py:188
 msgctxt "bullet_type"
-msgid "25mm Soviet (AP)"
+msgid "25mm 72-K (AP)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:146
+#: .\mod_stats_by_aircraft\bullets_types.py:189
 msgctxt "bullet_type"
-msgid "25mm Soviet (HE)"
+msgid "25mm 72-K (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:147
@@ -534,16 +532,6 @@ msgctxt "bullet_type"
 msgid "152mm Soviet (APHE)"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\bullets_types.py:188
-msgctxt "bullet_type"
-msgid "25mm Soviet Flak (AP)"
-msgstr ""
-
-#: .\mod_stats_by_aircraft\bullets_types.py:189
-msgctxt "bullet_type"
-msgid "25mm Soviet Flak (HE)"
-msgstr ""
-
 #: .\mod_stats_by_aircraft\bullets_types.py:191
 msgctxt "bullet_type"
 msgid "76mm Soviet (APHE)"
@@ -593,14 +581,14 @@ msgstr "Coaliciones"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:32
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:55
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:78
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:16
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:15
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:33
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:55
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:77
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:35
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:58
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:81
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:22
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:19
 msgid "Filter by:"
 msgstr "Filtro:"
 
@@ -631,11 +619,11 @@ msgstr "Filtro:"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:145
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:153
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:161
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:20
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:28
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:36
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:44
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:52
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:19
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:27
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:35
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:43
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:51
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:37
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:42
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:47
@@ -663,11 +651,11 @@ msgstr "Filtro:"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:148
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:156
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:164
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:26
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:34
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:42
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:50
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:58
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:23
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:31
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:39
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:47
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:55
 msgid "no filter"
 msgstr "Sin flitro"
 
@@ -746,11 +734,11 @@ msgstr "Sin motor mejorado"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:146
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:154
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:162
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:21
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:29
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:37
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:45
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:53
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:20
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:28
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:36
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:44
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:52
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:82
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:90
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:98
@@ -766,11 +754,11 @@ msgstr "Sin motor mejorado"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:149
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:157
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:165
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:27
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:35
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:43
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:51
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:59
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:24
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:32
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:40
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:48
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:56
 msgid "with upgraded engine and no bombs"
 msgstr "Con motor mejorado sin bombas"
 
@@ -789,11 +777,11 @@ msgstr "Con motor mejorado sin bombas"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:147
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:155
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:163
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:22
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:30
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:38
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:46
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:54
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:21
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:29
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:37
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:45
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:53
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:83
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:91
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:99
@@ -809,11 +797,11 @@ msgstr "Con motor mejorado sin bombas"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:150
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:158
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:166
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:28
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:36
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:44
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:52
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:60
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:25
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:33
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:41
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:49
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:57
 msgid "without upgraded engine and no bombs"
 msgstr "Sin motor mejorado sin bombas"
 
@@ -832,11 +820,11 @@ msgstr "Sin motor mejorado sin bombas"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:148
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:156
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:164
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:23
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:31
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:39
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:47
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:55
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:22
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:30
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:38
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:46
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:54
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:84
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:92
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:100
@@ -852,11 +840,11 @@ msgstr "Sin motor mejorado sin bombas"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:151
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:159
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:167
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:29
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:37
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:45
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:53
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:61
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:26
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:34
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:42
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:50
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:58
 msgid "with upgraded fuel/engine and bombs"
 msgstr "Con motor mejorado con bombas"
 
@@ -875,11 +863,11 @@ msgstr "Con motor mejorado con bombas"
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:149
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:157
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:165
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:24
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:32
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:40
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:48
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:56
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:23
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:31
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:39
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:47
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:55
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:85
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:93
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:101
@@ -895,11 +883,11 @@ msgstr "Con motor mejorado con bombas"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:152
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:160
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:168
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:30
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:38
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:46
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:54
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:62
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:27
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:35
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:43
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:51
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:59
 msgid "without upgraded fuel/engine and bombs"
 msgstr "Sin motor mejorado con bombas"
 
@@ -924,8 +912,10 @@ msgid "Ground KD"
 msgstr "Drb/Mte tierra"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:147
+#: .\mod_stats_by_aircraft\templates\aircraft.html:166
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:108
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:148
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:162
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:116
 msgid "Gunnery Accuracy"
 msgstr "Puntería"
@@ -946,14 +936,6 @@ msgstr "Ranking"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:159
 msgid "Detailed combat results"
 msgstr "Detalle de resultados del combate"
-
-#: .\mod_stats_by_aircraft\templates\aircraft.html:166
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:162
-#, fuzzy
-#| msgid "Gunnery Accuracy"
-msgctxt "total"
-msgid "Gunnery Accuracy"
-msgstr "Puntería"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:170
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:166
@@ -1281,35 +1263,59 @@ msgctxt "sortie_status"
 msgid "ditched"
 msgstr "forzoso"
 
+#: .\mod_stats_by_aircraft\templates\aircraft.html:486
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:482
+msgctxt "total"
+msgid "Percent deaths to AA"
+msgstr ""
+
 #: .\mod_stats_by_aircraft\templates\aircraft.html:492
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:488
+msgctxt "total"
+msgid "Percent deaths due to accidents"
+msgstr ""
+
+#: .\mod_stats_by_aircraft\templates\aircraft.html:498
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:494
+msgctxt "total"
+msgid "Percent aircraft lost to AA"
+msgstr ""
+
+#: .\mod_stats_by_aircraft\templates\aircraft.html:504
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:500
+msgctxt "total"
+msgid "Percent aircraft lost due to accidents"
+msgstr ""
+
+#: .\mod_stats_by_aircraft\templates\aircraft.html:516
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:512
 msgid "Offensive ammo breakdown"
 msgstr "Desglose de munición ofensiva"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:495
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:491
+#: .\mod_stats_by_aircraft\templates\aircraft.html:519
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:515
 msgid "Average hits per aircraft kill"
 msgstr "Promedio de impactos por muerte de avión"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:512
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:508
+#: .\mod_stats_by_aircraft\templates\aircraft.html:536
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:532
 msgid "Defensive ammo breakdown"
 msgstr "Desglose de munición defensiva"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:515
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:511
+#: .\mod_stats_by_aircraft\templates\aircraft.html:539
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:535
 msgid "Average hits per aircraft lost"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:537
+#: .\mod_stats_by_aircraft\templates\aircraft.html:561
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:120
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:533
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:557
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:129
 msgid "Plane Durability"
 msgstr "Durabilidad del avión"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:544
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:540
+#: .\mod_stats_by_aircraft\templates\aircraft.html:568
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:564
 msgid ""
 "if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in "
 "the majority"
@@ -1317,89 +1323,91 @@ msgstr ""
 "ratio > 1 - piloto vuela con la minoría, ratio < 1 - piloto vuela con la "
 "mayoría"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:546
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:542
+#: .\mod_stats_by_aircraft\templates\aircraft.html:570
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:566
 msgid "Pilot Survivability"
 msgstr "Supervivencia del piloto"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:554
+#: .\mod_stats_by_aircraft\templates\aircraft.html:578
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:126
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:550
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:574
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:135
 msgid "Plane Lethality"
 msgstr "Letalidad del avión"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:562
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:558
+#: .\mod_stats_by_aircraft\templates\aircraft.html:586
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:582
 msgid "Plane Lethality (no assists)"
 msgstr "Letalidad de avión (sin asistencias)<br/> "
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:570
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:566
+#: .\mod_stats_by_aircraft\templates\aircraft.html:594
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:590
 msgid "Pilot Lethality"
 msgstr "Letalidad del piloto"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:580
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:576
+#: .\mod_stats_by_aircraft\templates\aircraft.html:604
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:600
 msgid "K/D - Kills per Death"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:588
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:584
+#: .\mod_stats_by_aircraft\templates\aircraft.html:612
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:608
 msgid "K/L - Kills per Aircraft Lost"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:596
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:592
+#: .\mod_stats_by_aircraft\templates\aircraft.html:620
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:616
 msgid "K/S - Kills per Sortie"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:604
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:600
+#: .\mod_stats_by_aircraft\templates\aircraft.html:628
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:624
 msgid "K/H - Kills per Hour of Flight"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:614
+#: .\mod_stats_by_aircraft\templates\aircraft.html:638
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:96
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:610
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:634
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:102
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:103
 msgid "GK/D - G.Kills per Death"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:622
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:618
+#: .\mod_stats_by_aircraft\templates\aircraft.html:646
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:642
 msgid "GK/L - G.Kills per Aircraft Lost"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:630
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:626
+#: .\mod_stats_by_aircraft\templates\aircraft.html:654
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:650
 msgid "GK/S - G.Kills per Sortie"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:638
+#: .\mod_stats_by_aircraft\templates\aircraft.html:662
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:102
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:634
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:658
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:109
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:110
 msgid "GK/H - G.Kills per Hour of Flight"
 msgstr ""
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:652
+#: .\mod_stats_by_aircraft\templates\aircraft.html:676
 #, python-format
 msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
 "source of damage. </br> ⛤ This data is pulled purely from sorties where this "
 "plane was damaged by a single enemy (one aircraft/tank/AA/etc.). Only weapon "
 "configurations which account for at least 1%% of deaths are displayed.</br>"
-msgstr "★ Estos datos se obtienen puramente de salidas en las que este avión fue la única fuente de daños. <br/> "
-"⛤ Estos datos se obtienen puramente de salidas en las que este avión fue impactado por un solo enemigo"
-" (una aeronave/tanque/AA/etc). Solo se muestran las configuraciones de armas que representan"
-"al menos 1%% de las muertes. <br/> "
+msgstr ""
+"★ Estos datos se obtienen puramente de salidas en las que este avión fue la "
+"única fuente de daños. <br/> ⛤ Estos datos se obtienen puramente de salidas "
+"en las que este avión fue impactado por un solo enemigo (una aeronave/tanque/"
+"AA/etc). Solo se muestran las configuraciones de armas que representanal "
+"menos 1%% de las muertes. <br/> "
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:656
+#: .\mod_stats_by_aircraft\templates\aircraft.html:680
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:243
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:655
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:679
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:249
 msgid ""
 "* Plane Durability is percent of sorties the plane survived after taking "
@@ -1417,10 +1425,10 @@ msgstr ""
 "letalidad del piloto es el porcentaje de pilotos enemigos que murieron "
 "después de tomar daño de este avión.</br>"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:666
+#: .\mod_stats_by_aircraft\templates\aircraft.html:690
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:253
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:176
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:665
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:689
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:259
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:182
 msgid ""
@@ -1432,10 +1440,10 @@ msgstr ""
 "stats son diferentes a los del simulador. Como consecuencia pueden no "
 "coincidir."
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:673
+#: .\mod_stats_by_aircraft\templates\aircraft.html:697
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:260
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:183
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:672
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:696
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:266
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:189
 #, python-format
@@ -1455,15 +1463,12 @@ msgid "There are no sorties of this aircraft with the applied filter."
 msgstr "No hay salidas de esta aeronave con el filtro aplicado"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:3
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:3
-msgid "Killboard"
-msgstr ""
-
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:13
+#: .\mod_stats_by_aircraft\templates\inline\aircraft_tabs.html:5
+#: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:11
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:3
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:13
-#, fuzzy
-#| msgctxt "pilot_nav_tab"
-#| msgid "Aircraft Killboard"
+msgctxt "pilot_nav_tab"
 msgid "Aircraft Killboard"
 msgstr "Tabla de derribos de aeronave"
 
@@ -1537,8 +1542,8 @@ msgstr "Letalidad del piloto"
 msgid "Aircraft Rankings"
 msgstr "Clasificación de aeronave"
 
-#: .\mod_stats_by_aircraft\templates\all_aircraft.html:63
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:69
+#: .\mod_stats_by_aircraft\templates\all_aircraft.html:62
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:66
 #, fuzzy
 #| msgctxt "total"
 #| msgid "Static Aircraft"
@@ -1672,12 +1677,6 @@ msgctxt "pilot_nav_tab"
 msgid "Aircraft Statistics"
 msgstr "Estadísticas de aeronave"
 
-#: .\mod_stats_by_aircraft\templates\inline\aircraft_tabs.html:5
-#: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:11
-msgctxt "pilot_nav_tab"
-msgid "Aircraft Killboard"
-msgstr "Tabla de derribos de aeronave"
-
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:4
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:4
 #, fuzzy
@@ -1725,27 +1724,44 @@ msgstr "Descripción general de avión."
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:15
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:15
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:30
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:19
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:69
 msgctxt "pilot_awards"
 msgid "pilot"
 msgstr "piloto"
 
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:648
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:672
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:246
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:172
 msgid ""
 "Due to technical reasons, kills from your turret gunners are not counted "
 "towards the killboard. Plane and pilot lethality are also affected. </br>"
-msgstr "Por razones técnicas, las bajas de los artilleros de la torreta no se cuentan en el tablero. La letalidad del avión y piloto también se ve afectada.</br>"
+msgstr ""
+"Por razones técnicas, las bajas de los artilleros de la torreta no se "
+"cuentan en el tablero. La letalidad del avión y piloto también se ve "
+"afectada.</br>"
 
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:651
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:675
 msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
 "source of damage. </br> ⛤ This data is pulled purely from sorties where this "
 "plane was damaged by a single enemy (one aircraft/tank/AA/etc.).</br>"
-msgstr  "★ Estos datos se obtienen puramente de salidas en las que este avión fue la única fuente de daños. <br/>"
-"⛤ Estos datos se obtienen puramente de salidas en las que este avión fue impactado por un solo enemigo (una aeronave/tanque/AA/etc). <br/>"
+msgstr ""
+"★ Estos datos se obtienen puramente de salidas en las que este avión fue la "
+"única fuente de daños. <br/>⛤ Estos datos se obtienen puramente de salidas "
+"en las que este avión fue impactado por un solo enemigo (una aeronave/tanque/"
+"AA/etc). <br/>"
 
+#, fuzzy
+#~| msgid "Gunnery Accuracy"
+#~ msgctxt "total"
+#~ msgid "Gunnery Accuracy"
+#~ msgstr "Puntería"
+
+#, fuzzy
+#~| msgctxt "pilot_nav_tab"
+#~| msgid "Aircraft Killboard"
+#~ msgid "Aircraft Killboard"
+#~ msgstr "Tabla de derribos de aeronave"
 
 #~ msgid ""
 #~ "This filter applies to all aircraft (where applicable), including the "
