@@ -1328,7 +1328,7 @@ msgstr "Offensiver Munitionsbericht"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:519
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:515
 msgid "Average hits per aircraft kill"
-msgstr "Durchschnittliche Anzahl der Treffer pro Abschuss"
+msgstr "Durchschnittliche Anzahl Treffer pro Abschuss"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:536
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:532
@@ -1338,7 +1338,7 @@ msgstr "Defensiver Munitionsbericht"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:539
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:535
 msgid "Average hits per aircraft lost"
-msgstr "Durchschnitttliche Anzahl der Treffer pro Verlust"
+msgstr "Durchschnitttliche Anzahl Treffer pro Verlust"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:561
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:120

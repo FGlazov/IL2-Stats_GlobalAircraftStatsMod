@@ -166,7 +166,7 @@ bullet_types = {
     'SHELL_GER_105_HE': pgettext_lazy('bullet_type', '105mm German (HE)'),
     'SHELL_GER_105_HT': pgettext_lazy('bullet_type', '105mm German (HEAT)'),
     'SHELL_GER_150_HE': pgettext_lazy('bullet_type', '150mm German (HE)'),
-    'SHELL_GER_30x184_AP': pgettext_lazy('bullet_type', 'MK 108 (AP)'),
+    'SHELL_GER_30x184_AP': pgettext_lazy('bullet_type', 'MK 101 (AP)'),
     'SHELL_GER_30x184_HE': pgettext_lazy('bullet_type', 'MK 108 (HE)'),
     'SHELL_GER_50_CV': pgettext_lazy('bullet_type', '50mm German (APHE)'),
     'SHELL_GER_50_HE': pgettext_lazy('bullet_type', '50mm German (HE)'),

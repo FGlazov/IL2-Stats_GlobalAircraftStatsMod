@@ -10,7 +10,7 @@ from django.urls import reverse
 from mission_report.constants import Coalition
 
 from stats.helpers import Paginator, get_sort_by, redirect_fix_url
-from stats.models import (Player, Mission, PlayerMission, PlayerAircraft, Sortie, KillboardPvP,
+from stats.models import (Player, Mission, PlayerMission, PlayerAircraft, Sortie, SortieStatus, KillboardPvP,
                           Tour, LogEntry, Profile, Squad, Reward, PlayerOnline, VLife)
 from stats import sortie_log
 from stats.views import *

@@ -766,6 +766,22 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
         return
     ammo_breakdown = sortie.ammo['ammo_breakdown']
 
+    # TODO: At some point make this less hacky. Possibly derive other ammo from aircraft payload?
+    # This is a totally band-aid solution.
+    # The Tempest and spitfire destroys targets often in a single gun cycle, so the other Hispano ammo doesn't show up
+    # in the ammo breakdown. This pollutes the data, especially since it happens often.
+    # So we manually add in the missing ammo type (HE or AP).
+    fill_in_ammo(ammo_breakdown, 'SHELL_ENG_20x110_AP', 'SHELL_ENG_20x110_HE')
+    # Same problem as above, but for MG 151/20 and MG 151/15.
+    fill_in_ammo(ammo_breakdown, 'SHELL_GER_20x82_AP', 'SHELL_GER_20x82_HE')
+    fill_in_ammo(ammo_breakdown, 'SHELL_GER_15x96_AP', 'SHELL_GER_15x96_HE')
+    # Same as above, but for MGs
+    fill_in_ammo(ammo_breakdown, 'BULLET_GER_13x64_AP', 'BULLET_GER_13x64_HE')
+    fill_in_ammo(ammo_breakdown, 'BULLET_RUS_12-7x108_AP', 'BULLET_RUS_12-7x108_HE')
+
+    # For ShVAKs: We keep it as is, since LA-5(FN) has mono-ammo belts.
+    # So even if another plane has a fluke like this, it does same damage as when shot by LA-5 anyways.
+
     bucket.increment_ammo_received(ammo_breakdown['total_received'])
 
     if is_subtype:
@@ -802,6 +818,15 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
             filtered_bucket.increment_ammo_given(ammo_log_name, times_hit)
 
         filtered_bucket.save()
+
+
+def fill_in_ammo(ammo_breakdown, ap_ammo, he_ammo):
+    if (ap_ammo not in ammo_breakdown['total_received']
+            and he_ammo in ammo_breakdown['total_received']):
+        ammo_breakdown['total_received'][ap_ammo] = 0
+    if (he_ammo not in ammo_breakdown['total_received']
+            and ap_ammo in ammo_breakdown['total_received']):
+        ammo_breakdown['total_received'][he_ammo] = 0
 
 
 # TODO: Refactor filter_type into instead directly returning filtered_bucket.
