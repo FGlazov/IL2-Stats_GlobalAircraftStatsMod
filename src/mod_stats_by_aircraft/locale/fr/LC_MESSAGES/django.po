@@ -1374,7 +1374,7 @@ msgstr "Létalité de l’appareil"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:586
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:582
 msgid "Plane Lethality (no assists)"
-msgstr "Létalité de l’appareil (sans assistance)"
+msgstr "Létalité de l’appareil (sans assistance)<br/> "
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:594
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:590
