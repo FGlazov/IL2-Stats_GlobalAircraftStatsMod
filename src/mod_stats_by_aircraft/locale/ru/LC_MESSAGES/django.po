@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-05 13:11+0200\n"
+"POT-Creation-Date: 2021-04-08 21:04+0200\n"
 "PO-Revision-Date: 2016-03-19 20:51+0000\n"
 "Last-Translator: b'Anonymous User <vaal.87@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,22 +85,22 @@ msgstr ""
 #: .\mod_stats_by_aircraft\bullets_types.py:90
 msgctxt "bullet_type"
 msgid "Pistol bullet"
-msgstr ""
+msgstr "Пистолетная пуля"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:91
 msgctxt "bullet_type"
 msgid "UB (AP)"
-msgstr ""
+msgstr "УБ (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:92
 msgctxt "bullet_type"
 msgid "UB (HE)"
-msgstr ""
+msgstr "УБ (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:93
 msgctxt "bullet_type"
 msgid "ShKAS (AP)"
-msgstr ""
+msgstr "ШКАС (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:94
 msgctxt "bullet_type"
@@ -206,42 +206,42 @@ msgstr ""
 #: .\mod_stats_by_aircraft\bullets_types.py:113
 msgctxt "bullet_type"
 msgid "ShVAK (AP)"
-msgstr ""
+msgstr "ШВАК (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:114
 msgctxt "bullet_type"
 msgid "ShVAK (HE)"
-msgstr ""
+msgstr "ШВАК (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:115
 msgctxt "bullet_type"
 msgid "VYA-23 (AP)"
-msgstr ""
+msgstr "ВЯ-23 (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:116
 msgctxt "bullet_type"
 msgid "VYA-23 (HE)"
-msgstr ""
+msgstr "ВЯ-23 (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:117
 msgctxt "bullet_type"
 msgid "SH-37 (AP)"
-msgstr ""
+msgstr "Ш-37 (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:118
 msgctxt "bullet_type"
 msgid "SH-37 (HE)"
-msgstr ""
+msgstr "Ш-37 (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:119
 msgctxt "bullet_type"
 msgid "NS-37 (AP)"
-msgstr ""
+msgstr "НС-37 (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:120
 msgctxt "bullet_type"
 msgid "NS-37 (HE)"
-msgstr ""
+msgstr "НС-37 (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:121
 msgctxt "bullet_type"
@@ -488,9 +488,12 @@ msgid "150mm German (HE)"
 msgstr ""
 
 #: .\mod_stats_by_aircraft\bullets_types.py:169
+#, fuzzy
+#| msgctxt "aircraft_payload"
+#| msgid "MG 17 AP [2000]"
 msgctxt "bullet_type"
-msgid "MK 108 (AP)"
-msgstr ""
+msgid "MK 101 (AP)"
+msgstr "MG 17 ББ [2000]"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:170
 #, fuzzy
@@ -1295,27 +1298,25 @@ msgstr "посадка вне аэродрома"
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:482
 msgctxt "total"
 msgid "Percent deaths to AA"
-msgstr ""
+msgstr "Процент смертей от ПВО"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:492
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:488
 msgctxt "total"
 msgid "Percent deaths due to accidents"
-msgstr ""
+msgstr "Процент смертей в результате несчастных случаев"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:498
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:494
-#, fuzzy
-#| msgid "K/L - Kills per Aircraft Lost"
 msgctxt "total"
 msgid "Percent aircraft lost to AA"
-msgstr "K/L - Сбитых к потерям"
+msgstr "Процент самолетов, потерянных от ПВО"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:504
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:500
 msgctxt "total"
 msgid "Percent aircraft lost due to accidents"
-msgstr ""
+msgstr "Процент самолетов, потерянных в результате аварий"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:516
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:512
@@ -1334,10 +1335,8 @@ msgstr "Распределение оборонительных боеприпа
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:539
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:535
-#, fuzzy
-#| msgid "K/L - Kills per Aircraft Lost"
 msgid "Average hits per aircraft lost"
-msgstr "K/L - Сбитых к потерям"
+msgstr "Среднее количество попаданий на один потерянный самолет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:561
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:120

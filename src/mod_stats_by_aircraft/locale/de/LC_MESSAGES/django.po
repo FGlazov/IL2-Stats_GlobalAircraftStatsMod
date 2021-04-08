@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-05 13:11+0200\n"
+"POT-Creation-Date: 2021-04-08 21:04+0200\n"
 "PO-Revision-Date: 2016-07-18 19:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -484,8 +484,11 @@ msgid "150mm German (HE)"
 msgstr "150mm Deutsch (HE)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:169
+#, fuzzy
+#| msgctxt "bullet_type"
+#| msgid "MK 108 (AP)"
 msgctxt "bullet_type"
-msgid "MK 108 (AP)"
+msgid "MK 101 (AP)"
 msgstr "MK 108 (AP)"
 
 #: .\mod_stats_by_aircraft\bullets_types.py:170

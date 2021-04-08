@@ -1,4 +1,4 @@
-Version 1.0:
+Version 1.0.0:
 
 - Initial version.
 
@@ -27,7 +27,7 @@ Version 1.1.2
 
 - Fix error which caused stats process to terminate after encountering a plane damaged by the B-25.
 
-Version 1.2
+Version 2.0.0
 
 - New pages: Show aircraft stats per player.
 - Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.) Does, and can not work retroactively.
