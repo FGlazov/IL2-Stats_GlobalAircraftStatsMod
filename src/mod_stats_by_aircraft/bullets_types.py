@@ -23,7 +23,7 @@ def __render_sub_dict(sub_dict, filter_out_flukes):
 
     for multi_key in sub_dict[TOTALS]:
         inst = sub_dict[TOTALS][multi_key][INST]
-        if filter_out_flukes and (inst < 4 or inst / total_inst < 0.01):
+        if filter_out_flukes and (inst < 4 or inst / total_inst < 0.05):
             continue
 
         keys = string_to_multikey(multi_key)
