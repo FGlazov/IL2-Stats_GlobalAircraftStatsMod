@@ -10,9 +10,9 @@ You can view the data collected by this mod in three new pages:
 * A detailed summary of a single plane. If you ever want to know more about how your favorite plane performs.
 * A page showing the performance of a single plane against all others. Do you want to know which plane works best again a Spitfire Mk.V?
 
-We wish to thank =FB=Vaal and =FB=Isaay for their work creating the wonderful IL2 Stats system. Additional thanks go out to Vaudoo, PR9INICHEK, and HawkerMkIII who helped us translate this mod into French, Russian, and Spanish, respectively. We also thank RaptorAttacker for creating the new icons used by this mod.
+This version is compatible with 1.2.49 of IL2 stats.
 
-This version is compatible with 1.2.48 of IL2 stats.
+We wish to thank =FB=Vaal and =FB=Isaay for their work creating the wonderful IL2 Stats system. Additional thanks go out to Vaudoo, =FEW=Hauggy, PR9INICHEK, and HawkerMkIII who helped us translate this mod respectively. We also thank RaptorAttacker for creating the new icons used by this mod.
 
 This mod does work retroactively. It hijacks the stats process while no new reports are found in order to retroactively aggregate old sorties (while checking for new reports periodically). This process may take a while. On an i7-6700k with an SSD the mod achieved a throughput of roughly 4000 sorties processed per minute. As a rule of thumb, you can expect a month to be processed in 15 to 45 minutes.
 
