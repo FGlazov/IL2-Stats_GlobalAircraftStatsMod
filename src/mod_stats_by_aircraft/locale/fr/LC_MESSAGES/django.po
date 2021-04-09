@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-08 21:04+0200\n"
+"POT-Creation-Date: 2021-04-09 09:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1581,8 +1581,6 @@ msgstr "Le Taux de létalité du pilote"
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:3
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:13
 #: .\mod_stats_by_aircraft\templates\base.html:87
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:3
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:17
 msgid "Aircraft Rankings"
 msgstr "Classement des appareils"
 
@@ -1758,6 +1756,8 @@ msgstr "Ratio Victoires-défaites de l’appareil"
 
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:9
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:9
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:3
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:17
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Overview"
 msgstr "Vue d’ensemble de l’avion"

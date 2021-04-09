@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load i18n staticfiles tz stats filters %}
-{% block title %}{% trans 'Aircraft Rankings' %} / {{ player.nickname }} / {{ block.super }}{% endblock title %}
+{% block title %}{% trans 'Aircraft Overview' context 'pilot_nav_tab' %} / {{ player.nickname }} / {{ block.super }}{% endblock title %}
 
 {% block head %}
 {% endblock head %}
@@ -14,7 +14,7 @@
     <div class="wrapper aircraft" style="width: 1400px;">
         <div class="content_head">
             <div class="content_title" style="width: 620px">
-                {% trans 'Aircraft Rankings' %}
+                {% trans 'Aircraft Overview' context 'pilot_nav_tab' %}
             </div>
             <label>{% trans 'Filter by:' %}</label>
             <select style="background: #303030; border: 1px solid #252525; width: 400px;"

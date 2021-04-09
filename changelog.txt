@@ -27,12 +27,13 @@ Version 1.1.2
 
 - Fix error which caused stats process to terminate after encountering a plane damaged by the B-25.
 
-Version 2.0.0
+Version 1.2.0
 
 - New pages: Show aircraft stats per player.
-- Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.) Does, and can not work retroactively.
-- Add "Fitler below" option for aircraft killboard.
+- Add Offensive/Defensive ammo breakdowns (when Ammo Breakdown module is active in IL-2 Stats enchancements.) This does not work retroactively.
+- Add "Fitler below" option for aircraft killboard. You can now check e.g. Spitfire with boost vs BF 109 K-4 without boost matchup.
 - Add new data point "Plane lethality (no assists)"
-- Add new data points "Aircraft lost to accidents/AA" and "Deaths due to accidents/AA"
+- Add new data points "Aircraft lost to accidents/AA" and "Deaths due to accidents/AA". This is calculated retroactively for old data.
 - Show total number of instances next to percent datapoints. E.g. instead of showing Deaths: 54%, show Deaths: 54% (132), where 132 is the nr of deaths that occured.
 - Fix bug where "Fighter Score" was not being translated into Russian.
+- Fix rendering issue where "Filter by" was jumping on Aircraft Rankings page when sorting.

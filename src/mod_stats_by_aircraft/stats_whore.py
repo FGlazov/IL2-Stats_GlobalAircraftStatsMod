@@ -531,8 +531,15 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
         enemy_bucket.update_derived_fields()
         enemy_bucket.save()
 
+    process_aa_accident_death(bucket, sortie)
+    if 'ammo_breakdown' in sortie.ammo:
+        process_ammo_breakdown(bucket, sortie, is_subtype)
+
+    bucket.update_derived_fields()
+    bucket.save()
+
     # LogEntry does not store what your turrets did. Only what turrets hit you.
-    # So we parse all turret encounters from the perspective of the turret's plane.
+    # So we parse all turret encounters from the perspective of the plane the turrets hit.
     turret_events = (LogEntry.objects
                      .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
                      .filter(Q(cact_sortie_id=sortie.id),
@@ -540,20 +547,12 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype):
                              act_object__cls='aircraft_turret', cact_object__cls_base='aircraft',
                              # Filter out AI kills from turret.
                              cact_sortie_id__isnull=False)
-
                      # Disregard friendly fire incidents.
                      .exclude(extra_data__is_friendly_fire=True))
 
     enemies_damaged = set()
     enemies_shotdown = set()
     enemies_killed = set()
-
-    process_aa_accident_death(bucket, sortie)
-    if 'ammo_breakdown' in sortie.ammo:
-        process_ammo_breakdown(bucket, sortie, is_subtype)
-
-    bucket.update_derived_fields()
-    bucket.save()
 
     if len(turret_events) > 0 and not is_subtype:
         cache_turret_buckets = dict()
@@ -639,7 +638,7 @@ def update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdow
     return cache_enemy_buckets, cache_kb
 
 
-# There are in essecence three cases for the Elo Update:
+# There are in essence three cases for the Elo Update:
 
 # Aircraft 1 and Aircraft 2 have no subtypes -> Just update elo directly.
 # Aircraft 1 and 2 have subtypes: Main types update each other. Subtypes update each other.

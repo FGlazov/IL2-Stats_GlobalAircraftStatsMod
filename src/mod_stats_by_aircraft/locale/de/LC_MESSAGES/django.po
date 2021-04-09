@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-08 21:04+0200\n"
+"POT-Creation-Date: 2021-04-09 09:31+0200\n"
 "PO-Revision-Date: 2016-07-18 19:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1578,8 +1578,6 @@ msgstr "Pilotentödlichkeit"
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:3
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:13
 #: .\mod_stats_by_aircraft\templates\base.html:87
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:3
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:17
 msgid "Aircraft Rankings"
 msgstr "Flugzeugrangliste"
 
@@ -1759,6 +1757,8 @@ msgstr "Flugzeug-Killboard"
 
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:9
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:9
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:3
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:17
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Overview"
 msgstr "Flugzeugübersicht"
