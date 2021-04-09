@@ -814,8 +814,7 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     base_bucket, db_sortie, filter_type = ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
 
     if base_bucket:
-        for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
-            base_bucket.increment_ammo_given(ammo_log_name, times_hit)
+        base_bucket.increment_ammo_given(ammo_breakdown['total_received'])
         base_bucket.save()
 
     # Note that we can't update filtered Halberstadt (turreted plane with jabo type)
@@ -828,8 +827,7 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
             filtered_bucket = AircraftBucket.objects.get_or_create(
                 tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=None)[0]
 
-        for ammo_log_name, times_hit in ammo_breakdown['total_received'].items():
-            filtered_bucket.increment_ammo_given(ammo_log_name, times_hit)
+        filtered_bucket.increment_ammo_given(ammo_breakdown['total_received'])
 
         filtered_bucket.save()
 
