@@ -74,3 +74,7 @@ urlpatterns = [
     url(r'^tankman_vlifes/(?P<profile_id>\d+)/$', views.tankman_vlifes),
     url(r'^tankmans/$', views.tankman_rankings, name='tankmans'),
 ]
+
+
+if hasattr(views, 'ironman_stats'):  # For compatibility with mod_rating_by_type.
+    urlpatterns.append(url(r'^ironman/$', views.ironman_stats, name='ironman'))
