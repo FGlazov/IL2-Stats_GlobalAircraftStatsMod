@@ -832,7 +832,6 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
         filtered_bucket.save()
 
 
-
 def fill_in_ammo(ammo_breakdown, ap_ammo, he_ammo):
     if (ap_ammo not in ammo_breakdown['total_received']
             and he_ammo in ammo_breakdown['total_received']):
@@ -858,16 +857,17 @@ def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
         db_sortie = None
         if bucket.player:
             if 'last_turret_account' in ammo_breakdown:
-                enemy_player = Player.objects.filter(
-                    profile__uuid=ammo_breakdown['last_turret_account'],
-                    tour=bucket.tour,
-                    type='pilot'
-                ).get()
-                base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour, player=enemy_player)
+                try:
+                    enemy_player = Player.objects.filter(
+                        profile__uuid=ammo_breakdown['last_turret_account'],
+                        tour=bucket.tour,
+                        type='pilot'
+                    ).get()
+                    base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour, player=enemy_player)
+                except Player.DoesNotExist:
+                    base_bucket = None
             else:
                 base_bucket = None
-        # There is a small chance that hits and damaged are not synced here due to log bugs.
-
         else:
             base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
 
