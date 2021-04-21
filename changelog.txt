@@ -38,3 +38,7 @@ Version 1.2.0
 - Fix bug where "Fighter Score" was not being translated into Russian.
 - Fix rendering issue where "Filter by" was jumping on Aircraft Rankings page when sorting.
 - Update to version 1.2.49 of IL-2 Stats.
+
+Version 1.2.1
+
+- Update to version 1.2.50 of IL-2 Stats.
