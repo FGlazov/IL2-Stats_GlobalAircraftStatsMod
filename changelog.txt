@@ -47,3 +47,8 @@ Version 1.2.2:
 
 - Fix bug introduced in 1.2.0 which caused turret kills to be counted twice towards elo, and also twice towards the aircraft killboard.
 - Fix bug in retroactive computations where accident/aa deaths/lost aircraft were only being processed for not-filtered buckets. 
+
+Version 1.2.3
+
+- Fix bug where player killboard loses were not being incremented in retroactive computations.
+- Fix calculation bug where some deaths were being listed as accidents, even though they were not accidents.
