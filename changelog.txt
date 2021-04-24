@@ -52,3 +52,7 @@ Version 1.2.3
 
 - Fix bug where player killboard loses were not being incremented in retroactive computations.
 - Fix calculation bug where some deaths were being listed as accidents, even though they were not accidents.
+
+Version 1.2.4
+
+- Fix bug where numbers in avg hits to kill/aircraft lost were being garbled. In particular, ShVAK (HE) and ShVAK(AP) were being mixed up.
