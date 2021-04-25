@@ -176,7 +176,7 @@ def stats_whore(m_report_file):
             player = players_pilots[sortie.account_id]
         elif sortie.cls == 'aircraft_turret':
             player = players_gunners[sortie.account_id]
-        elif sortie.cls in ('tank_light', 'tank_heavy', 'tank_medium', 'tank_turret'):
+        elif sortie.cls in ('tank_light', 'tank_heavy', 'tank_medium', 'tank_turret', 'truck'):
             player = players_tankmans[sortie.account_id]
         else:
             continue
