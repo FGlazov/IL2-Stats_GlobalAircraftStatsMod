@@ -60,3 +60,7 @@ Version 1.2.4
 Version 1.2.5 
 
 - Update to 1.2.51 of IL2 Stats.
+
+Version 1.2.6:
+
+- Fix yet another bug which caused turret kills in killboards to double.
