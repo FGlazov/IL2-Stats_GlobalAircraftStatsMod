@@ -64,3 +64,7 @@ Version 1.2.5
 Version 1.2.6:
 
 - Fix yet another bug which caused turret kills in killboards to double.
+
+Version 1.2.7:
+
+- Fix a bug which caused deaths/aircraft lost due to accidents/aa to be doubled when computed retroactively.
