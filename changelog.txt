@@ -67,4 +67,9 @@ Version 1.2.6:
 
 Version 1.2.7:
 
-- Fix a bug which caused deaths/aircraft lost due to accidents/aa to be doubled when computed retroactively.
+- Recompute fields deaths/aircraft lost due to accidents/aa. This will fix the doubled data here.
+
+Version 1.2.8:
+
+- Recompute elo, plane, pilot lethality, and aircraft killboards. This will fix data polluted by a previous bug which doubled turret kills, causing calculation problems.
+- Give a status update every time 5000 sorties are computed in background jobs.

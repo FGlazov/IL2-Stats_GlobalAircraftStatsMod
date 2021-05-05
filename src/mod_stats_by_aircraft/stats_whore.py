@@ -424,6 +424,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype):
     else:
         sortie_augmentation.player_stats_processed = True
     sortie_augmentation.fixed_aa_accident_stats = True
+    sortie_augmentation.fixed_doubled_turret_killboards = True
     sortie_augmentation.save()
 
 
@@ -453,11 +454,18 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_pri
             enemies_shotdown.add(enemy_plane_sortie_pair)
         elif event.type == 'killed':
             enemies_killed.add(enemy_plane_sortie_pair)
+
+    use_pilot_kbs = bucket.player is None
+    if compute_only_pure_killboard_stats:
+        # This is True while we're recomputing corrupted killboards which don't have players.
+        # So we don't want to update deaths to turret for players.
+        use_pilot_kbs = False
     enemy_buckets, kbs = update_from_entries(bucket, enemies_damaged, enemies_killed, enemies_shotdown,
-                                             has_subtype, is_subtype, bucket.player is None,
+                                             has_subtype, is_subtype, use_pilot_kbs,
                                              update_primary_bucket=not stop_update_primary_bucket)
 
     for killboard in kbs.values():
+        killboard.reset_kills_turret_bug = True
         killboard.save()
     for enemy_bucket in enemy_buckets.values():
         enemy_bucket.update_derived_fields()
@@ -540,6 +548,7 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_pri
                 bucket.save()
 
             for kb in kbs.values():
+                kb.reset_kills_turret_bug = True
                 kb.save()
 
 
