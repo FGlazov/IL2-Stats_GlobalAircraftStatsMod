@@ -38,6 +38,7 @@ WIN_SCORE_MIN = settings.WIN_SCORE_MIN
 WIN_SCORE_RATIO = settings.WIN_SCORE_RATIO
 SORTIE_MIN_TIME = settings.SORTIE_MIN_TIME
 
+
 def main():
     logger.info('IL2 stats {stats}, Python {python}, Django {django}'.format(
         stats=__version__, python=sys.version[0:5], django=django.get_version()))
@@ -426,7 +427,8 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype):
     sortie_augmentation.save()
 
 
-def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_primary_bucket=False):
+def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_primary_bucket=False,
+                        compute_only_pure_killboard_stats=False):
     events = (LogEntry.objects
               .select_related('act_object', 'act_sortie', 'cact_object', 'cact_sortie')
               .filter(Q(act_sortie_id=sortie.id),
@@ -478,12 +480,12 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_pri
     enemies_shotdown = set()
     enemies_killed = set()
 
-    process_aa_accident_death(bucket, sortie)
-    if 'ammo_breakdown' in sortie.ammo:
-        process_ammo_breakdown(bucket, sortie, is_subtype)
+    if not compute_only_pure_killboard_stats:
+        process_aa_accident_death(bucket, sortie)
+        if 'ammo_breakdown' in sortie.ammo:
+            process_ammo_breakdown(bucket, sortie, is_subtype)
 
     if not stop_update_primary_bucket:
-        bucket.reset_accident_aa_stats = True
         bucket.update_derived_fields()
         bucket.save()
 
@@ -519,11 +521,17 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_pri
             update_primary_bucket = bucket.player is None
             if stop_update_primary_bucket:
                 update_primary_bucket = False
+            use_pilot_kbs = bucket.player is not None
+            if compute_only_pure_killboard_stats:
+                # This is True while we're recomputing corrupted killboards which don't have players.
+                # So we don't want to update deaths to turret for players.
+                use_pilot_kbs = False
+
             buckets, kbs = update_from_entries(turret_bucket, enemy_damaged, enemy_killed, enemy_shotdown,
                                                # We can't determine the subtype of the bomber
                                                # Edge case: Halberstadt. It is turreted and has a jabo variant.
                                                # This should be fixed somehow in the long run.
-                                               False, False, bucket.player is not None, update_primary_bucket)
+                                               False, False, use_pilot_kbs, update_primary_bucket)
             if not stop_update_primary_bucket:
                 turret_bucket.update_derived_fields()
                 turret_bucket.save()

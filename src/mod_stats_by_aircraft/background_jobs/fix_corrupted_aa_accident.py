@@ -12,15 +12,13 @@ class FixCorruptedAaAccidents(BackgroundJob):
     """
 
     def reset_relevant_fields(self):
-        broken_buckets = AircraftBucket.objects.filter(reset_accident_aa_stats=False)
-        for broken_bucket in broken_buckets:
-            broken_bucket.deaths_to_accident = 0
-            broken_bucket.deaths_to_aa = 0
-            broken_bucket.aircraft_lost_to_accident = 0
-            broken_bucket.aircraft_lost_to_aa = 0
-
-            broken_bucket.reset_accident_aa_stats = True
-            broken_bucket.save()
+        AircraftBucket.objects.filter(reset_accident_aa_stats=False).update(
+            deaths_to_accident=0,
+            deaths_to_aa=0,
+            aircraft_lost_to_accident=0,
+            aircraft_lost_to_aa=0,
+            reset_accident_aa_stats=True
+        )
 
     def query_find_sorties(self, tour_cutoff):
         return (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__fixed_aa_accident_stats=False,
@@ -39,9 +37,10 @@ class FixCorruptedAaAccidents(BackgroundJob):
             buckets.append((AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                                  filter_type=filter_type, player=None))[0])
             buckets.append((AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
-                                                                 filter_type=filter_type, player=None))[0])
+                                                                 filter_type=filter_type, player=sortie.player))[0])
         for bucket in buckets:
             process_aa_accident_death(bucket, sortie)
+            bucket.update_derived_fields()
             bucket.save()
 
         sortie.SortieAugmentation_MOD_STATS_BY_AIRCRAFT.fixed_aa_accident_stats = True

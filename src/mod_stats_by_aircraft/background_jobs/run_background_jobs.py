@@ -4,12 +4,13 @@ from django.db.models import Max
 from .full_retro_compute import FullRetroCompute
 from .player_retro_compute import PlayerRetroCompute
 from .fix_corrupted_aa_accident import FixCorruptedAaAccidents
+from .fix_turret_killboards import FixTurretKillboards
 from stats.models import Tour
 from stats.logger import logger
 import config
 
 # Subclasses of BackgroundJob, see background_job.py
-jobs = [FullRetroCompute(), PlayerRetroCompute(), FixCorruptedAaAccidents()]
+jobs = [FullRetroCompute(), PlayerRetroCompute(), FixCorruptedAaAccidents(), FixTurretKillboards()]
 
 LOG_COUNTER = 0
 LOGGING_INTERVAL = 5  # How many batches are run before an update log is produced.
