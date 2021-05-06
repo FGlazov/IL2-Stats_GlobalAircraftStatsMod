@@ -73,3 +73,8 @@ Version 1.2.8:
 
 - Recompute elo, plane, pilot lethality, and aircraft killboards. This will fix data polluted by a previous bug which doubled turret kills, causing calculation problems.
 - Give a status update every time 5000 sorties are computed in background jobs.
+
+Version 1.2.9:
+
+- Fix bug where not all loses in retroactive compute of player killboards were being counted.
+- Recompute loses in player killboards if they were computed before.
