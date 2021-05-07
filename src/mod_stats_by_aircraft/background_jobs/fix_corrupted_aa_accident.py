@@ -1,6 +1,7 @@
 from .background_job import BackgroundJob
 from stats.models import Sortie
 from ..aircraft_mod_models import AircraftBucket
+from ..aircraft_stats_compute import process_aa_accident_death, get_sortie_type
 
 
 class FixCorruptedAaAccidents(BackgroundJob):
@@ -26,8 +27,6 @@ class FixCorruptedAaAccidents(BackgroundJob):
                 .order_by('-tour__id'))
 
     def compute_for_sortie(self, sortie):
-        from ..stats_whore import process_aa_accident_death, get_sortie_type
-
         buckets = [(AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                          filter_type='NO_FILTER', player=None))[0],
                    (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,

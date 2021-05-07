@@ -1,5 +1,6 @@
 from .background_job import BackgroundJob
 from stats.models import Sortie
+from ..aircraft_stats_compute import process_aircraft_stats
 
 
 class FullRetroCompute(BackgroundJob):
@@ -15,8 +16,6 @@ class FullRetroCompute(BackgroundJob):
                 .order_by('-tour__id'))
 
     def compute_for_sortie(self, sortie):
-        from ..stats_whore import process_aircraft_stats
-
         process_aircraft_stats(sortie)
         process_aircraft_stats(sortie, sortie.player)
 

@@ -78,6 +78,8 @@ class AircraftBucket(models.Model):
     pilot_lethality = models.FloatField(default=0, db_index=True)
     elo = models.IntegerField(default=1500, db_index=True)
     rating = models.IntegerField(default=0, db_index=True)
+    max_ak_streak = models.IntegerField(default=0, db_index=True)
+    max_gk_streak = models.IntegerField(default=0, db_index=True)
     # ========================= SORTABLE FIELDS END
 
     # ========================= NON-SORTABLE VISIBLE FIELDS
@@ -121,6 +123,17 @@ class AircraftBucket(models.Model):
     deaths_to_aa = models.BigIntegerField(default=0)
     aircraft_lost_to_accident = models.BigIntegerField(default=0)
     aircraft_lost_to_aa = models.BigIntegerField(default=0)
+
+    max_score_streak = models.IntegerField(default=0, db_index=True)
+    max_ak_streak_player = models.ForeignKey(Player, related_name='+', on_delete=models.PROTECT, null=True)
+    max_gk_streak_player = models.ForeignKey(Player, related_name='+', on_delete=models.PROTECT, null=True)
+    max_score_streak_player = models.ForeignKey(Player, related_name='+', on_delete=models.PROTECT, null=True)
+
+    # These following 3 are for player buckets only.
+    # TODO: Make sure this does not conflict with a retro compute.
+    current_score_streak = models.IntegerField(default=0)
+    current_ak_streak = models.IntegerField(default=0)
+    current_gorund_streak = models.IntegerField(default=0)
 
     ammo_breakdown = JSONField(default=default_ammo_breakdown)
     # ========================== NON-SORTABLE VISIBLE FIELDS END
@@ -624,6 +637,7 @@ class SortieAugmentation(models.Model):
     fixed_aa_accident_stats = models.BooleanField(default=False, db_index=True)
     fixed_doubled_turret_killboards = models.BooleanField(default=False, db_index=True)
     added_player_kb_losses = models.BooleanField(default=False, db_index=True)
+    computed_max_streaks = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.
