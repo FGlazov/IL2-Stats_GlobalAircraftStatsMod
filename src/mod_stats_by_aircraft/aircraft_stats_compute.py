@@ -6,7 +6,7 @@ from .variant_utils import has_juiced_variant, has_bomb_variant, get_sortie_type
 from stats.models import Sortie, LogEntry, Player, Object
 
 
-def process_aircraft_stats(sortie, player=None):
+def process_aircraft_stats(sortie, block_streak_computations=False, player=None):
     """
     Takes a Sortie, and increments the corresponding data in AircraftBucket.
 
@@ -22,15 +22,15 @@ def process_aircraft_stats(sortie, player=None):
 
     has_subtype = has_juiced_variant(bucket.aircraft) or has_bomb_variant(bucket.aircraft)
 
-    process_bucket(bucket, sortie, has_subtype, False)
+    process_bucket(bucket, sortie, has_subtype, False, block_streak_computations)
 
     if has_subtype:
         filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                                 filter_type=get_sortie_type(sortie), player=player))[0]
-        process_bucket(filtered_bucket, sortie, True, True)
+        process_bucket(filtered_bucket, sortie, True, True, block_streak_computations)
 
 
-def process_bucket(bucket, sortie, has_subtype, is_subtype):
+def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computations):
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
         bucket.total_flight_time += sortie.flight_time
@@ -77,8 +77,10 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype):
         else:
             bucket.killboard_ground[key] = value
 
-    if bucket.player is not None:
+    # TODO: Test this
+    if bucket.player is not None and not block_streak_computations:
         process_streaks_and_best_sorties(bucket, sortie)
+
     process_log_entries(bucket, sortie, has_subtype, is_subtype)
 
     sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
@@ -581,6 +583,9 @@ def process_streaks_and_best_sorties(bucket, sortie):
     if sortie.gk_total > not_player_bucket.best_gk_in_sortie:
         not_player_bucket.best_gk_in_sortie = sortie.gk_total
         not_player_bucket.best_gk_sortie = sortie
+
+    sortie.SortieAugmentation_MOD_STATS_BY_AIRCRAFT.computed_max_streaks = True
+    sortie.SortieAugmentation_MOD_STATS_BY_AIRCRAFT.save()
 
     not_player_bucket.save()
 

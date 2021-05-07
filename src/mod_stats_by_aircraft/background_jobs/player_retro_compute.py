@@ -18,7 +18,7 @@ class PlayerRetroCompute(BackgroundJob):
     def query_find_sorties(self, tour_cutoff):
         return (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__player_stats_processed=False,
                                       aircraft__cls_base='aircraft', tour__id__gte=tour_cutoff)
-                .order_by('-tour__id'))
+                .order_by('-tour__id', 'id'))
 
     def compute_for_sortie(self, sortie):
         process_aircraft_stats(sortie, sortie.player)

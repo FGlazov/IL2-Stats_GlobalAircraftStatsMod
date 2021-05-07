@@ -6,7 +6,8 @@ from stats.rewards import reward_sortie, reward_tour, reward_mission, reward_vli
 from stats.logger import logger
 from stats.online import update_online
 from stats.models import LogEntry, Mission, PlayerMission, VLife, PlayerAircraft, Object, Score, Sortie, Tour, Player
-from .background_jobs.run_background_jobs import run_background_jobs, reset_corrupted_data
+from .background_jobs.run_background_jobs import run_background_jobs, reset_corrupted_data, \
+    no_retro_streak_compute_running
 from .aircraft_stats_compute import process_aircraft_stats
 from users.utils import cleanup_registration
 from django.conf import settings
@@ -198,6 +199,10 @@ def stats_whore(m_report_file):
             mission.win_reason = 'score'
             mission.save()
 
+    # ======================== MODDED PART BEGIN
+    retroactive_streak_compute_running = no_retro_streak_compute_running()
+    # ======================== MODDED PART END
+
     for new_sortie in new_sorties:
         _player_id = new_sortie.player.id
         _profile_id = new_sortie.profile.id
@@ -345,8 +350,8 @@ def stats_whore(m_report_file):
 
     # ======================== MODDED PART BEGIN
     for sortie in new_sorties:
-        process_aircraft_stats(sortie)
-        process_aircraft_stats(sortie, sortie.player)
+        process_aircraft_stats(sortie, block_streak_computations=retroactive_streak_compute_running)
+        process_aircraft_stats(sortie, block_streak_computations=retroactive_streak_compute_running,
+                               player=sortie.player)
     # ======================== MODDED PART END
     logger.info('{mission} - processing finished'.format(mission=m_report_file.stem))
-

@@ -1,3 +1,20 @@
+from stats.models import Tour, Sortie
+from django.db.models import Max
+import config
+
+RETRO_COMPUTE_FOR_LAST_TOURS = config.get_conf()['stats'].getint('retro_compute_for_last_tours')
+if RETRO_COMPUTE_FOR_LAST_TOURS is None:
+    RETRO_COMPUTE_FOR_LAST_TOURS = 10
+
+
+def get_tour_cutoff():
+    max_id = Tour.objects.aggregate(Max('id'))['id__max']
+    if max_id is None:  # Edge case: No tour yet
+        return None
+
+    return max_id - RETRO_COMPUTE_FOR_LAST_TOURS
+
+
 class BackgroundJob:
     """Abstract class which represents a job to be done in the background in stats.cmd while there is no new mission
     to be processed. This includes fixing corrupted data due to bugs, and retroactively computing aircraft stats, as
@@ -12,6 +29,7 @@ class BackgroundJob:
         @returns A django QuerySet which will find all the Sorties which need to be processed for this job.
         """
         print("[mod_stats_by_aircraft]: WARNING: Programing Error unimplemented background job query find.")
+        return Sortie.objects.none()
 
     def compute_for_sortie(self, sortie):
         """
@@ -46,3 +64,6 @@ class BackgroundJob:
         are at least correct.
         """
         pass
+
+    def work_left(self):
+        return self.query_find_sorties(get_tour_cutoff()).exists()
