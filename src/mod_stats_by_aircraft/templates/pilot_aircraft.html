@@ -503,8 +503,80 @@
             {% endif %}
         </div>
 
-                <div class="clearfix"></div>
+        <div class="clearfix"></div>
 
+        <div class="player_detailed" style="float: left;">
+            <div class="title">
+                {% trans 'Best results' %}
+            </div>
+            {% if aircraft_bucket.max_ak_streak %}
+                <div class="item">
+                    <div class="name">{% trans 'Best air kill streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.max_ak_streak}}</div>
+                </div>
+
+            {% endif %}
+            {% if aircraft_bucket.max_gk_streak %}
+                <div class="item">
+                    <div class="name">{% trans 'Best Ground streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.max_gk_streak}}</div>
+                </div>
+
+            {% endif %}
+            {% if aircraft_bucket.max_score_streak %}
+                <div class="item">
+                    <div class="name">{% trans 'Best score streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.max_score_streak}}</div>
+                </div>
+            {% endif %}
+                <div class="item">
+                    <div class="name">{% trans 'Current air kill streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.current_ak_streak}}</div>
+                </div>
+                <div class="item">
+                    <div class="name">{% trans 'Current ground kill streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.current_gk_streak}}</div>
+                </div>
+                <div class="item">
+                    <div class="name">{% trans 'Current score streak' %}</div>
+                    <div class="num"> {{aircraft_bucket.current_score_streak}}</div>
+                </div>
+        </div>
+
+        <div class="player_detailed" style="float: right;">
+            <div class="title">
+                {% trans 'Best results in a single sortie' %}
+            </div>
+
+            {% if aircraft_bucket.best_ak_sortie %}
+            <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_ak_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
+                <div class="item">
+                    <div class="name">{% trans 'Max Aerial Victories in one sortie' %}</div>
+                    <div class="num"> {{aircraft_bucket.best_ak_in_sortie}}</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if aircraft_bucket.best_gk_sortie %}
+            <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_gk_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
+                <div class="item">
+                    <div class="name">{% trans 'Max Destroyed on Ground in one sortie' %}</div>
+                    <div class="num"> {{aircraft_bucket.best_gk_in_sortie}}</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if aircraft_bucket.best_score_sortie %}
+            <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_score_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
+                <div class="item">
+                    <div class="name">{% trans 'Max score in a single sortie' %} </div>
+                    <div class="num"> {{aircraft_bucket.best_score_in_sortie}}</div>
+                </div>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="clearfix"></div>
 
         {% if ammo_breakdown.given|length > 0 %}
          <div class="player_detailed" style="float: left;">

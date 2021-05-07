@@ -133,7 +133,14 @@ class AircraftBucket(models.Model):
     # TODO: Make sure this does not conflict with a retro compute.
     current_score_streak = models.IntegerField(default=0)
     current_ak_streak = models.IntegerField(default=0)
-    current_gorund_streak = models.IntegerField(default=0)
+    current_gk_streak = models.IntegerField(default=0)
+
+    best_score_in_sortie = models.IntegerField(default=0)
+    best_score_sortie = models.ForeignKey(Sortie, related_name='+', on_delete=models.PROTECT, null=True)
+    best_ak_in_sortie = models.IntegerField(default=0)
+    best_ak_sortie = models.ForeignKey(Sortie, related_name='+', on_delete=models.PROTECT, null=True)
+    best_gk_in_sortie = models.IntegerField(default=0)
+    best_gk_sortie = models.ForeignKey(Sortie, related_name='+', on_delete=models.PROTECT, null=True)
 
     ammo_breakdown = JSONField(default=default_ammo_breakdown)
     # ========================== NON-SORTABLE VISIBLE FIELDS END

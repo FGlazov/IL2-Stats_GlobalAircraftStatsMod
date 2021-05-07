@@ -77,6 +77,8 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype):
         else:
             bucket.killboard_ground[key] = value
 
+    if bucket.player is not None:
+        process_streaks_and_best_sorties(bucket, sortie)
     process_log_entries(bucket, sortie, has_subtype, is_subtype)
 
     sortie_augmentation = (SortieAugmentation.objects.get_or_create(sortie=sortie))[0]
@@ -518,6 +520,69 @@ def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
 
         filter_type = 'NO_FILTER'
     return base_bucket, db_sortie, filter_type
+
+
+def process_streaks_and_best_sorties(bucket, sortie):
+    """
+    Updates fields like max_score_streak, current_ak_streak, and best_score_in_sortie.
+
+    This method may update the passed bucket, but also the bucket without player.
+
+    @param bucket Player bucket associated to sortie. This is one of the buckets that may be updated.
+    @param sortie Sortie which is being processed now.
+    """
+
+    bucket.current_score_streak += sortie.score
+    bucket.current_ak_streak += sortie.ak_total
+    bucket.current_gk_streak += sortie.gk_total
+
+    bucket.max_score_streak = max(bucket.max_score_streak, bucket.current_score_streak)
+    bucket.max_ak_streak = max(bucket.max_ak_streak, bucket.current_ak_streak)
+    bucket.max_gk_streak = max(bucket.max_gk_streak, bucket.current_gk_streak)
+
+    if sortie.score > bucket.best_score_in_sortie:
+        bucket.best_score_in_sortie = sortie.score
+        bucket.best_score_sortie = sortie
+    if sortie.ak_total > bucket.best_ak_in_sortie:
+        bucket.best_ak_in_sortie = sortie.ak_total
+        bucket.best_ak_sortie = sortie
+    if sortie.gk_total > bucket.best_gk_in_sortie:
+        bucket.best_gk_in_sortie = sortie.gk_total
+        bucket.best_gk_sortie = sortie
+
+    if sortie.is_relive:
+        bucket.current_score_streak = 0
+        bucket.current_ak_streak = 0
+        bucket.current_gk_streak = 0
+
+    not_player_bucket = AircraftBucket.objects.filter(
+        tour=bucket.tour,
+        aircraft=bucket.aircraft,
+        filter_type=bucket.filter_type,
+        player=None,
+    ).get()
+
+    if bucket.max_score_streak > not_player_bucket.max_score_streak:
+        not_player_bucket.max_score_streak = bucket.max_score_streak
+        not_player_bucket.max_score_streak_player = sortie.player
+    if bucket.max_ak_streak > not_player_bucket.max_ak_streak:
+        not_player_bucket.max_ak_streak = bucket.max_ak_streak
+        not_player_bucket.max_ak_streak_player = sortie.player
+    if bucket.max_gk_streak > not_player_bucket.max_gk_streak:
+        not_player_bucket.max_gk_streak = bucket.max_gk_streak
+        not_player_bucket.max_gk_streak_player = sortie.player
+
+    if sortie.score > not_player_bucket.best_score_in_sortie:
+        not_player_bucket.best_score_in_sortie = sortie.score
+        not_player_bucket.best_score_sortie = sortie
+    if sortie.ak_total > not_player_bucket.best_ak_in_sortie:
+        not_player_bucket.best_ak_in_sortie = sortie.ak_total
+        not_player_bucket.best_ak_sortie = sortie
+    if sortie.gk_total > not_player_bucket.best_gk_in_sortie:
+        not_player_bucket.best_gk_in_sortie = sortie.gk_total
+        not_player_bucket.best_gk_sortie = sortie
+
+    not_player_bucket.save()
 
 
 def get_killboards(enemy, bucket, cache_kb, cache_enemy_buckets_kb, use_pilot_kbs, update_primary_bucket):

@@ -248,12 +248,16 @@ def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):
     if tour_id:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .select_related('max_ak_streak_player', 'max_gk_streak_player', 'max_score_streak_player',
+                                      'best_score_sortie', 'best_ak_sortie', 'best_gk_sortie')
                       .get(aircraft=aircraft_id, tour_id=tour_id, filter_type=bucket_filter, player=player))
         except AircraftBucket.DoesNotExist:
             bucket = None
     else:
         try:
             bucket = (AircraftBucket.objects.select_related('aircraft', 'tour')
+                      .select_related('max_ak_streak_player', 'max_gk_streak_player', 'max_score_streak_player',
+                                      'best_score_sortie', 'best_ak_sortie', 'best_gk_sortie')
                       .filter(aircraft=aircraft_id, filter_type=bucket_filter, player=player)
                       .order_by('-id'))[0]
         except IndexError:
