@@ -176,6 +176,14 @@ class AircraftBucket(models.Model):
         ordering = ['-id']
 
     def update_derived_fields(self):
+        ai_kills = 0
+        if 'aircraft_light' in self.killboard_ground:
+            ai_kills += self.killboard_ground['aircraft_light']
+        if 'aircraft_medium' in self.killboard_ground:
+            ai_kills += self.killboard_ground['aircraft_medium']
+        if 'aircraft_heavy' in self.killboard_ground:
+            ai_kills += self.killboard_ground['aircraft_heavy']
+
         self.khr = compute_float(self.kills, self.flight_time_hours)
         self.gkhr = compute_float(self.ground_kills, self.flight_time_hours)
         self.kd = compute_float(self.kills, self.relive)
@@ -186,7 +194,7 @@ class AircraftBucket(models.Model):
         self.pilot_survivability = compute_float(100 * self.pilot_survivability_counter, self.sorties_plane_was_hit)
         self.plane_lethality = compute_float(100 * self.plane_lethality_counter, self.distinct_enemies_hit)
         self.pilot_lethality = compute_float(100 * self.pilot_lethality_counter, self.distinct_enemies_hit)
-        self.plane_lethality_no_assists = compute_float(100 * self.kills, self.distinct_enemies_hit)
+        self.plane_lethality_no_assists = compute_float(100 * (self.kills - ai_kills), self.distinct_enemies_hit)
         self.update_rating()
         self.ahr = compute_float(self.assists, self.flight_time_hours)
         self.ahd = compute_float(self.assists, self.relive)
@@ -519,6 +527,9 @@ class AircraftBucket(models.Model):
     def get_killboard_enemy_all_mods(self):
         return get_killboard_url(self.aircraft.id, self.tour.id, self.player, self.filter_type, self.ALL)
 
+    def get_aircraft_pilot_rankings_url(self):
+        return get_aircraft_pilot_rankings_url(self.aircraft.id, self.tour.id, self.filter_type)
+
     def get_pilot_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
 
@@ -593,6 +604,12 @@ def get_killboard_url(aircraft_id, tour_id, player, bucket_filter, enemy_filter=
                         args=[aircraft_id, bucket_filter, player.profile.id, player.nickname]),
             tour_id=tour_id, enemy_filter=enemy_filter)
     return url
+
+
+def get_aircraft_pilot_rankings_url(aircraft_id, tour_id, bucket_filter):
+    return '{url}?tour={tour_id}'.format(
+        url=reverse('stats:aircraft_pilot_rankings', args=[aircraft_id, bucket_filter]),
+        tour_id=tour_id)
 
 
 # All pairs of aircraft. Here, aircraft_1.name < aircraft_2.name (Lex order)

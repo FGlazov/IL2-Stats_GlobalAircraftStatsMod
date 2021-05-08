@@ -23,8 +23,6 @@ app_name = 'stats'
 urlpatterns = [
     url(r'^pilots/$', views.pilot_rankings, name='pilots'),
     url(r'^squads/$', views.squad_rankings, name='squads'),
-    url(r'^all_aircraft/$', views.all_aircraft, name='all_aircraft'),
-    url(r'^all_aircraft/(?P<airfilter>\S+)/$', views.all_aircraft, name='all_aircraft'),
     url(r'^sorties/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_sorties, name='pilot_sorties'),
     url(r'^vlifes/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_vlifes, name='pilot_vlifes'),
     url(r'^awards/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot_awards, name='pilot_awards'),
@@ -36,15 +34,20 @@ urlpatterns = [
     url(r'^pilots/(?P<squad_id>\d+)/(?P<squad_tag>\S+)/$', views.squad_pilots, name='squad_pilots'),
 
     url(r'^pilot/(?P<profile_id>\d+)/(?P<nickname>\S+)/$', views.pilot, name='pilot'),
-    url(r'^aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft, name='aircraft'),
-    url(r'^aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft_killboard,
-        name='aircraft_killboard'),
     url(r'^sortie/(?P<sortie_id>\d+)/$', views.pilot_sortie, name='pilot_sortie'),
     url(r'^sortie/log/(?P<sortie_id>\d+)/$', views.pilot_sortie_log, name='pilot_sortie_log'),
     url(r'^mission/(?P<mission_id>\d+)/$', views.mission, name='mission'),
     url(r'^vlife/(?P<vlife_id>\d+)/$', views.pilot_vlife, name='pilot_vlife'),
 
     url(r'^overall/$', views.overall, name='overall'),
+
+    url(r'^all_aircraft/$', views.all_aircraft, name='all_aircraft'),
+    url(r'^all_aircraft/(?P<airfilter>\S+)/$', views.all_aircraft, name='all_aircraft'),
+    url(r'^aircraft/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft, name='aircraft'),
+    url(r'^aircraft_killboard/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft_killboard,
+        name='aircraft_killboard'),
+    url(r'^aircraft_pilot_rankings/(?P<aircraft_id>\d+)/(?P<airfilter>\S+)/$', views.aircraft_pilot_rankings,
+        name='aircraft_pilot_rankings'),
 
     url(r'^aircraft_overview/(?P<profile_id>\d+)/(?P<nickname>\S+)/(?P<airfilter>\S+)/$', views.pilot_aircraft_overview,
         name='pilot_aircraft_overview'),

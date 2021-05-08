@@ -78,3 +78,10 @@ Version 1.2.9:
 
 - Fix bug where not all loses in retroactive compute of player killboards were being counted.
 - Recompute loses in player killboards if they were computed before.
+
+Version 1.3.0
+
+- Add new fields "Best air kill/ground kill/score streak". Note that these streaks reset only when you fly that aircraft, e.g. if you die in between p-51 sorties it doesn't reset your p-51 streak. These fields are clickable with a link to the player!
+- Add new fields "Current air kill/ground kill/score streak" for player aircraft stats. Like above, only reset when you die in that aircraft.
+- Add new fields "Max AK/GK/Score in one sortie". They are clickable with a link to the sortie!
+- Do not count AI kills towards Plane Lethality (No assists).

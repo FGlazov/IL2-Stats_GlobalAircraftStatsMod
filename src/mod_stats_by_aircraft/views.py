@@ -86,6 +86,10 @@ def aircraft_killboard(request, aircraft_id, airfilter):
     })
 
 
+def aircraft_pilot_rankings(request, aircraft_id, airfilter):
+    raise Http404
+
+
 def pilot_aircraft_overview(request, profile_id, airfilter, nickname=None):
     try:
         player = (Player.objects.select_related('profile', 'tour')
