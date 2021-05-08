@@ -16,12 +16,12 @@ from stats import sortie_log
 from stats.views import *
 
 from .variant_utils import has_juiced_variant, has_bomb_variant
-from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float
+from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float, get_aircraft_pilot_rankings_url
 from .bullets_types import render_ammo_breakdown
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
                         'bomb_rocket_accuracy', 'plane_survivability', 'pilot_survivability', 'plane_lethality',
-                        'pilot_lethality', 'elo', 'rating']
+                        'pilot_lethality', 'elo', 'rating', 'kills', 'ground_kills', 'max_ak_streak', 'max_gk_streak']
 aircraft_killboard_sort_fields = ['kills', 'assists', 'deaths', 'kdr', 'plane_survivability', 'pilot_survivability',
                                   'plane_lethality', 'pilot_lethality']
 ITEMS_PER_PAGE = 20
@@ -87,7 +87,39 @@ def aircraft_killboard(request, aircraft_id, airfilter):
 
 
 def aircraft_pilot_rankings(request, aircraft_id, airfilter):
-    raise Http404
+    tour_id = request.GET.get('tour')
+    search = request.GET.get('search', '').strip()
+    sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
+    page = request.GET.get('page', 1)
+
+    base_bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter)
+
+    buckets = AircraftBucket.objects.filter(
+        tour_id=tour_id,
+        aircraft_id=aircraft_id,
+        filter_type=airfilter,
+        player__isnull=False
+    ).select_related(
+        'player', 'player__profile'
+    ).order_by(
+        sort_by, 'id'
+    )
+
+    if search:
+        buckets = buckets.filter(player__profile__nickname__icontains=search)
+
+    buckets = Paginator(buckets, ITEMS_PER_PAGE).page(page)
+
+    return render(request, 'aircraft_pilot_rankings.html', {
+        'aircraft_bucket': base_bucket,
+        'pilot_aircraft': buckets,
+        'filter_type': airfilter,
+        'no_filter_url': get_aircraft_pilot_rankings_url(aircraft_id, request.tour.id, 'NO_FILTER'),
+        'no_mods_url': get_aircraft_pilot_rankings_url(aircraft_id, request.tour.id, 'NO_BOMBS_JUICE'),
+        'bombs_url': get_aircraft_pilot_rankings_url(aircraft_id, request.tour.id, 'BOMBS'),
+        'juiced_url': get_aircraft_pilot_rankings_url(aircraft_id, request.tour.id, 'JUICE'),
+        'all_mods_urls': get_aircraft_pilot_rankings_url(aircraft_id, request.tour.id, 'ALL'),
+    })
 
 
 def pilot_aircraft_overview(request, profile_id, airfilter, nickname=None):

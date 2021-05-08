@@ -95,6 +95,7 @@ class AircraftBucket(models.Model):
     # Assists per death
     ahd = models.FloatField(default=0)
 
+    # TODO: Index kills/ground kills.
     kills = models.BigIntegerField(default=0)
     ground_kills = models.BigIntegerField(default=0)
     assists = models.BigIntegerField(default=0)
@@ -532,6 +533,9 @@ class AircraftBucket(models.Model):
 
     def get_pilot_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, self.NO_FILTER, self.player)
+
+    def get_pilot_filtered_url(self):
+        return get_aircraft_url(self.aircraft.id, self.tour.id, str(self.filter_type), self.player)
 
     def increment_ammo_received(self, ammo_dict):
         self.__increment_helper(ammo_dict, self.ammo_breakdown[RECEIVED])
