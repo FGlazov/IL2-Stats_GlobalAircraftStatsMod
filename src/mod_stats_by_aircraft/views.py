@@ -91,7 +91,6 @@ def aircraft_pilot_rankings(request, aircraft_id, airfilter):
     search = request.GET.get('search', '').strip()
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
     page = request.GET.get('page', 1)
-
     base_bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter)
 
     buckets = AircraftBucket.objects.filter(

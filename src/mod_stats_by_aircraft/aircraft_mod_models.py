@@ -80,6 +80,8 @@ class AircraftBucket(models.Model):
     rating = models.IntegerField(default=0, db_index=True)
     max_ak_streak = models.IntegerField(default=0, db_index=True)
     max_gk_streak = models.IntegerField(default=0, db_index=True)
+    kills = models.BigIntegerField(default=0, db_index=True)
+    ground_kills = models.BigIntegerField(default=0, db_index=True)
     # ========================= SORTABLE FIELDS END
 
     # ========================= NON-SORTABLE VISIBLE FIELDS
@@ -95,9 +97,6 @@ class AircraftBucket(models.Model):
     # Assists per death
     ahd = models.FloatField(default=0)
 
-    # TODO: Index kills/ground kills.
-    kills = models.BigIntegerField(default=0)
-    ground_kills = models.BigIntegerField(default=0)
     assists = models.BigIntegerField(default=0)
 
     killboard_planes = JSONField(default=dict)
@@ -208,15 +207,22 @@ class AircraftBucket(models.Model):
         self.reset_elo = True
 
     def update_rating(self):
-        # score per death
-        sd = self.score / max(self.relive, 1)
-        # score per hour
-        shr = self.score / max(self.flight_time_hours, 1)
-        self.rating = int(sd * shr)
-        # Note this rating is NOT multiplied by score
-        # In the original formula, you got higher rating the longer you played with the same performance.
-        # This was due to the multiplication by score. This is not wanted for aircraft stats.
-        # Also no need to divide by 1000, since the nr tends to be small enouh to display as is.
+        if self.player is None:
+            # score per death
+            sd = self.score / max(self.relive, 1)
+            # score per hour
+            shr = self.score / max(self.flight_time_hours, 1)
+            self.rating = int(sd * shr)
+            # Note this rating is NOT multiplied by score
+            # In the original formula, you got higher rating the longer you played with the same performance.
+            # This was due to the multiplication by score. This is not wanted for global aircraft stats.
+            # Also no need to divide by 1000, since the nr tends to be small enouh to display as is.
+        else:
+            # score per death
+            sd = self.score / max(self.relive, 1)
+            # score per hour
+            shr = self.score / max(self.flight_time_hours, 1)
+            self.rating = (int((sd * shr * self.score) / 1000))
 
     @property
     def flight_time_hours(self):

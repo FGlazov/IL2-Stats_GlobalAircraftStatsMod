@@ -28,6 +28,7 @@ class StreaksRetroCompute(BackgroundJob):
 
         for bucket in buckets:
             process_streaks_and_best_sorties(bucket, sortie)
+            bucket.update_derived_fields()
             bucket.save()
 
     def log_update(self, to_compute):
