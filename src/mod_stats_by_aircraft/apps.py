@@ -20,8 +20,13 @@ class ModConfig(AppConfig):
 
         from . import models
         from stats import models as old_models
-
         old_models.Player.get_aircraft_overview_url = models.get_aircraft_overview_url
+
+        try:
+            from mod_rating_by_type.models import FilteredPlayer
+            FilteredPlayer.get_aircraft_overview_url = models.get_aircraft_overview_url
+        except RuntimeError:
+            pass  # Case when mod_rating_by_type is not installed.
 
         # monkey-patch the new config parameter.
         import config

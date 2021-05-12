@@ -92,6 +92,8 @@ def aircraft_pilot_rankings(request, aircraft_id, airfilter):
     sort_by = get_sort_by(request=request, sort_fields=aircraft_sort_fields, default='-rating')
     page = request.GET.get('page', 1)
     base_bucket = find_aircraft_bucket(aircraft_id, tour_id, airfilter)
+    if base_bucket is None:
+        return render(request, 'aircraft_does_not_exist.html')
 
     buckets = AircraftBucket.objects.filter(
         tour_id=tour_id,
@@ -268,6 +270,7 @@ def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
     bucket = find_aircraft_bucket(aircraft_id, request.GET.get('tour'), airfilter, player)
     if bucket is None:
         return render(request, 'aircraft_does_not_exist.html')
+    rating_position, page_position = _get_player_aircraft_rating_position(bucket)
 
     ammo_breakdown = render_ammo_breakdown(bucket.ammo_breakdown, filter_out_flukes=False)
 
@@ -275,7 +278,9 @@ def pilot_aircraft(request, aircraft_id, airfilter, profile_id, nickname=None):
         'player': player,
         'aircraft_bucket': bucket,
         'filter_option': airfilter,
-        'ammo_breakdown': ammo_breakdown
+        'ammo_breakdown': ammo_breakdown,
+        'rating_position': rating_position,
+        'page_position': page_position
     })
 
 
@@ -298,3 +303,18 @@ def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):
         except IndexError:
             raise Http404
     return bucket
+
+
+def _get_player_aircraft_rating_position(bucket):
+    if bucket.score == 0:
+        return None, None
+
+    position = 1 + (AircraftBucket.objects.filter(
+        tour=bucket.tour,
+        aircraft=bucket.aircraft,
+        filter_type=bucket.filter_type,
+        player__isnull=False,
+        rating__gt=bucket.rating
+    ).count())
+    page = position // ITEMS_PER_PAGE + 1
+    return position, page

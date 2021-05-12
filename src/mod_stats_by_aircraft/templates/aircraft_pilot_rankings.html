@@ -21,17 +21,17 @@
             <select style="background: #303030; border: 1px solid #252525; width: 400px;"
                     onchange="if (this.value) window.location.href=this.value">
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_FILTER %}
-                <option value="{{ ano_filter_url}}" selected>{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url}}" selected>{% trans 'no filter' %}</option>
                 <option value="{{ bombs_url }}">{% trans 'with bombs only' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without bombs only' %}</option>
                 {% endif %}
                 {% if aircraft_bucket.filter_type == aircraft_bucket.BOMBS %}
-                <option value="{{ ano_filter_url}}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url}}">{% trans 'no filter' %}</option>
                 <option value="{{ bombs_url }}" selected>{% trans 'with bombs only' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without bombs only' %}</option>
                 {% endif %}
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_BOMBS_NO_JUICE %}
-                <option value="{{ ano_filter_url}}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url}}">{% trans 'no filter' %}</option>
                 <option value="{{ bombs_url }}">{% trans 'with bombs only' %}</option>
                 <option value="{{ no_mods_url }}" selected>{% trans 'without bombs only' %}</option>
                 {% endif %}
@@ -43,7 +43,7 @@
             <select style="background: #303030; border: 1px solid #252525; width: 400px;"
                     onchange="if (this.value) window.location.href=this.value">
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_FILTER %}
-                <option value="{{ ano_filter_url}}" selected>{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url}}" selected>{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded fuel/engine' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded fuel/engine' %}</option>
                 {% endif %}
@@ -53,7 +53,7 @@
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded fuel/engine' %}</option>
                 {% endif %}
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_BOMBS_NO_JUICE %}
-                <option value="{{ ano_filter_url}}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url}}">{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded fuel/engine' %}</option>
                 <option value="{{ no_mods_url }}" selected>{% trans 'without upgraded fuel/engine' %}</option>
                 {% endif %}
@@ -65,7 +65,7 @@
             <select style="background: #303030; border: 1px solid #252525; width: 400px;"
                     onchange="if (this.value) window.location.href=this.value">
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_FILTER %}
-                <option value="{{ ano_filter_url }}" selected>{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url }}" selected>{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
                 <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
@@ -73,7 +73,7 @@
                 {% endif %}
 
                 {% if aircraft_bucket.filter_type == aircraft_bucket.JUICED %}
-                <option value="{{ ano_filter_url }}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}" selected>{% trans 'with upgraded engine and no bombs' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
                 <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
@@ -81,7 +81,7 @@
                 {% endif %}
 
                 {% if aircraft_bucket.filter_type == aircraft_bucket.NO_BOMBS_NO_JUICE %}
-                <option value="{{ ano_filter_url }}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
                 <option value="{{ no_mods_url }}" selected>{% trans 'without upgraded engine and no bombs' %}</option>
                 <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>
@@ -89,7 +89,7 @@
                 {% endif %}
 
                 {% if aircraft_bucket.filter_type == aircraft_bucket.ALL %}
-                <option value="{{ ano_filter_url }}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
                 <option value="{{ all_mods_urls }}" selected>{% trans 'with upgraded fuel/engine and bombs' %}</option>
@@ -97,7 +97,7 @@
                 {% endif %}
 
                 {% if aircraft_bucket.filter_type == aircraft_bucket.BOMBS %}
-                <option value="{{ ano_filter_url }}">{% trans 'no filter' %}</option>
+                <option value="{{ no_filter_url }}">{% trans 'no filter' %}</option>
                 <option value="{{ juiced_url }}">{% trans 'with upgraded engine and no bombs' %}</option>
                 <option value="{{ no_mods_url }}">{% trans 'without upgraded engine and no bombs' %}</option>
                 <option value="{{ all_mods_urls }}">{% trans 'with upgraded fuel/engine and bombs' %}</option>

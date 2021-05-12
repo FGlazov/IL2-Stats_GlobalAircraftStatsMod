@@ -60,7 +60,7 @@ class AircraftBucket(models.Model):
     # ========================= NATURAL KEY
     tour = models.ForeignKey(Tour, related_name='+', on_delete=models.PROTECT)
     aircraft = models.ForeignKey(Object, related_name='+', on_delete=models.PROTECT)
-    filter_type = models.CharField(max_length=16, choices=filter_choices, default=NO_FILTER)
+    filter_type = models.CharField(max_length=16, choices=filter_choices, default=NO_FILTER, db_index=True)
     player = models.ForeignKey(Player, related_name='+', on_delete=models.PROTECT, null=True)
     # ========================= NATURAL KEY END
 
