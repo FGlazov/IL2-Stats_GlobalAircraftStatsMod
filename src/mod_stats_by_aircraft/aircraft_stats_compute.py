@@ -48,18 +48,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computa
     bucket.crashes += 1 if sortie.is_crashed else 0
     bucket.shotdown += 1 if sortie.is_shotdown else 0
     bucket.coalition = sortie.coalition
-    if sortie.ammo['used_cartridges']:
-        bucket.ammo_shot += sortie.ammo['used_cartridges']
-    if sortie.ammo['hit_bullets']:
-        bucket.ammo_hit += sortie.ammo['hit_bullets']
-    if sortie.ammo['used_bombs']:
-        bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
-    if sortie.ammo['hit_bombs']:
-        bucket.bomb_rocket_hit += sortie.ammo['hit_bombs']
-    if sortie.ammo['used_rockets']:
-        bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
-    if sortie.ammo['hit_rockets']:
-        bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
+    increment_ammo(bucket, sortie)
     if sortie.damage:
         bucket.sorties_plane_was_hit += 1
         bucket.plane_survivability_counter += 1 if not sortie.is_lost_aircraft else 0
@@ -92,6 +81,31 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computa
     sortie_augmentation.fixed_doubled_turret_killboards = True
     sortie_augmentation.added_player_kb_losses = True
     sortie_augmentation.save()
+
+
+def increment_ammo(bucket, sortie):
+    if sortie.is_bailout:
+        return  # Bug work around. Bailout results in all ammo being used according to logs.
+
+    takeoff_count = LogEntry.objects.filter(
+        act_sortie_id=sortie.id,
+        type='takeoff'
+    ).count()
+    if takeoff_count > 1:
+        return  # Bug work around. Rearming (and as such taking off twice) resets ammo used according to logs.
+
+    if sortie.ammo['used_cartridges']:
+        bucket.ammo_shot += sortie.ammo['used_cartridges']
+    if sortie.ammo['hit_bullets']:
+        bucket.ammo_hit += sortie.ammo['hit_bullets']
+    if sortie.ammo['used_bombs']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
+    if sortie.ammo['hit_bombs']:
+        bucket.bomb_rocket_hit += sortie.ammo['hit_bombs']
+    if sortie.ammo['used_rockets']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
+    if sortie.ammo['hit_rockets']:
+        bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
 
 
 def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_primary_bucket=False,
