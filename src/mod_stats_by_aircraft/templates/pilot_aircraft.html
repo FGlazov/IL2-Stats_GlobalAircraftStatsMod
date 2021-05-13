@@ -557,7 +557,7 @@
             {% if aircraft_bucket.best_ak_sortie %}
             <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_ak_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
                 <div class="item">
-                    <div class="name">{% trans 'Max Aerial Victories in one sortie' %}</div>
+                    <div class="name">{% trans 'Max air kills in a single sortie' %}</div>
                     <div class="num"> {{aircraft_bucket.best_ak_in_sortie}}</div>
                 </div>
             </a>
@@ -566,7 +566,7 @@
             {% if aircraft_bucket.best_gk_sortie %}
             <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_gk_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
                 <div class="item">
-                    <div class="name">{% trans 'Max Destroyed on Ground in one sortie' %}</div>
+                    <div class="name">{% trans 'Max ground kills in a single sortie' %}</div>
                     <div class="num"> {{aircraft_bucket.best_gk_in_sortie}}</div>
                 </div>
             </a>
