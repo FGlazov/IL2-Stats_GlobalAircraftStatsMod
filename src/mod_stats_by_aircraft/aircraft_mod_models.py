@@ -672,6 +672,7 @@ class SortieAugmentation(models.Model):
     fixed_doubled_turret_killboards = models.BooleanField(default=False, db_index=True)
     added_player_kb_losses = models.BooleanField(default=False, db_index=True)
     computed_max_streaks = models.BooleanField(default=False, db_index=True)
+    fixed_accuracy = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.

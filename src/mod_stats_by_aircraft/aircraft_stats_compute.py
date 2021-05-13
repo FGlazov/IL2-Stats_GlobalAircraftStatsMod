@@ -80,6 +80,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computa
     sortie_augmentation.fixed_aa_accident_stats = True
     sortie_augmentation.fixed_doubled_turret_killboards = True
     sortie_augmentation.added_player_kb_losses = True
+    sortie_augmentation.fixed_accuracy = True
     sortie_augmentation.save()
 
 
@@ -93,6 +94,32 @@ def increment_ammo(bucket, sortie):
     ).count()
     if takeoff_count > 1:
         return  # Bug work around. Rearming (and as such taking off twice) resets ammo used according to logs.
+
+    if sortie.ammo['used_cartridges']:
+        bucket.ammo_shot += sortie.ammo['used_cartridges']
+    if sortie.ammo['hit_bullets']:
+        bucket.ammo_hit += sortie.ammo['hit_bullets']
+    if sortie.ammo['used_bombs']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
+    if sortie.ammo['hit_bombs']:
+        bucket.bomb_rocket_hit += sortie.ammo['hit_bombs']
+    if sortie.ammo['used_rockets']:
+        bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
+    if sortie.ammo['hit_rockets']:
+        bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
+
+
+def decrement_ammo_bugged(bucket, sortie):
+    """
+    For retroactive fixing, this reverses increment_ammo on a given sortie.
+    """
+    takeoff_count = LogEntry.objects.filter(
+        act_sortie_id=sortie.id,
+        type='takeoff'
+    ).count()
+
+    if takeoff_count <= 1 and not sortie.is_bailout:
+        return
 
     if sortie.ammo['used_cartridges']:
         bucket.ammo_shot += sortie.ammo['used_cartridges']
