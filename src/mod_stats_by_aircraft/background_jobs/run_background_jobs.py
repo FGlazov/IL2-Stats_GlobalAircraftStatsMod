@@ -56,11 +56,15 @@ def run_background_jobs():
 
 
 def __run_background_job(job, tour_cutoff):
+    if not job.work_left and not job.unlimited_work:
+        return False
+
     global LOG_COUNTER
 
     backfill_sorties = job.query_find_sorties(tour_cutoff)
     nr_left = backfill_sorties.count()
     if nr_left == 0:
+        job.work_left = False
         return False
 
     if LOG_COUNTER == 0:
@@ -72,6 +76,7 @@ def __run_background_job(job, tour_cutoff):
 
     if nr_left <= SORTIES_PER_BATCH:
         logger.info(job.log_done())
+        job.work_left = False
         LOG_COUNTER = 0
 
     return True
@@ -79,4 +84,4 @@ def __run_background_job(job, tour_cutoff):
 
 def no_retro_streak_compute_running():
     retro_streak_compute_jobs = [FullRetroCompute(), PlayerRetroCompute(), StreaksRetroCompute()]
-    return True in [job.work_left for job in retro_streak_compute_jobs]
+    return True in {job.work_left for job in retro_streak_compute_jobs}
