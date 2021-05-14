@@ -82,6 +82,10 @@ def __run_background_job(job, tour_cutoff):
     return True
 
 
-def no_retro_streak_compute_running():
-    retro_streak_compute_jobs = [FullRetroCompute(), PlayerRetroCompute(), StreaksRetroCompute()]
+def retro_streak_compute_running():
+    retro_streak_compute_jobs = [
+        jobs[0],  # FullRetroCompute()
+        jobs[1],  # PlayerRetroCompute()
+        jobs[2],  # StreaksRetroCompute()
+    ]
     return True in {job.work_left for job in retro_streak_compute_jobs}

@@ -21,7 +21,7 @@ class PlayerRetroCompute(BackgroundJob):
                 .order_by('-tour__id', 'id'))
 
     def compute_for_sortie(self, sortie):
-        process_aircraft_stats(sortie, sortie.player)
+        process_aircraft_stats(sortie, sortie.player, is_retro_compute=True)
 
         bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                        filter_type='NO_FILTER', player=None))[0]

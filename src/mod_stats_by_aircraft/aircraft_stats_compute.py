@@ -6,7 +6,7 @@ from .variant_utils import has_juiced_variant, has_bomb_variant, get_sortie_type
 from stats.models import Sortie, LogEntry, Player, Object
 
 
-def process_aircraft_stats(sortie, block_streak_computations=False, player=None):
+def process_aircraft_stats(sortie, player=None, is_retro_compute=False):
     """
     Takes a Sortie, and increments the corresponding data in AircraftBucket.
 
@@ -22,15 +22,15 @@ def process_aircraft_stats(sortie, block_streak_computations=False, player=None)
 
     has_subtype = has_juiced_variant(bucket.aircraft) or has_bomb_variant(bucket.aircraft)
 
-    process_bucket(bucket, sortie, has_subtype, False, block_streak_computations)
+    process_bucket(bucket, sortie, has_subtype, False, is_retro_compute)
 
     if has_subtype:
         filtered_bucket = (AircraftBucket.objects.get_or_create(tour=sortie.tour, aircraft=sortie.aircraft,
                                                                 filter_type=get_sortie_type(sortie), player=player))[0]
-        process_bucket(filtered_bucket, sortie, True, True, block_streak_computations)
+        process_bucket(filtered_bucket, sortie, True, True, is_retro_compute)
 
 
-def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computations):
+def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     if not sortie.is_not_takeoff:
         bucket.total_sorties += 1
         bucket.total_flight_time += sortie.flight_time
@@ -66,8 +66,9 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, block_streak_computa
         else:
             bucket.killboard_ground[key] = value
 
-    # TODO: Test this
-    if bucket.player is not None and not block_streak_computations:
+    # TODO: Test this (in case retro_streak_compute_running = True)
+    from .background_jobs.run_background_jobs import retro_streak_compute_running
+    if bucket.player is not None and ((not retro_streak_compute_running()) or is_retro_compute):
         process_streaks_and_best_sorties(bucket, sortie)
 
     process_log_entries(bucket, sortie, has_subtype, is_subtype)

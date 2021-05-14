@@ -16,8 +16,8 @@ class FullRetroCompute(BackgroundJob):
                 .order_by('-tour__id', 'id'))
 
     def compute_for_sortie(self, sortie):
-        process_aircraft_stats(sortie)
-        process_aircraft_stats(sortie, sortie.player)
+        process_aircraft_stats(sortie, is_retro_compute=True)
+        process_aircraft_stats(sortie, sortie.player, is_retro_compute=True)
 
     def log_update(self, to_compute):
         return '[mod_stats_by_aircraft]: Retroactively computing aircraft stats. {} sorties left to process.' \
