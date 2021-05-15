@@ -52,7 +52,6 @@ def main():
 
     # ======================== MODDED PART BEGIN
     reset_corrupted_data()
-    background_work_left = True
     # ======================== MODDED PART END
 
     while True:
@@ -84,8 +83,8 @@ def main():
                 processed_reports.append(m_report_file.name)
                 continue
         # ======================== MODDED PART BEGIN
-        if background_work_left:
-            background_work_left = run_background_jobs()
+        background_work_done = run_background_jobs()
+        if background_work_done:
             continue
         # ======================== MODDED PART END
 
