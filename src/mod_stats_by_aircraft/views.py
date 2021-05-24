@@ -316,5 +316,5 @@ def _get_player_aircraft_rating_position(bucket):
         player__isnull=False,
         rating__gt=bucket.rating
     ).count())
-    page = position // ITEMS_PER_PAGE + 1
+    page = (position - 1) // ITEMS_PER_PAGE + 1
     return position, page

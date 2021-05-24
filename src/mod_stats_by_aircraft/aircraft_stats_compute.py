@@ -481,6 +481,7 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     enemy_sortie = enemy_objects[0][1]
 
     db_object = Object.objects.get(id=enemy_object)
+
     if db_object.cls_base != 'aircraft' and db_object.cls != 'aircraft_turret':
         return
     if db_object.cls_base == 'aircraft' and not enemy_sortie:
