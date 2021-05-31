@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-24 19:50+0200\n"
+"POT-Creation-Date: 2021-05-31 17:41+0200\n"
 "PO-Revision-Date: 2016-03-19 20:51+0000\n"
 "Last-Translator: b'Anonymous User <vaal.87@gmail.com>'\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1377,52 +1377,39 @@ msgstr "Лучшие достижения"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:519
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:147
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:520
-#, fuzzy
-#| msgctxt "tour_top"
-#| msgid "Best pilots streak"
 msgid "Best air kill streak"
-msgstr "Лучшие стрики пилотов"
+msgstr "Лучшая серия убийств в воздухе"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:527
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:159
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:527
-#, fuzzy
-#| msgid "Best Ground Streak"
 msgid "Best Ground streak"
-msgstr "Лучший стрик по Н.Ц."
+msgstr "Лучшая серия убийств на земле"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:535
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:534
-#, fuzzy
-#| msgid "Best Sorties Streak"
 msgid "Best score streak"
-msgstr "Макс. кол-во вылетов за одну жизнь"
+msgstr "Лучшая серия очков"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:544
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:554
 msgid "Best results in a single sortie"
-msgstr ""
+msgstr "Лучшие результаты за один боевой вылет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:550
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:560
-#, fuzzy
-#| msgid "Max Aerial Victories in one sortie"
 msgid "Max air kills in a single sortie"
-msgstr "Макс. кол-во воздушных побед за один вылет"
+msgstr "Макс. кол-во убийств в воздухе за один боевой вылет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:559
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:569
-#, fuzzy
-#| msgid "Max Destroyed on Ground in one sortie"
 msgid "Max ground kills in a single sortie"
-msgstr "Макс. кол-во уничтоженых Н.Ц. за один вылет"
+msgstr "Макс. кол-во убийств наземки за один боевой вылет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:568
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:578
-#, fuzzy
-#| msgid "Max Aerial Victories in one sortie"
 msgid "Max score in a single sortie"
-msgstr "Макс. кол-во воздушных побед за один вылет"
+msgstr "Макс. кол-во очков за один боевой вылет"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:581
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:590
@@ -1678,10 +1665,8 @@ msgstr "Смертоносность пилота"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:3
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:17
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgid "Aircraft Pilot Rankings"
-msgstr "Рейтинги самолётов"
+msgstr "Рейтинг лётчиков"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:112
 msgid "Search pilot"
@@ -1848,11 +1833,9 @@ msgid "Aircraft Statistics"
 msgstr "Статистика вылета"
 
 #: .\mod_stats_by_aircraft\templates\inline\aircraft_tabs.html:6
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Pilot Rankings"
-msgstr "Рейтинги самолётов"
+msgstr "Рейтинг лётчиков"
 
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:4
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:4
@@ -1911,22 +1894,16 @@ msgid "Position in Rating"
 msgstr "Позиция в рейтинге"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:539
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current air kill streak"
-msgstr "Текущий стрик"
+msgstr "Текущая серия убийств в воздухе"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:543
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current ground kill streak"
-msgstr "Текущий стрик"
+msgstr "Текущая серия убийств на земле"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:547
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current score streak"
-msgstr "Текущий стрик"
+msgstr "Текущая серия очков"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:748
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:246

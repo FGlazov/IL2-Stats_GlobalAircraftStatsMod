@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-24 19:50+0200\n"
+"POT-Creation-Date: 2021-05-31 17:41+0200\n"
 "PO-Revision-Date: 2016-07-18 19:11+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -1385,53 +1385,39 @@ msgstr "Detaillierte Ergebnisse"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:519
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:147
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:520
-#, fuzzy
-#| msgctxt "tour_top"
-#| msgid "Best pilots streak"
 msgid "Best air kill streak"
-msgstr "Besten Piloten in einer Serie"
+msgstr "Beste Luftsiege in Folge"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:527
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:159
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:527
-#, fuzzy
-#| msgid "Best Ground Streak"
 msgid "Best Ground streak"
 msgstr "Beste zer. Bodenziele in Folge"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:535
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:534
-#, fuzzy
-#| msgctxt "tour_top"
-#| msgid "Best pilots streak"
 msgid "Best score streak"
-msgstr "Besten Piloten in einer Serie"
+msgstr "Höchste Anzahl Punkte in einer Serie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:544
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:554
 msgid "Best results in a single sortie"
-msgstr ""
+msgstr "Beste Ergebenisse in einem Einsatz"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:550
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:560
-#, fuzzy
-#| msgid "Aerial victories"
 msgid "Max air kills in a single sortie"
-msgstr "Luftsiege"
+msgstr "Höchste Anzahl Luftsiege in einem Einsatz"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:559
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:569
-#, fuzzy
-#| msgid "Destroyed on Ground"
 msgid "Max ground kills in a single sortie"
-msgstr "Bodenziele"
+msgstr "Höchste Anzahl zer. Bodenziele in einem Einsatz"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:568
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:578
-#, fuzzy
-#| msgid "Aerial victories"
 msgid "Max score in a single sortie"
-msgstr "Luftsiege"
+msgstr "Höchste Anzahl Punkte in einem Einsatz"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:581
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:590
@@ -1693,10 +1679,8 @@ msgstr "Pilotentödlichkeit"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:3
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:17
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgid "Aircraft Pilot Rankings"
-msgstr "Flugzeugrangliste"
+msgstr "Flugzeugpilotenrangliste"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:112
 msgid "Search pilot"
@@ -1867,11 +1851,9 @@ msgid "Aircraft Statistics"
 msgstr "Flugzeugstatistik"
 
 #: .\mod_stats_by_aircraft\templates\inline\aircraft_tabs.html:6
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Pilot Rankings"
-msgstr "Flugzeugrangliste"
+msgstr "Flugzeugpilotenrangliste"
 
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:4
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:4
@@ -1935,22 +1917,16 @@ msgid "Position in Rating"
 msgstr "Position in der Rangliste"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:539
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current air kill streak"
-msgstr "aktuelle Abschussserie"
+msgstr "Aktuelle Abschussserie"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:543
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current ground kill streak"
-msgstr "aktuelle Abschussserie"
+msgstr "Aktuelle Bodenziele Abschussserie"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:547
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current score streak"
-msgstr "aktuelle Abschussserie"
+msgstr "Aktuelle Punkteserie"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:748
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:246
