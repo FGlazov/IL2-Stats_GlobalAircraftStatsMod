@@ -625,8 +625,7 @@
                         {{ aircraft_bucket.plane_survivability }}%
                     </div>
                 </div>
-                <div class="item"
-                     title="{% trans 'if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in the majority' %}">
+                <div class="item" style="height:auto;overflow: hidden;">
                     <div class="text">
                         {% trans 'Pilot Survivability' %}*
                     </div>
@@ -642,7 +641,7 @@
                         {{ aircraft_bucket.plane_lethality }}%
                     </div>
                 </div>
-                <div class="item" style="height:auto">
+                <div class="item" style="height:auto;overflow: hidden;">
                     <div class="text" >
                         {% trans 'Plane Lethality (no assists)' %}
                     </div>
