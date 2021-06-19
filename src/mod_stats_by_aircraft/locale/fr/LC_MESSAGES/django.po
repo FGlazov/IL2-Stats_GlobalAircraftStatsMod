@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-31 17:41+0200\n"
+"POT-Creation-Date: 2021-06-19 10:47+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1388,53 +1388,39 @@ msgstr "Résultats détaillés"
 #: .\mod_stats_by_aircraft\templates\aircraft.html:519
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:147
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:520
-#, fuzzy
-#| msgctxt "tour_top"
-#| msgid "Best pilots streak"
 msgid "Best air kill streak"
-msgstr "Meilleures séries"
+msgstr "Meilleure série d’avions abattus"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:527
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:159
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:527
-#, fuzzy
-#| msgid "Best Ground Streak"
 msgid "Best Ground streak"
-msgstr "Meilleure série de cibles au sol"
+msgstr "Meilleure série de cibles au sol détruites"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:535
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:534
-#, fuzzy
-#| msgctxt "tour_top"
-#| msgid "Best pilots streak"
 msgid "Best score streak"
-msgstr "Meilleures séries"
+msgstr "Meilleure série de scores"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:544
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:554
 msgid "Best results in a single sortie"
-msgstr ""
+msgstr "Meilleurs résultats en une sortie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:550
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:560
-#, fuzzy
-#| msgid "Aerial victories"
 msgid "Max air kills in a single sortie"
-msgstr "Victoires aériennes"
+msgstr "Nombre maximum d’avions abattus en une sortie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:559
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:569
-#, fuzzy
-#| msgid "Destroyed on Ground"
 msgid "Max ground kills in a single sortie"
-msgstr "Détruit au sol"
+msgstr "Nombre maximal de cibles au sol détruites en une sortie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:568
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:578
-#, fuzzy
-#| msgid "Aerial victories"
 msgid "Max score in a single sortie"
-msgstr "Victoires aériennes"
+msgstr "Score maximal en une sortie"
 
 #: .\mod_stats_by_aircraft\templates\aircraft.html:581
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:590
@@ -1463,88 +1449,79 @@ msgstr "Moyenne de coups au but par appareil perdu"
 msgid "Plane Durability"
 msgstr "Le Taux de survie de l’appareil"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:629
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:640
-msgid ""
-"if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying in "
-"the majority"
-msgstr ""
-"Si le ratio > 1 - le pilote vole pour le côté en sousnombre, si le ratio < 1 "
-"- le pilote vole pour le côté en surnombre"
-
-#: .\mod_stats_by_aircraft\templates\aircraft.html:631
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:642
+#: .\mod_stats_by_aircraft\templates\aircraft.html:630
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:641
 msgid "Pilot Survivability"
 msgstr "Survie du pilote"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:639
+#: .\mod_stats_by_aircraft\templates\aircraft.html:638
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:126
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:650
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:649
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:135
 msgid "Plane Lethality"
 msgstr "Létalité de l’appareil"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:647
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:658
+#: .\mod_stats_by_aircraft\templates\aircraft.html:646
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:657
 msgid "Plane Lethality (no assists)"
 msgstr "Létalité de l’appareil (sans assistance)<br/> "
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:655
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:666
+#: .\mod_stats_by_aircraft\templates\aircraft.html:654
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:665
 msgid "Pilot Lethality"
 msgstr "Létalité de pilote"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:665
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:676
+#: .\mod_stats_by_aircraft\templates\aircraft.html:664
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:675
 msgid "K/D - Kills per Death"
 msgstr "K/D - Victoires/Mort"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:673
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:684
+#: .\mod_stats_by_aircraft\templates\aircraft.html:672
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:683
 msgid "K/L - Kills per Aircraft Lost"
 msgstr "K/L - Victoires/Appareil perdu"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:681
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:692
+#: .\mod_stats_by_aircraft\templates\aircraft.html:680
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:691
 msgid "K/S - Kills per Sortie"
 msgstr "K/S - Victoires/Sortie"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:689
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:700
+#: .\mod_stats_by_aircraft\templates\aircraft.html:688
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:699
 msgid "K/H - Kills per Hour of Flight"
 msgstr "K/H - Victoires/Heure de vol"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:699
+#: .\mod_stats_by_aircraft\templates\aircraft.html:698
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:184
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:185
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:96
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:710
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:709
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:102
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:103
 msgid "GK/D - G.Kills per Death"
 msgstr "GK/D - Cibles au sol/Mort"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:707
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:718
+#: .\mod_stats_by_aircraft\templates\aircraft.html:706
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:717
 msgid "GK/L - G.Kills per Aircraft Lost"
 msgstr "GK/L - Cibles au sol/Appareil perdu"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:715
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:726
+#: .\mod_stats_by_aircraft\templates\aircraft.html:714
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:725
 msgid "GK/S - G.Kills per Sortie"
 msgstr "GK/S - Cibles au sol/Sortie"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:723
+#: .\mod_stats_by_aircraft\templates\aircraft.html:722
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:191
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:192
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:102
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:734
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:733
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:109
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:110
 msgid "GK/H - G.Kills per Hour of Flight"
 msgstr "GK/H - Cibles au sol/Heure de vol"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:737
+#: .\mod_stats_by_aircraft\templates\aircraft.html:736
 #, python-format
 msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
@@ -1558,9 +1535,9 @@ msgstr ""
 "seul avion/char/antiaérien/etc...).  Seules les configurations d’armement "
 "qui rendent compte d’au moins 5%% des morts sont affichées."
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:741
+#: .\mod_stats_by_aircraft\templates\aircraft.html:740
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:243
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:755
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:754
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:249
 msgid ""
 "* Plane Durability is percent of sorties the plane survived after taking "
@@ -1579,11 +1556,11 @@ msgstr ""
 "pilote est le pourcentage de pilotes ennemis tués par cet appareil. Les "
 "assistances sont calculées. </br>"
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:751
+#: .\mod_stats_by_aircraft\templates\aircraft.html:750
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:253
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:241
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:176
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:765
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:764
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:259
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:182
 msgid ""
@@ -1595,11 +1572,11 @@ msgstr ""
 "différent de celui du jeu. En conséquence les statistiques peuvent parfois "
 "être différentes entre le site et le jeu."
 
-#: .\mod_stats_by_aircraft\templates\aircraft.html:758
+#: .\mod_stats_by_aircraft\templates\aircraft.html:757
 #: .\mod_stats_by_aircraft\templates\aircraft_killboard.html:260
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:248
 #: .\mod_stats_by_aircraft\templates\all_aircraft.html:183
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:772
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:771
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:266
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:189
 #, python-format
@@ -1696,10 +1673,8 @@ msgstr "Le Taux de létalité du pilote"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:3
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:17
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgid "Aircraft Pilot Rankings"
-msgstr "Classement des appareils"
+msgstr "Classements des pilotes par appareil"
 
 #: .\mod_stats_by_aircraft\templates\aircraft_pilot_rankings.html:112
 msgid "Search pilot"
@@ -1866,11 +1841,9 @@ msgid "Aircraft Statistics"
 msgstr "Statistiques de l’appareil"
 
 #: .\mod_stats_by_aircraft\templates\inline\aircraft_tabs.html:6
-#, fuzzy
-#| msgid "Aircraft Rankings"
 msgctxt "pilot_nav_tab"
 msgid "Aircraft Pilot Rankings"
-msgstr "Classement des appareils"
+msgstr "Classements des pilotes par appareil"
 
 #: .\mod_stats_by_aircraft\templates\inline\extended_pilot_tabs.html:4
 #: .\mod_stats_by_aircraft\templates\inline\pilot_tabs.html:4
@@ -1931,24 +1904,18 @@ msgid "Position in Rating"
 msgstr "Position dans le classement"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:539
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current air kill streak"
-msgstr "Série en cours"
+msgstr "Score maximal en une sortie"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:543
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current ground kill streak"
-msgstr "Série en cours"
+msgstr "Série de cibles au sol détruites actuelle"
 
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:547
-#, fuzzy
-#| msgid "Current Streak"
 msgid "Current score streak"
-msgstr "Série en cours"
+msgstr "Série de scores actuelle"
 
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:748
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:747
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_killboard.html:246
 #: .\mod_stats_by_aircraft\templates\pilot_aircraft_overview.html:172
 msgid ""
@@ -1959,7 +1926,7 @@ msgstr ""
 "sont pas pris en compte pour le classement. La létalité de l’avion et du "
 "pilote sont aussi affectées."
 
-#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:751
+#: .\mod_stats_by_aircraft\templates\pilot_aircraft.html:750
 msgid ""
 "★ This data is pulled purely from sorties where this plane was the sole "
 "source of damage. </br> ⛤ This data is pulled purely from sorties where this "
@@ -1969,6 +1936,13 @@ msgstr ""
 "la seule source de dégâts.</br> ⛤ Ces données proviennent purement des "
 "sorties lors desquelles cet avion a été endommagé par un seul ennemi (un "
 "seul avion/char/antiaérien/etc...)."
+
+#~ msgid ""
+#~ "if ratio > 1 - pilot flying in the minority, if ratio < 1 - pilot flying "
+#~ "in the majority"
+#~ msgstr ""
+#~ "Si le ratio > 1 - le pilote vole pour le côté en sousnombre, si le ratio "
+#~ "< 1 - le pilote vole pour le côté en surnombre"
 
 #, fuzzy
 #~| msgid "Gunnery Accuracy"
