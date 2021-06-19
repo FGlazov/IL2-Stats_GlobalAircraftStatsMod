@@ -236,6 +236,7 @@ class AircraftBucket(models.Model):
     def rating_format(self):
         return rating_format_helper(self.rating)
 
+    # TODO: Refactor the following 4 methods, DRY
     def percent_pvp_helper(self, key):
         if key in self.killboard_planes:
             percent = compute_float(self.killboard_planes[key] * 100, self.kills)
@@ -256,6 +257,14 @@ class AircraftBucket(models.Model):
         if key in self.killboard_ground:
             percent = compute_float(self.killboard_ground[key] * 100, self.ground_kills)
             total = self.killboard_ground[key]
+            return percent_format(percent, total)
+        else:
+            return percent_format(0, 0)
+
+    def percent_player_ground_helper(self, key):
+        if key in self.killboard_planes:
+            percent = compute_float(self.killboard_planes[key] * 100, self.ground_kills)
+            total = self.killboard_planes[key]
             return percent_format(percent, total)
         else:
             return percent_format(0, 0)
@@ -291,6 +300,22 @@ class AircraftBucket(models.Model):
     @property
     def percent_transport_ai_kills(self):
         return self.percent_air_ai_helper('aircraft_transport')
+
+    @property
+    def percent_player_tank_heavy(self):
+        return self.percent_player_ground_helper('tank_heavy')
+
+    @property
+    def percent_player_tank_medium(self):
+        return self.percent_player_ground_helper('tank_medium')
+
+    @property
+    def percent_player_tank_light(self):
+        return self.percent_player_ground_helper('tank_light')
+
+    @property
+    def percent_player_truck(self):
+        return self.percent_player_ground_helper('truck')
 
     @property
     def percent_tank_heavy(self):

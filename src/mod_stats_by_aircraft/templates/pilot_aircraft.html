@@ -235,23 +235,51 @@
                 <div class="num">{{ aircraft_bucket.ground_kills }}</div>
             </div>
 
-            {% if aircraft_bucket.killboard_ground.tank_heavy %}
+            {% if aircraft_bucket.killboard_planes.tank_heavy %}
             <div class="sub_item">
                 <div class="name">{% trans 'Heavy Tanks' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_player_tank_heavy }}</div>
+            </div>
+            {% endif %}
+
+            {% if aircraft_bucket.killboard_planes.tank_medium %}
+            <div class="sub_item">
+                <div class="name">{% trans 'Medium Tanks' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_player_tank_medium }}</div>
+            </div>
+            {% endif %}
+
+            {% if aircraft_bucket.killboard_planes.tank_light %}
+            <div class="sub_item">
+                <div class="name">{% trans 'Light Tanks' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_player_tank_light }}</div>
+            </div>
+            {% endif %}
+
+            {% if aircraft_bucket.killboard_planes.truck %}
+            <div class="sub_item">
+                <div class="name">{% trans 'Trucks' context 'total' %}</div>
+                <div class="num">{{ aircraft_bucket.percent_player_truck }}</div>
+            </div>
+            {% endif %}
+
+            {% if aircraft_bucket.killboard_ground.tank_heavy %}
+            <div class="sub_item">
+                <div class="name">{% trans 'Heavy Tanks' context 'total' %} ({% trans 'AI' context 'total' %})</div>
                 <div class="num">{{ aircraft_bucket.percent_tank_heavy }}</div>
             </div>
             {% endif %}
 
             {% if aircraft_bucket.killboard_ground.tank_medium %}
             <div class="sub_item">
-                <div class="name">{% trans 'Medium Tanks' context 'total' %}</div>
+                <div class="name">{% trans 'Medium Tanks' context 'total' %} ({% trans 'AI' context 'total' %})</div>
                 <div class="num">{{ aircraft_bucket.percent_tank_medium }}</div>
             </div>
             {% endif %}
 
             {% if aircraft_bucket.killboard_ground.tank_light %}
             <div class="sub_item">
-                <div class="name">{% trans 'Light Tanks' context 'total' %}</div>
+                <div class="name">{% trans 'Light Tanks' context 'total' %} ({% trans 'AI' context 'total' %})</div>
                 <div class="num">{{ aircraft_bucket.percent_tank_light }}</div>
             </div>
             {% endif %}
@@ -272,7 +300,7 @@
 
             {% if aircraft_bucket.killboard_ground.truck %}
             <div class="sub_item">
-                <div class="name">{% trans 'Trucks' context 'total' %}</div>
+                <div class="name">{% trans 'Trucks' context 'total' %} ({% trans 'AI' context 'total' %})</div>
                 <div class="num">{{ aircraft_bucket.percent_truck }}</div>
             </div>
             {% endif %}
@@ -437,7 +465,6 @@
                 <div class="num">{{ aircraft_bucket.percent_building_small }}</div>
             </div>
             {% endif %}
-
         </div>
         <div class="player_detailed" style="float: right;">
             <div class="title">
