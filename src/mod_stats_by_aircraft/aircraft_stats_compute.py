@@ -123,17 +123,17 @@ def decrement_ammo_bugged(bucket, sortie):
         return
 
     if sortie.ammo['used_cartridges']:
-        bucket.ammo_shot += sortie.ammo['used_cartridges']
+        bucket.ammo_shot -= sortie.ammo['used_cartridges']
     if sortie.ammo['hit_bullets']:
-        bucket.ammo_hit += sortie.ammo['hit_bullets']
+        bucket.ammo_hit -= sortie.ammo['hit_bullets']
     if sortie.ammo['used_bombs']:
-        bucket.bomb_rocket_shot += sortie.ammo['used_bombs']
+        bucket.bomb_rocket_shot -= sortie.ammo['used_bombs']
     if sortie.ammo['hit_bombs']:
-        bucket.bomb_rocket_hit += sortie.ammo['hit_bombs']
+        bucket.bomb_rocket_hit -= sortie.ammo['hit_bombs']
     if sortie.ammo['used_rockets']:
-        bucket.bomb_rocket_shot += sortie.ammo['used_rockets']
+        bucket.bomb_rocket_shot -= sortie.ammo['used_rockets']
     if sortie.ammo['hit_rockets']:
-        bucket.bomb_rocket_hit += sortie.ammo['hit_rockets']
+        bucket.bomb_rocket_hit -= sortie.ammo['hit_rockets']
 
 
 def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_primary_bucket=False,

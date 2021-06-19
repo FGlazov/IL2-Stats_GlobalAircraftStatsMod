@@ -13,8 +13,8 @@ class FixAccuracy(BackgroundJob):
     """
 
     def query_find_sorties(self, tour_cutoff):
-        return (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__fixed_aa_accident_stats=False,
-                                      is_bailout=True, aircraft__cls_base='aircraft', tour__id__gte=tour_cutoff)
+        return (Sortie.objects.filter(SortieAugmentation_MOD_STATS_BY_AIRCRAFT__fixed_accuracy=False,
+                                      aircraft__cls_base='aircraft', tour__id__gte=tour_cutoff)
                 .order_by('-tour__id'))
 
     def compute_for_sortie(self, sortie):
@@ -32,6 +32,8 @@ class FixAccuracy(BackgroundJob):
 
         for bucket in buckets:
             decrement_ammo_bugged(bucket, sortie)
+            bucket.update_derived_fields()
+            bucket.save()
 
         sortie.SortieAugmentation_MOD_STATS_BY_AIRCRAFT.fixed_accuracy = True
         sortie.SortieAugmentation_MOD_STATS_BY_AIRCRAFT.save()
