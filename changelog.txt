@@ -87,6 +87,7 @@ Version 1.3.0
 - Add new fields "Best air kill/ground kill/score streak". Note that these streaks reset only when you fly that aircraft, e.g. if you die in between p-51 sorties it doesn't reset your p-51 streak. These fields are clickable with a link to the player!
 - Add new fields "Current air kill/ground kill/score streak" for player aircraft stats. Like above, only reset when you die in that aircraft.
 - Add new fields "Max AK/GK/Score in one sortie". They are clickable with a link to the sortie!
+- Add new fields "Kills" and "Ground kills" to Aircraft Rankings and Pilot Aircraft Overview pages.
 - Do not count AI kills towards Plane Lethality (No assists).
-- Do not count sorties where the plane took of twice (and thus likely rearmed) or the pilot bailed out towards accuracy stats (the nr bullets shot is bugged in both of these cases due to bugs in the game logs). This also applies retroactively.
+- Do not count sorties where the plane took off twice (and thus likely rearmed) or the pilot bailed out towards accuracy stats (the nr bullets shot is bugged in both of these cases due to bugs in the game logs). This also applies retroactively.
 - Log update to console when doing background jobs for every 5000 sorties processed.
