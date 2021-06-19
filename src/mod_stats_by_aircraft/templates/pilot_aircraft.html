@@ -576,6 +576,7 @@
                 </div>
         </div>
 
+        {% if aircraft_bucket.best_ak_sortie or aircraft_bucket.best_gk_sortie or aircraft_bucket.best_score_sortie %}
         <div class="player_detailed" style="float: right;">
             <div class="title">
                 {% trans 'Best results in a single sortie' %}
@@ -608,6 +609,8 @@
             </a>
             {% endif %}
         </div>
+        {% endif %}
+
 
         <div class="clearfix"></div>
 

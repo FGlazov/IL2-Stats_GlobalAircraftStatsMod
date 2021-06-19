@@ -537,6 +537,7 @@
 
         <div class="clearfix"></div>
 
+        {% if aircraft_bucket.max_ak_streak_player or aircraft_bucket.max_gk_streak_player or aircraft_bucket.max_score_streak_player %}
         <div class="player_detailed" style="float: left;">
             <div class="title">
                 {% trans 'Best results' %}
@@ -566,7 +567,9 @@
             </a>
             {% endif %}
         </div>
+        {% endif %}
 
+        {% if aircraft_bucket.best_ak_sortie or aircraft_bucket.best_gk_sortie or aircraft_bucket.best_score_sortie %}
         <div class="player_detailed" style="float: right;">
             <div class="title">
                 {% trans 'Best results in a single sortie' %}
@@ -599,6 +602,7 @@
             </a>
             {% endif %}
         </div>
+        {% endif %}
 
         <div class="clearfix"></div>
 
