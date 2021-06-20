@@ -487,24 +487,14 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     if db_object.cls_base == 'aircraft' and not enemy_sortie:
         return
 
-    base_bucket, db_sortie, filter_type = ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
+    base_bucket, db_sortie, filtered_bucket = ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object,
+                                                                          enemy_sortie)
 
-    if base_bucket:
+    if base_bucket is not None:
         base_bucket.increment_ammo_given(ammo_breakdown['total_received'])
         base_bucket.save()
-
-    # Note that we can't update filtered Halberstadt (turreted plane with jabo type)
-    # here since we don't know which subtype it is.
-    if filter_type != 'NO_FILTER' and db_sortie.player:
-        if bucket.player:
-            filtered_bucket = AircraftBucket.objects.get_or_create(
-                tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=db_sortie.player)[0]
-        else:
-            filtered_bucket = AircraftBucket.objects.get_or_create(
-                tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=None)[0]
-
+    if filtered_bucket is not None:
         filtered_bucket.increment_ammo_given(ammo_breakdown['total_received'])
-
         filtered_bucket.save()
 
 
@@ -532,22 +522,34 @@ def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
 
     @return base_bucket: Enemy bucket who did the damaging,
             db_sortie: Sortie corresponding to input enemy_sortie or None if not passed.
-            filter_type: Filter_type corresponding to db_sortie.
+            filtered_bucket: Enemy subbucket which did the damaging, e.g. "With bombs" if jabo flight.
     """
-    # TODO: Refactor filter_type into instead directly returning filtered_bucket.
-
     if db_object.cls_base == 'aircraft':
         db_sortie = Sortie.objects.get(id=enemy_sortie)
-        filter_type = get_sortie_type(db_sortie)
-        if bucket.player:
+        if bucket.player:  # We only want to update the enemy player bucket and the enemy generic bucket once each.
             base_bucket = AircraftBucket.objects.get_or_create(
                 tour=db_sortie.tour, aircraft=db_object, filter_type='NO_FILTER', player=db_sortie.player)[0]
         else:
             base_bucket = AircraftBucket.objects.get_or_create(
                 tour=db_sortie.tour, aircraft=db_object, filter_type='NO_FILTER', player=None)[0]
+
+        filter_type = get_sortie_type(db_sortie)
+        if filter_type != 'NO_FILTER' and db_sortie.player:
+            if bucket.player:  # We only want to update the enemy player bucket and the enemy generic bucket once each.
+                filtered_bucket = AircraftBucket.objects.get_or_create(
+                    tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=db_sortie.player)[0]
+            else:
+                filtered_bucket = AircraftBucket.objects.get_or_create(
+                    tour=bucket.tour, aircraft=db_object, filter_type=filter_type, player=None)[0]
+        else:
+            filtered_bucket = None
+
     else:  # Turret
         db_sortie = None
-        if bucket.player:
+        # Note that we can't update filtered Halberstadt (turreted plane with jabo type)
+        # here since we don't know which subtype it is.
+        filtered_bucket = None
+        if bucket.player:  # We only want to update the enemy player bucket and the enemy generic bucket once each.
             if 'last_turret_account' in ammo_breakdown:
                 try:
                     enemy_player = Player.objects.filter(
@@ -562,9 +564,7 @@ def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
                 base_bucket = None
         else:
             base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
-
-        filter_type = 'NO_FILTER'
-    return base_bucket, db_sortie, filter_type
+    return base_bucket, db_sortie, filtered_bucket
 
 
 def process_streaks_and_best_sorties(bucket, sortie):
