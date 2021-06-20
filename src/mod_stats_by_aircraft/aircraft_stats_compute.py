@@ -507,6 +507,63 @@ def fill_in_ammo(ammo_breakdown, ap_ammo, he_ammo):
         ammo_breakdown['total_received'][he_ammo] = 0
 
 
+def is_pilot_snipe(sortie):
+    """
+    A pilot snipe is when a plane goes down because the pilot gets killed, and not because the aircraft is crtically
+    damaged. Currently, in the logs, a pilot snipe looks rather similar to a normal death. Even in a pilot snipe,
+    the logs think the aircraft gets shotdown before the pilot dies - i.e. it emits "plane shotdown" before "pilot dead"
+
+    Instead the logs sees to relay the information that it was a pilot snipe by "damage to the pilot". I.e. a pilot
+    snipe has "damage to pilot X by plane Y" events, whereas a death due to a not pilot snipe has "damgage to pilot X
+    without a plane" events.
+
+    So, to check for pilot snipe we check:
+
+    1. The pilot must have died to a player/AI object.
+    2. That the death didn't happen much later than the shotdown, otherwise it could've been someone strafing a plane
+    which was already dead.
+    3. That the shotdown didn't happen much later than the last damage to pilot event, otherwise it could be as above.
+    4. That there was sufficent damage to the pilot from enemy planes to cause a death to the pilot.
+
+    If all 3 conditions are satisified, then it's a pilot snipe.
+    """
+    death_event = (LogEntry.objects
+                   .filter(Q(cact_sortie_id=sortie.id),
+                           Q(type='killed'), act_object_id__isnull=False))
+
+    shotdown_event = (LogEntry.objects
+                      .filter(Q(cact_sortie_id=sortie.id),
+                              Q(type='killed'), act_object_id__isnull=False))
+
+    wound_events = (LogEntry.objects
+                    .filter(Q(cact_sortie_id=sortie.id),
+                            Q(type='wounded'), act_object_id__isnull=False)
+                    .order_by('-tik'))
+
+    if not death_event.exists() or not shotdown_event.exists() or not wound_events.exists():
+        # Condition 1 in function description.
+        return False
+
+    death_event = death_event[0]
+    shotdown_event = shotdown_event[0]
+
+    if death_event.tik - shotdown_event.tik > 20:
+        # Condition 2 in function description
+        # Threshold is 20 tiks = 0.4 seconds.
+        return False
+
+    if wound_events[0].tik - shotdown_event.tik > 20:
+        # Condition 3 in function description.
+        # Threshold is 20 tiks = 0.4 seconds.
+        return False
+
+    wound_damage = 0
+    for wound_event in wound_events:
+        wound_damage += wound_event.extra_data['damage']['pct']
+
+    return wound_damage > 0.95  # Condition 4 in function description. At least 95% damage threshold.
+
+
 def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie):
     """
     This finds the bucket which damaged our plane for ammo breakdown purposes.
