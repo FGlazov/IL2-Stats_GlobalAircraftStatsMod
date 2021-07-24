@@ -96,3 +96,7 @@ Version 1.3.0
 Version 1.3.1
 
 - Fix bug where not all sorties with bombs/rockets as fighter were being recognized as with bomb for the filter. For example the FW 190 A8 with side bombs only, or the Hurricane.
+
+Version 1.4.0
+
+- Disambiguate the two bullet types shot from small caliber brownings - ".303 British" and ".30-06 Springfield".
