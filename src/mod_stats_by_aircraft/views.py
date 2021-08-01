@@ -1,11 +1,13 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q, Sum
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils import timezone
 from django.urls import reverse
+import os
 
 from mission_report.constants import Coalition
 
@@ -303,6 +305,20 @@ def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):
         except IndexError:
             raise Http404
     return bucket
+
+
+def download_ammo_breakdown_csv(request, ammo_key, breakdown_type, aircraft_id):
+    file_path = os.path.join(settings.MEDIA_ROOT, 'test.txt')
+    if not file_path.startswith(os.path.abspath(settings.MEDIA_ROOT) + os.sep):
+        raise PermissionDenied
+
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            return response
+    else:
+        raise Http404
 
 
 def _get_player_aircraft_rating_position(bucket):
