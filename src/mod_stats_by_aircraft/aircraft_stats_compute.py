@@ -2,8 +2,10 @@ from django.db.models import Q, F
 
 from .aircraft_mod_models import AircraftBucket, SortieAugmentation, AircraftKillboard
 from .variant_utils import has_juiced_variant, has_bomb_variant, get_sortie_type
+from .ammo_file_manager import write_breakdown_line, OFFENSIVE_BREAKDOWN, DEFENSIVE_BREAKDOWN
 
 from stats.models import Sortie, LogEntry, Player, Object
+from stats.logger import logger
 
 
 def process_aircraft_stats(sortie, player=None, is_retro_compute=False):
@@ -439,10 +441,10 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
             # I.e. we got hit by an aircraft turret and the MGs of another plane (the MGs didn't cause any dmg)
             aircraft_hit_us = set()
             for enemy_object in enemy_objects:
-                db_object = Object.objects.get(id=enemy_object[0])
-                if db_object.cls != 'aircraft_turret':
+                db_enemy_object = Object.objects.get(id=enemy_object[0])
+                if db_enemy_object.cls != 'aircraft_turret':
                     return
-                aircraft = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
+                aircraft = turret_to_aircraft_bucket(db_enemy_object.name, tour=bucket.tour)
                 if aircraft is None:
                     return
                 aircraft_hit_us.add(aircraft.id)
@@ -471,30 +473,35 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     # For ShVAKs: We keep it as is, since LA-5(FN) has mono-ammo belts.
     # So even if another plane has a fluke like this, it does same damage as when shot by LA-5 anyways.
 
+    enemy_object = enemy_objects[0][0]
+    enemy_sortie = enemy_objects[0][1]
+    db_enemy_object = Object.objects.get(id=enemy_object)
+    pilot_snipe = is_pilot_snipe(sortie)
+
     bucket.increment_ammo_received(ammo_breakdown['total_received'])
+    write_breakdown_line(bucket, ammo_breakdown['total_received'], DEFENSIVE_BREAKDOWN, db_enemy_object, pilot_snipe)
 
     if is_subtype:
         # Updates for enemy aircraft were done in main type.
         return
 
-    enemy_object = enemy_objects[0][0]
-    enemy_sortie = enemy_objects[0][1]
-
-    db_object = Object.objects.get(id=enemy_object)
-
-    if db_object.cls_base != 'aircraft' and db_object.cls != 'aircraft_turret':
+    if db_enemy_object.cls_base != 'aircraft' and db_enemy_object.cls != 'aircraft_turret':
         return
-    if db_object.cls_base == 'aircraft' and not enemy_sortie:
+    if db_enemy_object.cls_base == 'aircraft' and not enemy_sortie:
         return
 
-    base_bucket, db_sortie, filtered_bucket = ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object,
+    base_bucket, db_sortie, filtered_bucket = ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_enemy_object,
                                                                           enemy_sortie)
 
     if base_bucket is not None:
         base_bucket.increment_ammo_given(ammo_breakdown['total_received'])
+        write_breakdown_line(base_bucket, ammo_breakdown['total_received'], OFFENSIVE_BREAKDOWN, bucket.aircraft,
+                             pilot_snipe)
         base_bucket.save()
     if filtered_bucket is not None:
         filtered_bucket.increment_ammo_given(ammo_breakdown['total_received'])
+        write_breakdown_line(filtered_bucket, ammo_breakdown['total_received'], OFFENSIVE_BREAKDOWN, bucket.aircraft,
+                             pilot_snipe)
         filtered_bucket.save()
 
 
@@ -770,5 +777,5 @@ def turret_to_aircraft_bucket(turret_name, tour, player=None):
         return (AircraftBucket.objects.get_or_create(tour=tour, aircraft=aircraft, filter_type='NO_FILTER',
                                                      player=player))[0]
     except Object.DoesNotExist:
-        logger.info("[mod_stats_by_aircraft] WARNING: Could not find aircraft for turret " + turret_name)
+        logger.warning("[mod_stats_by_aircraft] Could not find aircraft for turret " + turret_name)
         return None
