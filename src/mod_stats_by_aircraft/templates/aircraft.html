@@ -7,6 +7,8 @@
 {% endblock nav_tabs %}
 
 {% block content %}
+<link href="{% static 'css/collapsible.css' %}" rel="stylesheet">
+
 <section id="player">
     <div class="wrapper">
         <div class="profile_name">
@@ -617,13 +619,14 @@
             </div>
 
              {% for ammo_name, avg_used in ammo_breakdown.given %}
-             <div class="item" style="height: auto;overflow: hidden;">
-                <div class="name">{{ammo_name}}</div>
-                <div class="num">{{avg_used}}</div>
+             <button class="collapsible">
+                 <span class="name">{{ammo_name}}</span>
+                 <span class="num">{{avg_used}}</span>
+             </button>
+             <div class="content">
+                 <p>Lorem ipsum...<br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum...</p>
              </div>
             {% endfor %}
-
-
          </div>
         {% endif  %}
 
@@ -636,9 +639,12 @@
                 <div class="name">{% trans 'Average hits per aircraft lost' %} ⛤</div>
             </div>
             {% for ammo_name, avg_used in ammo_breakdown.received %}
-            <div class="item" style="height: auto;overflow: hidden;">
-                <div class="name">{{ammo_name}}</div>
-                <div class="num">{{avg_used}}</div>
+            <button class="collapsible">
+                 <span class="name">{{ammo_name}}</span>
+                 <span class="num">{{avg_used}}</span>
+             </button>
+             <div class="content">
+                 <p>Lorem ipsum...<br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum...</p>
              </div>
             {% endfor %}
          </div>
@@ -795,5 +801,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
+
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = this.nextElementSibling;
+            if (content.style.maxHeight){
+              content.style.maxHeight = null;
+            } else {
+              content.style.maxHeight = content.scrollHeight + "px";
+            }
+          });
+        }
+</script>
 </section>
 {% endblock content %}
