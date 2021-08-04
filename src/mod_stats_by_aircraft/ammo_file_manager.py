@@ -48,7 +48,7 @@ def write_breakdown_line(aircraft_bucket, damage_report, breakdown_type, other_a
 
     line += str(pilot_snipe) + '\n'
 
-    path = get_breakdown_path(aircraft_bucket.tour.id, aircraft_bucket.id,
+    path = get_breakdown_path(aircraft_bucket.tour.id, aircraft_bucket,
                               multi_key_to_string(list(damage_report.keys()), separator='__'), breakdown_type)
     if not os.path.isfile(path):
         initialize_csv(path, list(damage_report.keys()))
@@ -57,7 +57,10 @@ def write_breakdown_line(aircraft_bucket, damage_report, breakdown_type, other_a
 
 
 def download_breakdown_csv(bucket, ammo_key, breakdown_type):
-    path = get_breakdown_path(bucket.tour.id, bucket.id, ammo_key, breakdown_type)
+    ammo_key = ammo_key.replace('|', '__')
+    path = get_breakdown_path(bucket.tour.id, bucket, ammo_key, breakdown_type)
+    if breakdown_type not in BREAKDOWN_TYPES:
+        raise Http404
     if not path.startswith(os.path.abspath(settings.MEDIA_ROOT) + os.sep):
         raise PermissionDenied
 
@@ -86,6 +89,6 @@ def initialize_csv(path, ammo_keys):
         f.write(line)
 
 
-def get_breakdown_path(tour_id, bucket_id, ammo_key, breakdown_type):
-    return os.path.join(settings.MEDIA_ROOT, 'ammo_breakdowns', str(tour_id), str(bucket_id), ammo_key,
-                        breakdown_type + '.csv')
+def get_breakdown_path(tour_id, bucket, ammo_key, breakdown_type):
+    return os.path.join(settings.MEDIA_ROOT, 'ammo_breakdowns', str(tour_id), str(bucket.id), ammo_key,
+                        bucket.aircraft.name_en + '_Tour_' + str(tour_id) + '_' + breakdown_type + '.csv')

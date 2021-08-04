@@ -20,6 +20,7 @@ from stats.views import *
 from .variant_utils import has_juiced_variant, has_bomb_variant
 from .aircraft_mod_models import AircraftBucket, AircraftKillboard, compute_float, get_aircraft_pilot_rankings_url
 from .bullets_types import render_ammo_breakdown
+from .ammo_file_manager import download_breakdown_csv
 
 aircraft_sort_fields = ['total_sorties', 'total_flight_time', 'kd', 'khr', 'gkd', 'gkhr', 'accuracy',
                         'bomb_rocket_accuracy', 'plane_survivability', 'pilot_survivability', 'plane_lethality',
@@ -307,19 +308,13 @@ def find_aircraft_bucket(aircraft_id, tour_id, bucket_filter, player=None):
     return bucket
 
 
-def download_ammo_breakdown_csv(request, ammo_key, breakdown_type, aircraft_id):
-    file_path = os.path.join(settings.MEDIA_ROOT, 'test.txt')
-    if not file_path.startswith(os.path.abspath(settings.MEDIA_ROOT) + os.sep):
-        raise PermissionDenied
-
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
-            return response
-    else:
+def download_ammo_breakdown_csv(request, ammo_key, breakdown_type, bucket_id):
+    try:
+        bucket = AircraftBucket.objects.get(id = bucket_id)
+    except AircraftBucket.DoesNotExist:
         raise Http404
 
+    return download_breakdown_csv(bucket, ammo_key, breakdown_type)
 
 def _get_player_aircraft_rating_position(bucket):
     if bucket.score == 0:

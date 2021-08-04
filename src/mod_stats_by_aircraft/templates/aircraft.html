@@ -597,7 +597,7 @@
 
             {% if aircraft_bucket.best_score_sortie %}
             <a href="{% url 'stats:pilot_sortie' aircraft_bucket.best_score_sortie_id %}?tour={{ aircraft_bucket.tour_id }}">
-                <div class="item">
+                <div class="item downloadable">
                     <div class="name">{% trans 'Max score in a single sortie' %} ({{ aircraft_bucket.best_score_sortie.player}})</div>
                     <div class="num"> {{aircraft_bucket.best_score_in_sortie}}</div>
                 </div>
@@ -632,6 +632,12 @@
                     <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
                     <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
                 </div>
+                 <a href="{% url 'stats:download_ammo_breakdown_csv' ammo_key=extra_info.key breakdown_type='OFFENSIVE_BREAKDOWN' bucket_id=aircraft_bucket.id %}?tour={{ aircraft_bucket.tour_id }}">
+                     <div class="item collapsible-item downloadable">
+                        <div class="name">{% trans 'Download data' context 'total' %}</div>
+                        <div class="num">ICON PLACEHOLDER</div>
+                    </div>
+                 </a>
              </div>
             {% endfor %}
          </div>
@@ -659,6 +665,12 @@
                     <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
                     <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
                 </div>
+                 <a href="{% url 'stats:download_ammo_breakdown_csv' ammo_key=extra_info.key breakdown_type='DEFENSIVE_BREAKDOWN' bucket_id=aircraft_bucket.id %}?tour={{ aircraft_bucket.tour_id }}">
+                     <div class="item collapsible-item downloadable">
+                        <div class="name">{% trans 'Download data' context 'total' %}</div>
+                        <div class="num">ICON PLACEHOLDER</div>
+                    </div>
+                 </a>
              </div>
             {% endfor %}
          </div>
