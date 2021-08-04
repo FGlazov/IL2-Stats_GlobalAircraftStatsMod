@@ -16,6 +16,7 @@ CANNON_MG = 'all'
 RECEIVED = 'received'
 GIVEN = 'given'
 INST = 'instances'
+PILOT_KILLS = 'pilot_kills'
 COUNT = 'count'
 
 
@@ -568,14 +569,14 @@ class AircraftBucket(models.Model):
     def get_pilot_filtered_url(self):
         return get_aircraft_url(self.aircraft.id, self.tour.id, str(self.filter_type), self.player)
 
-    def increment_ammo_received(self, ammo_dict):
-        self.__increment_helper(ammo_dict, self.ammo_breakdown[RECEIVED])
+    def increment_ammo_received(self, ammo_dict, pilot_snipe):
+        self.__increment_helper(ammo_dict, self.ammo_breakdown[RECEIVED], pilot_snipe)
 
-    def increment_ammo_given(self, ammo_dict):
-        self.__increment_helper(ammo_dict, self.ammo_breakdown[GIVEN])
+    def increment_ammo_given(self, ammo_dict, pilot_snipe):
+        self.__increment_helper(ammo_dict, self.ammo_breakdown[GIVEN], pilot_snipe)
 
     @staticmethod
-    def __increment_helper(ammo_dict, sub_dict):
+    def __increment_helper(ammo_dict, sub_dict, pilot_snipe):
         key = multi_key_to_string(list(ammo_dict.keys()))
         if not key:
             return
@@ -584,12 +585,14 @@ class AircraftBucket(models.Model):
             sub_dict[TOTALS][key] = {
                 INST: 0,
                 COUNT: dict(),
+                PILOT_KILLS: 0
             }
             sub_dict[AVERAGES][key] = dict()
             for ammo_key in ammo_dict:
                 sub_dict[TOTALS][key][COUNT][ammo_key] = 0
 
         sub_dict[TOTALS][key][INST] += 1
+        sub_dict[TOTALS][key][PILOT_KILLS] += 1 if pilot_snipe else 0
         for ammo_key in ammo_dict:
             times_hit = ammo_dict[ammo_key]
             sub_dict[TOTALS][key][COUNT][ammo_key] += times_hit

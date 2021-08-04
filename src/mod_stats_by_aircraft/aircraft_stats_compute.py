@@ -478,7 +478,7 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
     db_enemy_object = Object.objects.get(id=enemy_object)
     pilot_snipe = is_pilot_snipe(sortie)
 
-    bucket.increment_ammo_received(ammo_breakdown['total_received'])
+    bucket.increment_ammo_received(ammo_breakdown['total_received'], pilot_snipe)
     write_breakdown_line(bucket, ammo_breakdown['total_received'], DEFENSIVE_BREAKDOWN, db_enemy_object, pilot_snipe)
 
     if is_subtype:
@@ -494,12 +494,12 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
                                                                           enemy_sortie)
 
     if base_bucket is not None:
-        base_bucket.increment_ammo_given(ammo_breakdown['total_received'])
+        base_bucket.increment_ammo_given(ammo_breakdown['total_received'], pilot_snipe)
         write_breakdown_line(base_bucket, ammo_breakdown['total_received'], OFFENSIVE_BREAKDOWN, bucket.aircraft,
                              pilot_snipe)
         base_bucket.save()
     if filtered_bucket is not None:
-        filtered_bucket.increment_ammo_given(ammo_breakdown['total_received'])
+        filtered_bucket.increment_ammo_given(ammo_breakdown['total_received'], pilot_snipe)
         write_breakdown_line(filtered_bucket, ammo_breakdown['total_received'], OFFENSIVE_BREAKDOWN, bucket.aircraft,
                              pilot_snipe)
         filtered_bucket.save()

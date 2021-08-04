@@ -618,13 +618,20 @@
                 <div class="name">{% trans 'Average hits per aircraft kill' %} ★</div>
             </div>
 
-             {% for ammo_name, avg_used in ammo_breakdown.given %}
+             {% for ammo_name, avg_used, extra_info in ammo_breakdown.given %}
              <button class="collapsible">
                  <span class="name">{{ammo_name}}</span>
                  <span class="num">{{avg_used}}</span>
              </button>
              <div class="content">
-                 <p>Lorem ipsum...<br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum...</p>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Total Instances' context 'total' %}</div>
+                    <div class="num">{{ extra_info.instances }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
+                    <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
+                </div>
              </div>
             {% endfor %}
          </div>
@@ -638,13 +645,20 @@
             <div class="item">
                 <div class="name">{% trans 'Average hits per aircraft lost' %} ⛤</div>
             </div>
-            {% for ammo_name, avg_used in ammo_breakdown.received %}
+            {% for ammo_name, avg_used, extra_info in ammo_breakdown.received %}
             <button class="collapsible">
                  <span class="name">{{ammo_name}}</span>
                  <span class="num">{{avg_used}}</span>
              </button>
              <div class="content">
-                 <p>Lorem ipsum...<br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum... <br/> Lorem ipsum...</p>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Total Instances' context 'total' %}</div>
+                    <div class="num">{{ extra_info.instances }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
+                    <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
+                </div>
              </div>
             {% endfor %}
          </div>

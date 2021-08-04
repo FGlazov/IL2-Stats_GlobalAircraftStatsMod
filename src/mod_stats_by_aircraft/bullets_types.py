@@ -1,5 +1,5 @@
 from django.utils.translation import pgettext_lazy
-from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS,
+from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS, PILOT_KILLS,
                                   multi_key_to_string, string_to_multikey)
 
 
@@ -44,7 +44,12 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
 
         ammo_names = ' | '.join(translated_cannon_keys + translated_mg_keys)
         avg_use = " | ".join(cannon_avgs + mg_avgs)
-        result.append((ammo_names, avg_use))
+        pilot_kills = 0
+        if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
+            pilot_kills = sub_dict[TOTALS][multi_key][PILOT_KILLS]
+        pilot_kills_percent = round(100 * pilot_kills / max(inst, 1), 2)
+        extra_info = {'instances': inst, 'pilot_kills': pilot_kills, 'pilot_kills_percent' : pilot_kills_percent}
+        result.append((ammo_names, avg_use, extra_info))
 
     result.sort(key=take_first)
     return result

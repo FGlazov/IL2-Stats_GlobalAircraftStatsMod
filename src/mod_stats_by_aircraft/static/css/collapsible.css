@@ -45,3 +45,7 @@ button.active::before {
     float: right;
     padding-right: 25px;
 }
+
+.collapsible-item {
+    width: 98% !important;
+}
