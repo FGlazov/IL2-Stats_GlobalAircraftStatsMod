@@ -6,8 +6,10 @@ from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.conf import settings
 from django.urls import reverse
 
+from .reservoir_sampling import SAMPLE, RESERVOIR_COUNTER, update_reservoir
 from .variant_utils import has_bomb_variant, has_juiced_variant
 import math
+import random
 
 TOTALS = 'totals'
 AVERAGES = 'avg'
@@ -593,12 +595,15 @@ class AircraftBucket(models.Model):
                 COUNT: dict(),
                 M2: dict(),
                 STANDARD_DEVIATION: dict(),
-                PILOT_KILLS: 0
+                PILOT_KILLS: 0,
+                SAMPLE: None,
+                RESERVOIR_COUNTER: 0
             }
             sub_dict[AVERAGES][key] = dict()
             for ammo_key in ammo_dict:
                 sub_dict[TOTALS][key][COUNT][ammo_key] = 0
 
+        update_reservoir(ammo_dict, sub_dict[TOTALS][key])
         sub_dict[TOTALS][key][INST] += 1
         sub_dict[TOTALS][key][PILOT_KILLS] += 1 if pilot_snipe else 0
         for ammo_key in ammo_dict:

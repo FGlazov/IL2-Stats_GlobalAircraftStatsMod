@@ -1,6 +1,9 @@
 from django.utils.translation import pgettext_lazy
 from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS, PILOT_KILLS, STANDARD_DEVIATION,
                                   multi_key_to_string, string_to_multikey)
+from .reservoir_sampling import get_samples
+import numpy as np
+from scipy.spatial.distance import cdist, euclidean
 
 
 def take_first(elem):
@@ -36,16 +39,25 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
         mg_stds = [''] * len(translated_mg_keys)
         cannon_stds = [''] * len(translated_cannon_keys)
 
-        for key in keys:
+        samples = get_samples(sub_dict[TOTALS][multi_key], len(keys))
+        medians = [round(median, 2) for median in geometric_median(samples)]
+        mg_medians = [''] * len(translated_mg_keys)
+        cannon_medians = [''] * len(translated_cannon_keys)
+
+        for i, key in enumerate(keys):
             if 'BULLET' in key:
                 key_index = translated_mg_keys.index(translate_bullet(key))
                 mg_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
+                mg_medians[key_index] = str(medians[i])
+
                 if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
                         and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
                     mg_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
             else:
                 key_index = translated_cannon_keys.index(translate_bullet(key))
                 cannon_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
+                cannon_medians[key_index] = str(medians[i])
+
                 if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
                         and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
                     cannon_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
@@ -53,6 +65,7 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
         ammo_names = ' | '.join(translated_cannon_keys + translated_mg_keys)
         avg_use = " | ".join(cannon_avgs + mg_avgs)
         stds = ' | '.join(cannon_stds + mg_stds)
+        medians = ' | '.join(cannon_medians + mg_medians)
         if inst == 1:
             stds = '-'
 
@@ -60,12 +73,14 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
         if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
             pilot_kills = sub_dict[TOTALS][multi_key][PILOT_KILLS]
         pilot_kills_percent = round(100 * pilot_kills / max(inst, 1), 2)
+
         extra_info = {
             'key': multi_key,
             'instances': inst,
             'pilot_kills': pilot_kills,
             'pilot_kills_percent': pilot_kills_percent,
             "stds": stds,
+            "medians": medians,
         }
         result.append((ammo_names, avg_use, extra_info))
 
@@ -78,6 +93,47 @@ def translate_bullet(bullet_type):
         return bullet_types[bullet_type]
     else:
         return bullet_type
+
+
+def geometric_median(X, eps=1e-3, max_iterations=50):
+    """
+    https://stackoverflow.com/a/30305181
+
+    Computes the geometric median, which is a generilization of the median to multi-dimensional data.
+
+    Applying the median
+    """
+    if len(X) == 0:
+        return None
+
+    y = np.mean(X, 0)
+
+    i = 0
+    while True:
+        D = cdist(X, [y])
+        nonzeros = (D != 0)[:, 0]
+
+        Dinv = 1 / D[nonzeros]
+        Dinvs = np.sum(Dinv)
+        W = Dinv / Dinvs
+        T = np.sum(W * X[nonzeros], 0)
+
+        num_zeros = len(X) - np.sum(nonzeros)
+        if num_zeros == 0:
+            y1 = T
+        elif num_zeros == len(X):
+            return y
+        else:
+            R = (T - y) * Dinvs
+            r = np.linalg.norm(R)
+            rinv = 0 if r == 0 else num_zeros / r
+            y1 = max(0, 1 - rinv) * T + min(1, rinv) * y
+
+        if euclidean(y, y1) < eps or i > max_iterations:
+            return y1
+
+        y = y1
+        i += 1
 
 
 bullet_types = {

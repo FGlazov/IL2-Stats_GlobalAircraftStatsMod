@@ -23,13 +23,15 @@ Installation
 
 1. You need an installation of il2 stats. The latest version can be found under https://forum.il2sturmovik.com/topic/19083-il2-stats-statistics-system-for-a-dedicated-server-il2-battle-of-stalingrad/
 
-2. Copy the src folder inside this .zip into your il2 stats folder.
+2. Copy the src folder inside this .zip into your il2 stats folder. 
 
-3. Inside your src/conf.ini, add the line "mods = mod_stats_by_aircraft" under [stats]. If you already have a mods line, you should change it instead - just be sure to remove any semicolons inside that line if there are any.
+3. Replace the requirments.in and requirments.txt in your il2 stasts folder with the ones in the .zip.
 
-4. Configure retro_compute_for_last_tours=10 under [stats] to any value you'd like. See above for an explanation.
+4. Inside your src/conf.ini, add the line "mods = mod_stats_by_aircraft" under [stats]. If you already have a mods line, you should change it instead - just be sure to remove any semicolons inside that line if there are any.
 
-5. Run the update script in your /run folder after you're done with the above.
+5. Configure retro_compute_for_last_tours=10 under [stats] to any value you'd like. See above for an explanation.
+
+6. Run the update script in your /run folder after you're done with the above.
 
 Support
 ---------------------------------------------
