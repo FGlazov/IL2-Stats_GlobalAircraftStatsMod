@@ -1,5 +1,5 @@
 from django.utils.translation import pgettext_lazy
-from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS, PILOT_KILLS,
+from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS, PILOT_KILLS, STANDARD_DEVIATION,
                                   multi_key_to_string, string_to_multikey)
 
 
@@ -33,17 +33,25 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
 
         mg_avgs = [''] * len(translated_mg_keys)
         cannon_avgs = [''] * len(translated_cannon_keys)
+        mg_stds = [''] * len(translated_mg_keys)
+        cannon_stds = [''] * len(translated_cannon_keys)
 
         for key in keys:
             if 'BULLET' in key:
                 key_index = translated_mg_keys.index(translate_bullet(key))
                 mg_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
+                if STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]:
+                    mg_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
             else:
                 key_index = translated_cannon_keys.index(translate_bullet(key))
                 cannon_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
+                if STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]:
+                    cannon_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
 
         ammo_names = ' | '.join(translated_cannon_keys + translated_mg_keys)
         avg_use = " | ".join(cannon_avgs + mg_avgs)
+        stds = ' | '.join(cannon_stds + mg_stds)
+
         pilot_kills = 0
         if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
             pilot_kills = sub_dict[TOTALS][multi_key][PILOT_KILLS]
@@ -52,7 +60,9 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
             'key': multi_key,
             'instances': inst,
             'pilot_kills': pilot_kills,
-            'pilot_kills_percent': pilot_kills_percent}
+            'pilot_kills_percent': pilot_kills_percent,
+            "stds": stds,
+        }
         result.append((ammo_names, avg_use, extra_info))
 
     result.sort(key=take_first)

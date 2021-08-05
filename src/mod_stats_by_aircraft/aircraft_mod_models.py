@@ -7,6 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 
 from .variant_utils import has_bomb_variant, has_juiced_variant
+import math
 
 TOTALS = 'totals'
 AVERAGES = 'avg'
@@ -18,6 +19,8 @@ GIVEN = 'given'
 INST = 'instances'
 PILOT_KILLS = 'pilot_kills'
 COUNT = 'count'
+M2 = 'm2'  # For Welford's online algorithm to compute variance.
+STANDARD_DEVIATION = 'std'
 
 
 def default_ammo_breakdown():
@@ -577,6 +580,9 @@ class AircraftBucket(models.Model):
 
     @staticmethod
     def __increment_helper(ammo_dict, sub_dict, pilot_snipe):
+        # TODO: Refactor this mess if possible.
+        #       Perhaps create data classes that we later convert automagically into dicts/jsons for storage?
+        #       Or adapt the database schema to not use JSON.
         key = multi_key_to_string(list(ammo_dict.keys()))
         if not key:
             return
@@ -585,6 +591,8 @@ class AircraftBucket(models.Model):
             sub_dict[TOTALS][key] = {
                 INST: 0,
                 COUNT: dict(),
+                M2: dict(),
+                STANDARD_DEVIATION: dict(),
                 PILOT_KILLS: 0
             }
             sub_dict[AVERAGES][key] = dict()
@@ -596,10 +604,25 @@ class AircraftBucket(models.Model):
         for ammo_key in ammo_dict:
             times_hit = ammo_dict[ammo_key]
             sub_dict[TOTALS][key][COUNT][ammo_key] += times_hit
-            sub_dict[AVERAGES][key][ammo_key] = compute_float(
+            mean_delta = times_hit
+            if ammo_key in sub_dict[AVERAGES][key]:
+                mean_delta -= sub_dict[AVERAGES][key][ammo_key]
+            new_mean = compute_float(
                 sub_dict[TOTALS][key][COUNT][ammo_key],
                 sub_dict[TOTALS][key][INST]
             )
+            sub_dict[AVERAGES][key][ammo_key] = new_mean
+
+            # Welford's online algorithm to compute variance in one pass.
+            if ammo_key not in sub_dict[TOTALS][key][M2]:
+                sub_dict[TOTALS][key][M2][ammo_key] = 0
+
+            m2_delta = times_hit - new_mean
+            sub_dict[TOTALS][key][M2][ammo_key] += m2_delta * mean_delta
+            if sub_dict[TOTALS][key][INST] > 1:
+                sub_dict[TOTALS][key][STANDARD_DEVIATION][ammo_key] = round(math.sqrt(
+                    sub_dict[TOTALS][key][M2][ammo_key] / (sub_dict[TOTALS][key][INST] - 1),
+                ), 2)
 
 
 def multi_key_to_string(keys, separator='|'):

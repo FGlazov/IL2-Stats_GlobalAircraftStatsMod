@@ -616,7 +616,7 @@
 
         <div class="clearfix"></div>
 
-                 {% if ammo_breakdown.given|length > 0 %}
+         {% if ammo_breakdown.given|length > 0 %}
          <div class="player_detailed" style="float: left;">
             <div class="title">
                 {% trans 'Offensive ammo breakdown' %}
@@ -638,6 +638,10 @@
                  <div class="item collapsible-item">
                     <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
                     <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Standard deviation' context 'total' %}</div>
+                    <div class="num">{{ extra_info.stds }}</div>
                 </div>
              </div>
             {% endfor %}
@@ -665,6 +669,10 @@
                  <div class="item collapsible-item">
                     <div class="name">{% trans 'Pilot kills' context 'total' %}</div>
                     <div class="num">{{ extra_info.pilot_kills_percent }}% ({{ extra_info.pilot_kills}})</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Standard deviation' context 'total' %}</div>
+                    <div class="num">{{ extra_info.stds }}</div>
                 </div>
              </div>
             {% endfor %}
