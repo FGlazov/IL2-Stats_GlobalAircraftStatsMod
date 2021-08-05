@@ -17,6 +17,13 @@
   background-color: #555;
 }
 
+/* Add a background color to the button when you move the mouse over it (hover) */
+.downloadable:hover, .link:hover {
+  background-color: #555 !important;
+}
+
+
+
 /* Style the collapsible content. Note: hidden by default */
 .content {
   padding-left: 30px;
@@ -41,7 +48,7 @@ button.active::before {
     content: "\2212";
 }
 
-.num {
+.collapsible-num {
     float: right;
     padding-right: 25px;
 }

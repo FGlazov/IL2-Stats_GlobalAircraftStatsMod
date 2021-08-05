@@ -101,3 +101,5 @@ Version 1.4.0
 
 - Disambiguate the two bullet types shot from small caliber brownings - ".303 British" and ".30-06 Springfield".
 - Add downloadable .csvs for ammo breakdowns, which consists of all the data used in that ammo breakdown.
+- Add more information to ammo breakdowns in a collapasible section. Includes mor stats like deviation, and pilot kills.
+- Highlight data points under best results/best resunts in a single sortie when hovered over, to better indicate that they're links.

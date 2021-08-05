@@ -40,17 +40,21 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
             if 'BULLET' in key:
                 key_index = translated_mg_keys.index(translate_bullet(key))
                 mg_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
-                if STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]:
+                if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
+                        and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
                     mg_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
             else:
                 key_index = translated_cannon_keys.index(translate_bullet(key))
                 cannon_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
-                if STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]:
+                if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
+                        and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
                     cannon_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
 
         ammo_names = ' | '.join(translated_cannon_keys + translated_mg_keys)
         avg_use = " | ".join(cannon_avgs + mg_avgs)
         stds = ' | '.join(cannon_stds + mg_stds)
+        if inst == 1:
+            stds = '-'
 
         pilot_kills = 0
         if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
