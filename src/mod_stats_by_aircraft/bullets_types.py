@@ -4,6 +4,7 @@ from .aircraft_mod_models import (AVERAGES, INST, RECEIVED, GIVEN, TOTALS, PILOT
 from .reservoir_sampling import get_samples
 import numpy as np
 from scipy.spatial.distance import cdist, euclidean
+from sklearn.decomposition import PCA
 
 
 def take_first(elem):
@@ -41,14 +42,18 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
 
         samples = get_samples(sub_dict[TOTALS][multi_key], len(keys))
         medians = [round(median, 2) for median in geometric_median(samples)]
+        percentiles = [round(percentile_component, 2) for percentile_component in percentile(samples, 90)]
         mg_medians = [''] * len(translated_mg_keys)
         cannon_medians = [''] * len(translated_cannon_keys)
+        mg_percentiles = [''] * len(translated_mg_keys)
+        cannon_percentiles = [''] * len(translated_cannon_keys)
 
         for i, key in enumerate(keys):
             if 'BULLET' in key:
                 key_index = translated_mg_keys.index(translate_bullet(key))
                 mg_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
                 mg_medians[key_index] = str(medians[i])
+                mg_percentiles[key_index] = str(percentiles[i])
 
                 if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
                         and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
@@ -57,6 +62,7 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
                 key_index = translated_cannon_keys.index(translate_bullet(key))
                 cannon_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
                 cannon_medians[key_index] = str(medians[i])
+                cannon_percentiles[key_index] = str(percentiles[i])
 
                 if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
                         and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
@@ -66,8 +72,11 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
         avg_use = " | ".join(cannon_avgs + mg_avgs)
         stds = ' | '.join(cannon_stds + mg_stds)
         medians = ' | '.join(cannon_medians + mg_medians)
+        percentiles = ' | '.join(cannon_percentiles + mg_percentiles)
         if inst == 1:
             stds = '-'
+        if inst < 10:
+            percentiles = '-'
 
         pilot_kills = 0
         if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
@@ -81,6 +90,7 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
             'pilot_kills_percent': pilot_kills_percent,
             "stds": stds,
             "medians": medians,
+            "percentiles": percentiles,
         }
         result.append((ammo_names, avg_use, extra_info))
 
@@ -134,6 +144,33 @@ def geometric_median(X, eps=1e-3, max_iterations=50):
 
         y = y1
         i += 1
+
+
+def percentile(samples, threshold):
+    """
+    Retrieves the "percentile" at threshold, i.e. the 90th percentile if threshold = 90.
+
+    Since the data is multidimensional (different kind of bullets hitting), it's not actually a percentile in this case.
+    Still, since most of the data is highly correlated and "almost lies on a line" (most kills from players involve
+    the same % of each bullet type hitting), we can instead try and find the line the data lies on and derive the
+    percentiles from that.
+
+    This is done by reducing the data into a single dimension using PCA (principal component analysis), taking the
+    median on the reduced data, and then returning the domain into the orignal space.
+    """
+    if samples.shape[1] == 1:  # Edge case: Data is already 1D.
+        return [np.percentile(samples.flatten(), threshold)]
+
+    # Fit the PCA
+    pca = PCA(n_components=1)
+    pca.fit(samples)
+
+    # Transform to 1D and take the percentile there
+    reduced_samples = pca.transform(samples)
+    reduced_percentile = np.percentile(reduced_samples, threshold)
+
+    # Transform back to the original space and return
+    return pca.inverse_transform(reduced_percentile).flatten()
 
 
 bullet_types = {

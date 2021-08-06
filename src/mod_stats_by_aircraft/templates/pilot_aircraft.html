@@ -632,7 +632,7 @@
              </button>
              <div class="content">
                  <div class="item collapsible-item">
-                    <div class="name">{% trans 'Total instances' context 'total' %}</div>
+                    <div class="name">{% trans 'Total Instances' context 'total' %}</div>
                     <div class="num collapsible-num">{{ extra_info.instances }}</div>
                 </div>
                  <div class="item collapsible-item">
@@ -642,6 +642,14 @@
                  <div class="item collapsible-item">
                     <div class="name">{% trans 'Standard deviation' context 'total' %}</div>
                     <div class="num collapsible-num">{{ extra_info.stds }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Geometric median' context 'total' %}</div>
+                    <div class="num collapsible-num">{{ extra_info.medians }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans '90th percentile' context 'total' %}</div>
+                    <div class="num collapsible-num">{{ extra_info.percentiles }}</div>
                 </div>
              </div>
             {% endfor %}
@@ -663,7 +671,7 @@
              </button>
              <div class="content">
                  <div class="item collapsible-item">
-                    <div class="name">{% trans 'Total Instances' context 'total' %}</div>
+                    <div class="name">{% trans 'Total instances' context 'total' %}</div>
                     <div class="num collapsible-num">{{ extra_info.instances }}</div>
                 </div>
                  <div class="item collapsible-item">
@@ -673,6 +681,14 @@
                  <div class="item collapsible-item">
                     <div class="name">{% trans 'Standard deviation' context 'total' %}</div>
                     <div class="num collapsible-num">{{ extra_info.stds }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans 'Geometric median' context 'total' %}</div>
+                    <div class="num collapsible-num">{{ extra_info.medians }}</div>
+                </div>
+                 <div class="item collapsible-item">
+                    <div class="name">{% trans '90th percentile' context 'total' %}</div>
+                    <div class="num collapsible-num">{{ extra_info.percentiles }}</div>
                 </div>
              </div>
             {% endfor %}
