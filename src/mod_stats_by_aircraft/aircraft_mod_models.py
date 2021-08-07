@@ -9,7 +9,6 @@ from django.urls import reverse
 from .reservoir_sampling import SAMPLE, RESERVOIR_COUNTER, update_reservoir
 from .variant_utils import has_bomb_variant, has_juiced_variant
 import math
-import random
 
 TOTALS = 'totals'
 AVERAGES = 'avg'
@@ -173,7 +172,8 @@ class AircraftBucket(models.Model):
     reset_accident_aa_stats = models.BooleanField(default=False, db_index=True)
     # Dito for Elo computations, this was bugged.
     reset_elo = models.BooleanField(default=False, db_index=True)
-
+    # Ammo breakdowns recomputation to include more data.
+    reset_ammo_breakdown = models.BooleanField(default=False, db_index=True)
     # ========================== NON-VISIBLE HELPER FIELDS  END
 
     class Meta:
@@ -211,6 +211,7 @@ class AircraftBucket(models.Model):
         # or it was made after the bug was fixed.
         self.reset_accident_aa_stats = True
         self.reset_elo = True
+        self.reset_ammo_breakdown = True
 
     def update_rating(self):
         if self.player is None:
@@ -729,6 +730,7 @@ class SortieAugmentation(models.Model):
     added_player_kb_losses = models.BooleanField(default=False, db_index=True)
     computed_max_streaks = models.BooleanField(default=False, db_index=True)
     fixed_accuracy = models.BooleanField(default=False, db_index=True)
+    recomputed_ammo_breakdown = models.BooleanField(default=False, db_index=True)
 
     class Meta:
         # The long table name is to avoid any conflicts with new tables defined in the main branch of IL2 Stats.

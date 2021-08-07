@@ -84,6 +84,8 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     sortie_augmentation.fixed_doubled_turret_killboards = True
     sortie_augmentation.added_player_kb_losses = True
     sortie_augmentation.fixed_accuracy = True
+    sortie_augmentation.recomputed_ammo_breakdown = True
+
     sortie_augmentation.save()
 
 

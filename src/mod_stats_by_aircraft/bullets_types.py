@@ -77,6 +77,9 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
 
 
 def get_display_string(to_sort, keys, translated_mg_keys, translated_cannon_keys):
+    if not to_sort:
+        return '-'
+
     mg_result = [''] * len(translated_mg_keys)
     cannon_result = [''] * len(translated_cannon_keys)
 
@@ -108,12 +111,10 @@ def geometric_median(X, eps=1e-3, max_iterations=50):
     """
     https://stackoverflow.com/a/30305181
 
-    Computes the geometric median, which is a generilization of the median to multi-dimensional data.
-
-    Applying the median
+    Computes the geometric median, which is a generalization of the median to multi-dimensional data.
     """
     if len(X) == 0:
-        return None
+        return []
 
     y = np.mean(X, 0)
 
