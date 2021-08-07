@@ -35,53 +35,31 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
         translated_mg_keys = sorted([str(translate_bullet(key)) for key in keys if 'BULLET' in key])
         translated_cannon_keys = sorted([str(translate_bullet(key)) for key in keys if 'SHELL' in key])
 
-        mg_avgs = [''] * len(translated_mg_keys)
-        cannon_avgs = [''] * len(translated_cannon_keys)
-        mg_stds = [''] * len(translated_mg_keys)
-        cannon_stds = [''] * len(translated_cannon_keys)
-
         samples = get_samples(sub_dict[TOTALS][multi_key], len(keys))
-        medians = [round(median, 2) for median in geometric_median(samples)]
-        percentiles = [round(percentile_component, 2) for percentile_component in percentile(samples, 90)]
-        mg_medians = [''] * len(translated_mg_keys)
-        cannon_medians = [''] * len(translated_cannon_keys)
-        mg_percentiles = [''] * len(translated_mg_keys)
-        cannon_percentiles = [''] * len(translated_cannon_keys)
-
-        for i, key in enumerate(keys):
-            if 'BULLET' in key:
-                key_index = translated_mg_keys.index(translate_bullet(key))
-                mg_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
-                mg_medians[key_index] = str(medians[i])
-                mg_percentiles[key_index] = str(percentiles[i])
-
-                if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
-                        and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
-                    mg_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
-            else:
-                key_index = translated_cannon_keys.index(translate_bullet(key))
-                cannon_avgs[key_index] = str(sub_dict[AVERAGES][multi_key][key])
-                cannon_medians[key_index] = str(medians[i])
-                cannon_percentiles[key_index] = str(percentiles[i])
-
-                if (STANDARD_DEVIATION in sub_dict[TOTALS][multi_key]
-                        and key in sub_dict[TOTALS][multi_key][STANDARD_DEVIATION]):
-                    cannon_stds[key_index] = str(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION][key])
-
         ammo_names = ' | '.join(translated_cannon_keys + translated_mg_keys)
-        avg_use = " | ".join(cannon_avgs + mg_avgs)
-        stds = ' | '.join(cannon_stds + mg_stds)
-        medians = ' | '.join(cannon_medians + mg_medians)
-        percentiles = ' | '.join(cannon_percentiles + mg_percentiles)
-        if inst == 1:
+
+        avg_use = get_display_string(sub_dict[AVERAGES][multi_key], keys, translated_mg_keys, translated_cannon_keys)
+
+        if STANDARD_DEVIATION in sub_dict[TOTALS][multi_key] and inst > 1:
+            stds = get_display_string(sub_dict[TOTALS][multi_key][STANDARD_DEVIATION], keys, translated_mg_keys,
+                                      translated_cannon_keys)
+        else:
             stds = '-'
-        if inst < 10:
+
+        medians = [round(median, 2) for median in geometric_median(samples)]
+        medians = get_display_string(medians, keys, translated_mg_keys, translated_cannon_keys)
+
+        if len(samples) >= 10:
+            percentiles = [round(percentile_component, 2) for percentile_component in percentile(samples, 90)]
+            percentiles = get_display_string(percentiles, keys, translated_mg_keys, translated_cannon_keys)
+        else:
             percentiles = '-'
 
-        pilot_kills = 0
+        pilot_kills = '-'
+        pilot_kills_percent = '-'
         if PILOT_KILLS in sub_dict[TOTALS][multi_key]:
             pilot_kills = sub_dict[TOTALS][multi_key][PILOT_KILLS]
-        pilot_kills_percent = round(100 * pilot_kills / max(inst, 1), 2)
+            pilot_kills_percent = round(100 * pilot_kills / max(inst, 1), 2)
 
         extra_info = {
             'key': multi_key,
@@ -96,6 +74,27 @@ def __render_sub_dict(sub_dict, filter_out_flukes, fluke_threshold=0.05):
 
     result.sort(key=take_first)
     return result
+
+
+def get_display_string(to_sort, keys, translated_mg_keys, translated_cannon_keys):
+    mg_result = [''] * len(translated_mg_keys)
+    cannon_result = [''] * len(translated_cannon_keys)
+
+    for i, key in enumerate(keys):
+        if 'BULLET' in key:
+            key_index = translated_mg_keys.index(translate_bullet(key))
+            if type(to_sort) is dict:
+                mg_result[key_index] = str(to_sort[key])
+            else:
+                mg_result[key_index] = str(to_sort[i])
+        else:
+            key_index = translated_cannon_keys.index(translate_bullet(key))
+            if type(to_sort) is dict:
+                cannon_result[key_index] = str(to_sort[key])
+            else:
+                cannon_result[key_index] = str(to_sort[i])
+
+    return ' | '.join(cannon_result + mg_result)
 
 
 def translate_bullet(bullet_type):
