@@ -103,3 +103,7 @@ Version 1.4.0
 - Add downloadable .csvs for ammo breakdowns, which consists of all the data used in that ammo breakdown.
 - Add more information to ammo breakdowns in a collapasible section. Includes more stats like deviation, and pilot kills.
 - Highlight data points under best results (in a single sortie) when hovered over, to better indicate that they're links.
+
+Version 1.4.1
+
+- Recompile requirments.txt
