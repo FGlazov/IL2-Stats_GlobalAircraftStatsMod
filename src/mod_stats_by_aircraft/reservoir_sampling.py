@@ -49,6 +49,9 @@ def update_reservoir(sample_dict, reservoir_dict):
 
 
 def get_samples(reservoir_dict, nr_ammo_types):
+    if SAMPLE not in reservoir_dict:
+        return []
+
     if reservoir_dict[SAMPLE] is not None:
         json_load = json.loads(reservoir_dict[SAMPLE])
         reservoir = np.asarray(json_load)
