@@ -106,8 +106,13 @@ Version 1.4.0
 
 Version 1.4.1
 
-- Recompile requirments.txt
+- Recompile requirements.txt
 
 Version 1.4.2
 
-- Update requirments.txt and .in to a version which should hopefully work on most machines. Seems to be a bug on sci-kits end.
+- Update requirements.txt and .in to a version which should hopefully work on most machines. Seems to be a bug on sci-kits end.
+
+Version 1.4.3
+
+- Fix crash on retroactive compute of some old pilot snipes. 
+- Defensive ammo breakdown is now correctly recomputed.
