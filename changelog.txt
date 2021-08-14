@@ -116,3 +116,7 @@ Version 1.4.3
 
 - Fix crash on retroactive compute of some old pilot snipes. 
 - Defensive ammo breakdown is now correctly recomputed.
+
+Version 1.4.4
+
+- Fix bug where retroactive compute would sometimes hang on processing best aircraft streaks.
