@@ -124,3 +124,7 @@ Version 1.4.4
 Version 1.4.5
 
 - Workaround a bug where retroactive compute of best aircraft streaks would crash the stats.cmd process. Some sorties were working incorrectly for strange reasons, these sorties are now ignored.
+
+Version 1.4.6
+
+- Update to 1.2.59 of il2 stats.
