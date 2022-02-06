@@ -215,7 +215,8 @@ def process_log_entries(bucket, sortie, has_subtype, is_subtype, stop_update_pri
         for event in turret_events:
             turret_name = event.act_object.name
             if turret_name not in cache_turret_buckets:
-                turret_bucket = turret_to_aircraft_bucket(turret_name, bucket.tour)
+                log_name = event.act_object.log_name
+                turret_bucket = turret_to_aircraft_bucket(turret_name, log_name, bucket.tour)
                 if turret_bucket is None:
                     continue
                 cache_turret_buckets[turret_name] = turret_bucket
@@ -447,7 +448,7 @@ def process_ammo_breakdown(bucket, sortie, is_subtype):
                 db_enemy_object = Object.objects.get(id=enemy_object[0])
                 if db_enemy_object.cls != 'aircraft_turret':
                     return
-                aircraft = turret_to_aircraft_bucket(db_enemy_object.name, tour=bucket.tour)
+                aircraft = turret_to_aircraft_bucket(db_enemy_object.name, db_enemy_object.log_name, tour=bucket.tour)
                 if aircraft is None:
                     return
                 aircraft_hit_us.add(aircraft.id)
@@ -631,13 +632,14 @@ def ammo_breakdown_enemy_bucket(ammo_breakdown, bucket, db_object, enemy_sortie)
                         tour=bucket.tour,
                         type='pilot'
                     ).get()
-                    base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour, player=enemy_player)
+                    base_bucket = turret_to_aircraft_bucket(db_object.name, db_object.log_name, tour=bucket.tour,
+                                                            player=enemy_player)
                 except Player.DoesNotExist:
                     base_bucket = None
             else:
                 base_bucket = None
         else:
-            base_bucket = turret_to_aircraft_bucket(db_object.name, tour=bucket.tour)
+            base_bucket = turret_to_aircraft_bucket(db_object.name, db_object.log_name, tour=bucket.tour)
     return base_bucket, db_sortie, filtered_bucket
 
 
@@ -775,10 +777,48 @@ def expected_result(p1, p2):
     return 1 / ((10.0 ** exp) + 1)
 
 
-def turret_to_aircraft_bucket(turret_name, tour, player=None):
+TURRET_AMBIGUITIES = {
+    'Bristol',
+    'Halberstadt'
+}
+
+TURRET_TO_AIRCRAFT = {
+    'turretbristolf2b_1': 'Bristol F2B (F.II)',
+    'turretbristolf2bf2_1': 'Bristol F2B (F.II)',
+    'turretbristolf2bf2_1_wm2': 'Bristol F2B (F.II)',
+    'turretbristolf2bf2_1m': 'Bristol F2B (F.II)',
+    'turretbristolf2bf3_1': 'Bristol F2B (F.III)',
+    'turretbristolf2bf3_1_wm2': 'Bristol F2B (F.III)',
+    'turretbristolf2bf3_1m': 'Bristol F2B (F.III)',
+    'turrethalberstadtcl2_1': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1_wm_beckap': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1_wm_beckhe': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1_wm_beckheap': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1_wm_Twinpar': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1m': 'Halberstadt CL.II',
+    'turrethalberstadtcl2_1m2': 'Halberstadt CL.II',
+    'turrethalberstadtcl2au_1': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckap': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckhe': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckheap': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_twinpar': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1m': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1m2': 'Halberstadt CL.II 200hp',
+}
+
+TYPOS = {
+    'Airco DH4': 'Airco D.H.4',
+    'U-2VS': 'U-﻿2',
+}
+
+
+def turret_to_aircraft_bucket(turret_name, log_name, tour, player=None):
     aircraft_name = turret_name[:len(turret_name) - 7]
-    if aircraft_name == 'U-2VS':
-        aircraft_name = 'U-﻿2'
+    if aircraft_name in TYPOS:
+        aircraft_name = TYPOS[aircraft_name]
+    if aircraft_name in TURRET_AMBIGUITIES:
+        aircraft_name = TURRET_TO_AIRCRAFT[log_name]
+
     if 'B25' in aircraft_name:
         # It's an AI flight, which isn't (yet) supported.
         return None
