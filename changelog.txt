@@ -128,3 +128,7 @@ Version 1.4.5
 Version 1.4.6
 
 - Update to 1.2.59 of il2 stats.
+
+Version 1.5.0
+
+- Halberstadt and Bristol turrets now recognized correctly.
