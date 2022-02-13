@@ -42,7 +42,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     bucket.aircraft_lost += 1 if sortie.is_lost_aircraft else 0
     bucket.score += sortie.score
     bucket.deaths += 1 if sortie.is_dead else 0
-    bucket.captures += 1 if sortie.is_captured else 0
+    bucket.captures += 1 if sortie.is_captured and not sortie.is_dead else 0
     bucket.bailouts += 1 if sortie.is_bailout else 0
     bucket.ditches += 1 if sortie.is_ditched else 0
     bucket.landings += 1 if sortie.is_landed else 0
@@ -68,7 +68,6 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
         else:
             bucket.killboard_ground[key] = value
 
-    # TODO: Test this (in case retro_streak_compute_running = True)
     from .background_jobs.run_background_jobs import retro_streak_compute_running
     if bucket.player is not None and ((not retro_streak_compute_running()) or is_retro_compute):
         process_streaks_and_best_sorties(bucket, sortie)
@@ -86,6 +85,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     sortie_augmentation.fixed_accuracy = True
     sortie_augmentation.recomputed_ammo_breakdown = True
     sortie_augmentation.recomputed_ammo_breakdown_2 = True
+    sortie_augmentation.fixed_captures = True
 
     sortie_augmentation.save()
 
@@ -782,15 +782,14 @@ TURRET_AMBIGUITIES = {
     'Halberstadt'
 }
 
-# TODO: Store turret parent for future sorties instead. This can't work properly.
 TURRET_TO_AIRCRAFT = {
     'turretbristolf2b_1': 'Bristol F2B (F.II)',
     'turretbristolf2bf2_1': 'Bristol F2B (F.II)',
     'turretbristolf2bf2_1_wm2': 'Bristol F2B (F.II)',
     'turretbristolf2bf2_1m': 'Bristol F2B (F.II)',
-    'turretbristolf2bf3_1': 'Bristol F2B (F.II)',
-    'turretbristolf2bf3_1_wm2': 'Bristol F2B (F.II)',
-    'turretbristolf2bf3_1m': 'Bristol F2B (F.II)',
+    'turretbristolf2bf3_1': 'Bristol F2B (F.III)',
+    'turretbristolf2bf3_1_wm2': 'Bristol F2B (F.III)',
+    'turretbristolf2bf3_1m': 'Bristol F2B (F.III)',
     'turrethalberstadtcl2_1': 'Halberstadt CL.II',
     'turrethalberstadtcl2_1_wm_beckap': 'Halberstadt CL.II',
     'turrethalberstadtcl2_1_wm_beckhe': 'Halberstadt CL.II',
@@ -798,13 +797,13 @@ TURRET_TO_AIRCRAFT = {
     'turrethalberstadtcl2_1_wm_Twinpar': 'Halberstadt CL.II',
     'turrethalberstadtcl2_1m': 'Halberstadt CL.II',
     'turrethalberstadtcl2_1m2': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1_wm_beckap': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1_wm_beckhe': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1_wm_beckheap': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1_wm_twinpar': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1m': 'Halberstadt CL.II',
-    'turrethalberstadtcl2au_1m2': 'Halberstadt CL.II',
+    'turrethalberstadtcl2au_1': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckap': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckhe': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_beckheap': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1_wm_twinpar': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1m': 'Halberstadt CL.II 200hp',
+    'turrethalberstadtcl2au_1m2': 'Halberstadt CL.II 200hp',
 }
 
 TYPOS = {
