@@ -137,3 +137,4 @@ Version 1.4.7
 Version 1.5.0
 
 - Support for rocket/bomb kills in offensive/defensive ammo breakdowns.
+- Support for module "No AI kills in air streaks" from enhancements.
