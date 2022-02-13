@@ -42,7 +42,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     bucket.aircraft_lost += 1 if sortie.is_lost_aircraft else 0
     bucket.score += sortie.score
     bucket.deaths += 1 if sortie.is_dead else 0
-    bucket.captures += 1 if sortie.is_captured else 0
+    bucket.captures += 1 if sortie.is_captured and not sortie.is_dead else 0
     bucket.bailouts += 1 if sortie.is_bailout else 0
     bucket.ditches += 1 if sortie.is_ditched else 0
     bucket.landings += 1 if sortie.is_landed else 0
@@ -68,7 +68,6 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
         else:
             bucket.killboard_ground[key] = value
 
-    # TODO: Test this (in case retro_streak_compute_running = True)
     from .background_jobs.run_background_jobs import retro_streak_compute_running
     if bucket.player is not None and ((not retro_streak_compute_running()) or is_retro_compute):
         process_streaks_and_best_sorties(bucket, sortie)
@@ -86,6 +85,7 @@ def process_bucket(bucket, sortie, has_subtype, is_subtype, is_retro_compute):
     sortie_augmentation.fixed_accuracy = True
     sortie_augmentation.recomputed_ammo_breakdown = True
     sortie_augmentation.recomputed_ammo_breakdown_2 = True
+    sortie_augmentation.fixed_captures = True
 
     sortie_augmentation.save()
 

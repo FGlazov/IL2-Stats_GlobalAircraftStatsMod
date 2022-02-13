@@ -128,3 +128,7 @@ Version 1.4.5
 Version 1.4.6
 
 - Update to 1.2.59 of il2 stats.
+
+Version 1.4.7
+
+- Correctly count a sortie which ended in a bailout or ditch over enemy teritory followed by the pilot dying as a death, and not as both a death and a capture. This fix is retroactive.
