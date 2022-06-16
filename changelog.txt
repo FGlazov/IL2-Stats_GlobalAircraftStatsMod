@@ -138,3 +138,7 @@ Version 1.5.0
 
 - Support for rocket/bomb kills in offensive/defensive ammo breakdowns.
 - Support for module "No AI kills in air streaks" from enhancements.
+
+Version 1.5.1
+
+- Fix bug where a specific halberstadt turret was not being recognized.
