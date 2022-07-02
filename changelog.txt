@@ -142,3 +142,8 @@ Version 1.5.0
 Version 1.5.1
 
 - Fix bug where a specific halberstadt turret was not being recognized.
+
+Version 1.5.2
+
+- Add no bombs/bombs filter to mosquito.
+
