@@ -150,3 +150,7 @@ Version 1.5.2
 Version 1.5.3
 
 - Fix bug where stats would crash if player aircraft rating got too high.
+
+Version 1.5.4
+
+- Add human-readable strings for new bullets. Fixes a bug where (among others) the low caliber machine gun of the BF 109s would render machine-readable bullet types instead of human-readable ones in ammo breakdowns.
